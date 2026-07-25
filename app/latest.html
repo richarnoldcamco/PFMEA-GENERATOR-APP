@@ -481,19 +481,19 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 
 <div class="gate-bg" id="gateBg">
   <div class="gate" role="dialog" aria-modal="true" aria-labelledby="gateHead">
-    <div class="gh" id="gateHead">Upload confirmation required</div>
+    <div class="gh" id="gateHead">Export control — release confirmation required</div>
     <div class="gb">
-      <h3 id="gateTitle">App sync will push and pull the app's code automatically</h3>
-      <p id="gateLede">While this is on, the app mirrors its own code to GitHub and updates itself when a newer version appears — every minute, without asking again.</p>
-      <div class="manifest" id="gateManifest">CODE REPOSITORY  ·  RICHARNOLDCAMCO/PFMEA-GENERATOR-APP<br>FILE  ·  app/latest.html and app/PF-RevNNN.html<br>WHAT MOVES  ·  program code only — never plans, images, tokens or keys</div>
-      <p id="gateKeep"><b>Not sent:</b> PFMEA plans, traveller and drawing images, your API key and GitHub token.</p>
+      <h3 id="gateTitle">This will send data off this device</h3>
+      <p id="gateLede"></p>
+      <div class="manifest" id="gateManifest"></div>
+      <p id="gateKeep"></p>
       <label class="ack">
         <input type="checkbox" id="gateAck">
-        <span id="gateAckText">I understand the app will exchange its own code with GitHub automatically while this switch is on.</span>
+        <span id="gateAckText"></span>
       </label>
       <div class="gf">
         <button class="btn" id="gateCancel">Cancel</button>
-        <button class="btn key send" id="gateSend">Send</button>
+        <button class="btn key send" id="gateSend" disabled="">Send</button>
       </div>
     </div>
   </div>
@@ -506,23 +506,23 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 10 · RULESET REV 97 · LOADED JUL 25, 5:15 PM</span>
+      <span class="sub" id="navSub">APP REV 11 · RULESET REV 97 · LOADED JUL 25, 6:31 PM</span>
     </span>
   </div>
   <div class="tabs">
-    <button class="tab" data-go="menu">Menu</button>
+    <button class="tab on" data-go="menu">Menu</button>
     <button class="tab" data-go="build">Build</button>
     <button class="tab" data-go="trav">Traveller</button>
     <button class="tab" data-go="sets">Standard sets</button>
     <button class="tab" data-go="rules">Ruleset</button>
     <button class="tab" data-go="files">Prior PFMEAs</button>
     <button class="tab" data-go="sync">GitHub</button>
-    <button class="tab on" data-go="admin">Admin</button>
+    <button class="tab" data-go="admin">Admin</button>
   </div>
 </nav>
 
 <!-- ============================ MENU ============================ -->
-<section class="screen menu-screen" id="screen-menu">
+<section class="screen menu-screen on" id="screen-menu">
   <div class="card">
     <span class="badge">PF</span>
     <h1>CAMCO PFMEA Builder</h1>
@@ -558,7 +558,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 10 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 11 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -703,12 +703,12 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
       <span class="status" id="syStatus"></span>
     </div>
     <input type="file" id="syAppFile" accept=".html" hidden="">
-    <div id="syList2"><p>No plans/ folder yet — push one to create it.</p></div>
+    <div id="syList2"></div>
   </div>
 </section>
 
 <!-- =========================== ADMIN ============================ -->
-<section class="screen doc on" id="screen-admin">
+<section class="screen doc" id="screen-admin">
   <div class="doc-in">
     <h1>Admin</h1>
     <p class="lede">Settings for this browser on this machine. Nothing here is part of a PFMEA deliverable.</p>
@@ -758,9 +758,13 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
         Keep the app itself in sync with GitHub (checks every minute)</label>
     </div>
     <div class="keyrow">
+      <label class="chkline"><input type="checkbox" id="ghPagesSync">
+        Publish the app as a website (GitHub Pages, CP-style) — needs the code repo PUBLIC</label>
+    </div>
+    <div class="keyrow">
       <label class="chkline"><input type="checkbox" id="ghImages">
         Also sync traveller and engineering drawing images</label>
-      <span class="status" id="ghStatus">data richarnoldcamco/PFMEA-GENERATOR-DATA (private)   ·   code richarnoldcamco/PFMEA-GENERATOR-APP (private)</span>
+      <span class="status" id="ghStatus"></span>
     </div>
     <div class="warnbox">
       <b>Export control — read before switching this on.</b> Your standing rule is that drawing, part and feature
@@ -926,10 +930,29 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
 
 /* =====================================================================
    CAMCO PFMEA BUILDER
-   APP_REV 10
+   APP_REV 11
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 11 · 2026-07-25
+     · GITHUB PAGES PUBLISH, mirroring CP's ghPublishPages /
+       ghAutoPublishPages / GH_PAGES_FILE read directly from CP-Rev516:
+       never-downgrade guard (CP Rev-470), 3-try 409 retry, opt-in
+       switch, 60s auto-refresh while newer than the site. Publishes
+       index.html to the CODE repo root; site at
+       https://<owner>.github.io/PFMEA-GENERATOR-APP/.
+     · The switch is armed through an ITAR gate that says plainly the
+       code - CAMCO ruleset included - becomes publicly readable, per
+       the operator's explicit decision to match the CP architecture.
+       The DATA repo and all plans remain private; images, tokens and
+       keys are never part of the published file.
+     · CP Rev-421 carried over: on an https origin the app requests
+       persistent storage so token/settings/working copy are not evicted.
+       No-op on file://.
+     · NOTE for the operator: the https site is a DIFFERENT origin from
+       the local file - token, API key, and save folder must be entered
+       once more at the new address.
+
    Rev 10 · 2026-07-25
      · AUTOMATIC APP SELF-UPDATE, copied from the CP app after reading
        its ghAutoUpdateApp / ghAutoPushAppOnBoot / ghPullApp /
@@ -1163,7 +1186,7 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
      · Geometry switch: IAQG (headers row 16) vs CAMCO 5-27-26 (row 6).
        Unresolved which is canonical - operator picks in the part strip.
    ===================================================================== */
-const APP_REV = 10;
+const APP_REV = 11;
 
 /* =======================================================================
    RULESET — CAMCO PFMEA Project Instructions Rev 97 (2026-06-07)
@@ -2623,7 +2646,7 @@ function uniqueId(base){
    ======================================================================= */
 const settings = {apiKey:"", model:"claude-sonnet-5", defResp:"QE", defTarget:"2026-Q3",
   ghOwner:"richarnoldcamco", ghRepo:"PFMEA-GENERATOR-DATA", ghRepoCode:"PFMEA-GENERATOR-APP",
-  ghBranch:"main", ghToken:"", ghImages:false, ghAppSync:false};
+  ghBranch:"main", ghToken:"", ghImages:false, ghAppSync:false, ghPagesSync:false};
 const SKEY = "camco_pfmea_settings";
 function loadSettings(){
   try{ Object.assign(settings, JSON.parse(localStorage.getItem(SKEY) || "{}")); }
@@ -2639,6 +2662,7 @@ function renderAdmin(){
   ["ghOwner","ghRepo","ghRepoCode","ghBranch","ghToken"].forEach(k => { if($(k)) $(k).value = settings[k] || ""; });
   if($("ghImages")) $("ghImages").checked = !!settings.ghImages;
   if($("ghAppSync")) $("ghAppSync").checked = !!settings.ghAppSync;
+  if($("ghPagesSync")) $("ghPagesSync").checked = !!settings.ghPagesSync;
   $("apiKey").value = settings.apiKey || "";
   $("apiModel").value = settings.model || "claude-sonnet-5";
   $("defResp").value = settings.defResp || "";
@@ -3347,6 +3371,24 @@ $("ghAppSync").onchange = async () => {
   toast("App sync on — first check in a few seconds.");
   _updLast = 0; ghAutoUpdateApp();
 };
+$("ghPagesSync").onchange = async () => {
+  settings.ghPagesSync = $("ghPagesSync").checked; saveSettings();
+  if(!settings.ghPagesSync){ toast("Website publishing off."); return; }
+  const ok = await itarGate({
+    head:"Publication confirmation required",
+    title:"This publishes the app's code as a PUBLIC website",
+    lede:"GitHub Pages serves the code repo to anyone on the internet. The app's code includes the CAMCO ruleset — process facts, machine and vendor names, and customer tolerances baked into the standard sets. Plans, images, tokens and keys are NOT published.",
+    lines:["REPOSITORY  ·  " + settings.ghOwner + "/" + codeRepo() + "  (must be PUBLIC for Pages on a free plan)",
+           "FILE  ·  index.html at the repo root",
+           "WEBSITE  ·  https://" + settings.ghOwner.toLowerCase() + ".github.io/" + codeRepo() + "/",
+           "REFRESHED  ·  automatically, every minute, while this switch is on"],
+    keep:"PFMEA plans, traveller and drawing images, your API key and GitHub token.",
+    ackText:"I understand the app code, including the CAMCO ruleset, will be publicly readable at this address, and I accept that.",
+  });
+  if(!ok){ settings.ghPagesSync = false; $("ghPagesSync").checked = false; saveSettings(); toast("Left off — nothing published."); return; }
+  toast("Publishing to the website now…");
+  _pubLast = 0; ghAutoPublishPages();
+};
 $("ghImages").onchange = () => {
   settings.ghImages = $("ghImages").checked; saveSettings();
   if(settings.ghImages) toast("Image sync ON — drawings and travellers will be uploaded. Confirm this is allowed on ITAR work.");
@@ -3496,6 +3538,66 @@ async function ghAutoUpdateApp(){
   finally{ _updBusy = false; }
 }
 setInterval(ghAutoUpdateApp, 60000);
+
+/* =======================================================================
+   GITHUB PAGES PUBLISH — CP-style. Pushes index.html to the CODE repo
+   root; GitHub Pages serves it at
+   https://<owner>.github.io/<code-repo>/ where Chrome's real install
+   button appears. Never downgrades (CP Rev-470); 409 retry loop.
+   ======================================================================= */
+const GH_PAGES_FILE = "index.html";
+
+async function ghGetPagesFile(){
+  const f = await ghGet(GH_PAGES_FILE, codeRepo());
+  if(!f || f.missing) return null;
+  return {sha: f.sha, html: b64dec(f.content)};
+}
+
+async function ghPublishPages(silent){
+  if(!ghReady()) return;
+  try{
+    const pre = await ghGetPagesFile();
+    if(pre){
+      const m = /const APP_REV = (\d+);/.exec(pre.html);
+      if(m && parseInt(m[1],10) > APP_REV){
+        if(silent) return;
+        if(!confirm("The website already serves Rev " + m[1] + ", NEWER than this tab (Rev " + APP_REV + ").\n\nPublishing would ERASE the newer version. Publish the older code anyway?")) return;
+      }
+    }
+  }catch(e){}
+  const html = currentAppHtml();
+  for(let attempt = 0; attempt < 3; attempt++){
+    try{
+      await ghPut(GH_PAGES_FILE, html, "PFMEA Builder website Rev " + APP_REV + " " + new Date().toISOString(), codeRepo());
+      return true;
+    }catch(e){
+      if(!/409/.test(String(e))) { if(!silent) toast("Website publish failed: " + (e.message||e)); return false; }
+    }
+  }
+  if(!silent) toast("Website publish failed after retries.");
+  return false;
+}
+
+let _pubBusy = false, _pubLast = 0;
+async function ghAutoPublishPages(){
+  if(!settings.ghPagesSync || !ghReady() || _pubBusy) return;
+  if(Date.now() - _pubLast < 60000) return;
+  _pubBusy = true; _pubLast = Date.now();
+  try{
+    const ex = await ghGetPagesFile();
+    let pubRev = -1;
+    if(ex){ const m = /const APP_REV = (\d+);/.exec(ex.html); pubRev = m ? parseInt(m[1],10) : -1; }
+    if(APP_REV > pubRev) await ghPublishPages(true);
+  }catch(e){}
+  finally{ _pubBusy = false; }
+}
+setInterval(ghAutoPublishPages, 60000);
+
+/* CP Rev-421: on a real https address, ask for PERMANENT storage so the
+   token and working copy are never evicted. No-op on file://. */
+if(location.protocol === "https:" && navigator.storage && navigator.storage.persist){
+  navigator.storage.persist().catch(()=>{});
+}
 
 /* =======================================================================
    NEW PFMEA — intake screen
@@ -3721,4 +3823,4 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
 </script>
 
 
-<div class="toast">App sync on — first check in a few seconds.</div></body></html>
+</body></html>
