@@ -965,10 +965,29 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 
 /* =====================================================================
    CAMCO PFMEA BUILDER
-   APP_REV 29
+   APP_REV 30
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 30 · 2026-07-26
+     · IAQG FORM-1200-2 EXPORT, matched to the operator's real 919517
+       Rev-B deliverable. When Template Geometry = IAQG, sheet1 is now
+       built by sheetXmlIAQG(): visible header block rows 1-15 (title +
+       FORM-1200-2 tag, company/location, ITAR Controlled + L3Harris
+       Proprietary restriction lines, Process/PFMEA Information heads,
+       Program/Project from customer+part, PFMEA-<part>-Rev-<L>,
+       original/revision dates, Part/Dwg number with CAGE 80045 on
+       L3 customers, drawing rev, family name, facilitator/owner/team
+       strings as on the real form), blue FFBDD7EE header band at row
+       16 with blue-underlined SEV/OCC/DET/RPN heads, 26-column A-Z
+       FORM-1200-2 map (no separate Additional-controls columns -
+       addPrev/addDet fold into K/M as "Additional:" paragraphs),
+       FORM heat tiers 9-10 red / 7-8 orange FFC000 / 4-6 yellow /
+       1-3 green on SEV-OCC-DET and Action SEV, grey SEV*OCC, plain
+       RPN, light-green Action Result RPN, 120pt rows, freeze at 17.
+       CAMCO 27-column geometry unchanged and still selectable.
+       Styles table extended (4 fills, 2 fonts, 9 xfs).
+
    Rev 29 · 2026-07-26
      · NUDGE STEP made finer per operator: default was 10px per click,
        now defaults to 1px, with the step menu widened to
@@ -1437,7 +1456,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
      · Geometry switch: IAQG (headers row 16) vs CAMCO 5-27-26 (row 6).
        Unresolved which is canonical - operator picks in the part strip.
    ===================================================================== */
-const APP_REV = 29;
+const APP_REV = 30;
 
 /* =======================================================================
    RULESET — CAMCO PFMEA Project Instructions Rev 97 (2026-06-07)
@@ -2240,7 +2259,9 @@ const X = s => String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;")
 /* style indices — see references/formatting.md */
 const S = { title:1, header:2, text:3, center:4,
   ratePlain:5, sevGreen:6, sevYellow:7, sevRed:8,
-  qGrey:9, rpnRed:10, rpnGreen:11, rpnWhite:12, idPlain:13, idApproved:14 };
+  qGrey:9, rpnRed:10, rpnGreen:11, rpnWhite:12, idPlain:13, idApproved:14,
+  hdrBlue:15, hdrBlueLink:16, sevOrange:17, sevYell2:18, arGreen:19,
+  lbl:20, lblSmall:21, val:22, formTag:23 };
 
 function stylesXml(){
   const fill = rgb => `<fill><patternFill patternType="solid"><fgColor rgb="${rgb}"/><bgColor indexed="64"/></patternFill></fill>`;
@@ -2248,22 +2269,25 @@ function stylesXml(){
   const xf = (font,fillI,align) => `<xf numFmtId="0" fontId="${font}" fillId="${fillI}" borderId="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1">${align}</xf>`;
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
-<fonts count="4">
+<fonts count="6">
 <font><sz val="10"/><name val="Calibri"/></font>
 <font><b/><sz val="10"/><name val="Calibri"/></font>
 <font><b/><sz val="20"/><name val="Calibri"/></font>
 <font><b/><sz val="14"/><name val="Calibri"/></font>
+<font><b/><sz val="10"/><color rgb="FF1F4E9C"/><name val="Calibri"/><u/></font>
+<font><sz val="9"/><name val="Calibri"/></font>
 </fonts>
-<fills count="10">
+<fills count="14">
 <fill><patternFill patternType="none"/></fill>
 <fill><patternFill patternType="gray125"/></fill>
 ${fill("FFC0C0C0")}${fill("FFFF0000")}${fill("FF92D050")}${fill("FF63BE7B")}
 ${fill("FFFFEB84")}${fill("FF00B050")}${fill("FFD9D9D9")}${fill("FFFFFFFF")}
+${fill("FFFFC000")}${fill("FFFFFF00")}${fill("FFBDD7EE")}${fill("FFA9D08E")}
 </fills>
 <borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border>
 <border><left style="thin"><color indexed="64"/></left><right style="thin"><color indexed="64"/></right><top style="thin"><color indexed="64"/></top><bottom style="thin"><color indexed="64"/></bottom><diagonal/></border></borders>
 <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
-<cellXfs count="15">
+<cellXfs count="24">
 <xf numFmtId="0" fontId="0" fillId="0" borderId="0"/>
 <xf numFmtId="0" fontId="3" fillId="0" borderId="0" applyFont="1"/>
 ${xf(1,8,al("center","center"))}
@@ -2279,6 +2303,15 @@ ${xf(2,4,al("center","center"))}
 ${xf(2,9,al("center","center"))}
 ${xf(0,9,al("center","center"))}
 ${xf(0,7,al("center","center"))}
+${xf(1,12,al("center","center"))}
+${xf(4,12,al("center","center"))}
+${xf(2,10,al("center","center"))}
+${xf(2,11,al("center","center"))}
+${xf(0,13,al("center","center"))}
+${xf(1,0,al("left","center"))}
+<xf numFmtId="0" fontId="5" fillId="0" borderId="1" applyFont="1" applyBorder="1" applyAlignment="1">${al("left","top")}</xf>
+<xf numFmtId="0" fontId="0" fillId="0" borderId="1" applyBorder="1" applyAlignment="1">${al("left","top")}</xf>
+<xf numFmtId="0" fontId="3" fillId="0" borderId="0" applyFont="1" applyAlignment="1"><alignment horizontal="right" vertical="center"/></xf>
 </cellXfs>
 <cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>
 </styleSheet>`;
@@ -2298,8 +2331,113 @@ function cell(ref, styleIdx, value, numeric){
   return `<c r="${ref}" s="${styleIdx}" t="inlineStr"><is><t xml:space="preserve">${X(value)}</t></is></c>`;
 }
 
+const IAQG_COLS = [
+  ["A","Doc (Line) #",7],["B","OP",6],["C","Workcenter",9],["D","Process Step",12],
+  ["E","Process Description",24],["F","Requirements",24],["G","Potential Failure Mode",22],
+  ["H","Potential Effect(s) of Failure",26],["I","SEV",5.5],["J","Potential Cause(s) of Failure",26],
+  ["K","Current Prevention Controls",26],["L","OCC",5.5],["M","Current Detection Controls",26],
+  ["N","DET",5.5],["O","SEV * OCC",7],["P","RPN",7],["Q","Classification",10],
+  ["R","Recommended Action(s)",24],["S","Responsibility",12],["T","Target Date",10],
+  ["U","Actions Taken & Results",20],["V","Actual Completion Date",10],
+  ["W","Action Result SEV",8],["X","Action Result OCC",8],["Y","Action Result DET",8],["Z","Action Result RPN",9],
+];
+function iaqgRate(v){                  /* FORM-1200-2 heat: 9-10 red · 7-8 orange · 4-6 yellow · 1-3 green */
+  const x = n(v); if(x === null) return S.ratePlain;
+  return x >= 9 ? S.sevRed : x >= 7 ? S.sevOrange : x >= 4 ? S.sevYell2 : S.sevGreen;
+}
+function sheetXmlIAQG(){
+  const m = state.meta, headerRow = 16, firstData = 17;
+  const today = new Date().toISOString().slice(0,10);
+  const cage = /L3/i.test(m.customer || "") ? " (CAGE 80045)" : "";
+  const cols = `<cols>${IAQG_COLS.map((c,i) =>
+    `<col min="${i+1}" max="${i+1}" width="${c[2]}" customWidth="1"/>`).join("")}</cols>`;
+
+  const info = [];                       /* rows 1-15: the FORM-1200-2 header block */
+  const put = (r, ref, st, v) => info.push([r, `${cell(ref+r, st, v, false)}`]);
+  const rowXml = {};
+  const add = (r, ref, st, v) => { rowXml[r] = (rowXml[r] || "") + cell(ref + r, st, v, false); };
+  add(1,"A",S.title,"Process Failure Mode and Effects Analysis");
+  add(1,"Z",S.formTag,"FORM-1200-2");
+  add(2,"A",S.lbl,"Company/Organization Name:");           add(2,"H",S.lbl,"Export Control Classification:");
+  add(3,"A",S.val,"CAMCO Manufacturing, Inc.");            add(3,"H",S.val,"ITAR Controlled - U.S. Department of State Authorization Required");
+  add(4,"A",S.lbl,"Company/Organization Location:");       add(4,"H",S.lbl,"Other Restrictions:");
+  add(5,"A",S.val,"Sayre, Pennsylvania, USA");             add(5,"H",S.val,"L3Harris Proprietary - Distribution per Customer Agreement");
+  add(6,"A",S.lbl,"Process Information");                  add(6,"T",S.lbl,"PFMEA Information");
+  add(7,"A",S.val,"X   Production");                       add(7,"H",S.lbl,"Program/Project:");
+  add(7,"T",S.lbl,"PFMEA Number & Revision:");             add(7,"X",S.lbl,"Date (Original):");
+  add(8,"H",S.val,(m.customer||"") + (m.part ? " - P/N " + m.part : ""));
+  add(8,"T",S.val,"PFMEA-" + (m.part||"") + "-Rev-" + (m.revLetter||"A"));
+  add(8,"X",S.val, m.dateOrig || today);
+  add(9,"A",S.lbl,"Part/Dwg Number:");                     add(9,"H",S.lbl,"Process Owner & E-mail:");
+  add(9,"X",S.lbl,"Date (Revision):");
+  add(10,"A",S.val,(m.drawing || m.part || "") + cage);    add(10,"H",S.val,"CAMCO Manufacturing Operations Manager");
+  add(10,"X",S.val,today);
+  add(11,"A",S.lbl,"Part/Dwg Revision:");                  add(11,"H",S.lbl,"PFMEA Facilitator & E-mail:");
+  add(12,"A",S.val,m.drawingRev ? "Rev " + m.drawingRev : ""); add(12,"H",S.val,"CAMCO Quality / Manufacturing Engineering");
+  add(13,"A",S.lbl,"Part/Dwg or Family Name:");            add(13,"H",S.lbl,"Cross Functional Team Members:");
+  add(14,"A",S.val,[m.desc, m.material].filter(Boolean).join(", "));
+  add(14,"H",S.val,"Manufacturing Engineering, Quality, Production Supervisor, Programming, CMM Inspection, Purchasing");
+  const rows = [];
+  for(let r = 1; r <= 15; r++)
+    rows.push(`<row r="${r}" ht="${r===1?24:15}" customHeight="1">${rowXml[r] || ""}</row>`);
+
+  rows.push(`<row r="${headerRow}" ht="52" customHeight="1">` + IAQG_COLS.map(c =>
+    cell(c[0] + headerRow, /^(SEV|OCC|DET|RPN)$/.test(c[1]) ? S.hdrBlueLink : S.hdrBlue, c[1], false)).join("") + `</row>`);
+
+  state.rows.forEach((r,i) => {
+    const rn = firstData + i, c = calc(r);
+    const prevTxt = r.prev + (r.addPrev ? "\n\nAdditional: " + r.addPrev : "");
+    const detTxt  = r.det  + (r.addDet  ? "\n\nAdditional: " + r.addDet  : "");
+    const cells = [
+      cell("A"+rn, r.approved ? S.idApproved : S.center, i+1, true),
+      cell("B"+rn, S.center, r.op, false),
+      cell("C"+rn, S.center, r.wc, false),
+      cell("D"+rn, S.text, r.opName, false),
+      cell("E"+rn, S.text, r.step, false),
+      cell("F"+rn, S.text, r.req, false),
+      cell("G"+rn, S.text, r.mode, false),
+      cell("H"+rn, S.text, r.effect, false),
+      cell("I"+rn, iaqgRate(r.sev), n(r.sev)===null?"":n(r.sev), true),
+      cell("J"+rn, S.text, r.cause, false),
+      cell("K"+rn, S.text, prevTxt, false),
+      cell("L"+rn, iaqgRate(r.occ), n(r.occ)===null?"":n(r.occ), true),
+      cell("M"+rn, S.text, detTxt, false),
+      cell("N"+rn, iaqgRate(r.detR), n(r.detR)===null?"":n(r.detR), true),
+      cell("O"+rn, S.qGrey, c.q || "", true),
+      cell("P"+rn, S.rpnWhite, c.rpn || "", true),
+      cell("Q"+rn, S.center, r.cls, false),
+      cell("R"+rn, S.text, r.action, false),
+      cell("S"+rn, S.center, r.resp, false),
+      cell("T"+rn, S.center, r.target, false),
+      cell("U"+rn, S.text, r.st1, false),
+      cell("V"+rn, S.center, r.st2, false),
+      cell("W"+rn, n(r.aSev)===null?S.ratePlain:iaqgRate(r.aSev), n(r.aSev)===null?"":n(r.aSev), true),
+      cell("X"+rn, S.ratePlain, n(r.aOcc)===null?"":n(r.aOcc), true),
+      cell("Y"+rn, S.ratePlain, n(r.aDet)===null?"":n(r.aDet), true),
+      cell("Z"+rn, c.aRpn ? S.arGreen : S.rpnWhite, c.aRpn || "", true),
+    ].join("");
+    rows.push(`<row r="${rn}" ht="120" customHeight="1">${cells}</row>`);
+  });
+
+  const lastRow = firstData + Math.max(state.rows.length,1) - 1;
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<dimension ref="A1:Z${lastRow}"/>
+<sheetViews><sheetView tabSelected="1" workbookViewId="0" zoomScale="100" zoomScaleNormal="100">
+<pane ySplit="${headerRow}" topLeftCell="A${firstData}" activePane="bottomLeft" state="frozen"/>
+<selection pane="bottomLeft" activeCell="A${firstData}" sqref="A${firstData}"/>
+</sheetView></sheetViews>
+<sheetFormatPr defaultRowHeight="15"/>
+${cols}
+<sheetData>${rows.join("")}</sheetData>
+<pageMargins left="0.25" right="0.25" top="0.5" bottom="0.5" header="0.3" footer="0.3"/>
+<pageSetup orientation="landscape" paperSize="5"/>
+</worksheet>`;
+}
+
 function sheetXml(){
   const g = state.meta.geometry;
+  if(g === "iaqg") return sheetXmlIAQG();
   const headerRow = g === "iaqg" ? 16 : 6;
   const firstData = headerRow + 1;
   const m = state.meta;
