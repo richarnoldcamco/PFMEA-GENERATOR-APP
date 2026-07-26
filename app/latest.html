@@ -226,6 +226,14 @@ nav{
 }
 .nc-drop:hover,.nc-drop.hot{border-color:var(--stamp);background:#FBF4F3}
 .nc-strip{display:grid;grid-template-columns:repeat(4,1fr);margin:14px 0 22px}
+.nc-drop .thumbs{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start;justify-content:flex-start;text-align:left}
+.nc-drop .thumbs .tb{position:relative;border:1px solid var(--rule-hard);background:#fff;padding:4px}
+.nc-drop .thumbs .tb img{display:block;height:110px;width:auto;max-width:170px;object-fit:contain}
+.nc-drop .thumbs .tb .cap{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--ink-2);
+  max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:3px}
+.nc-drop .thumbs .tb .rm{position:absolute;top:-8px;right:-8px;width:20px;height:20px;border-radius:50%;
+  border:1px solid #000;background:var(--stamp);color:#fff;font-size:11px;line-height:18px;text-align:center;cursor:pointer}
+.nc-drop .thumbs .add{align-self:center;font-size:12px;color:var(--ink-2);padding:8px 4px}
 .nc-drop.armed{border-color:var(--stamp);background:#FBF4F3;box-shadow:inset 0 0 0 2px rgba(124,21,24,.18)}
 .nc-drop .armtag{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--stamp);margin-top:8px}
 .sew-bg{position:fixed;inset:0;background:rgba(20,12,12,.72);z-index:210;display:none;align-items:center;justify-content:center;padding:20px}
@@ -876,10 +884,23 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 
 /* =====================================================================
    CAMCO PFMEA BUILDER
-   APP_REV 20
+   APP_REV 21
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 21 · 2026-07-26
+     · UPLOADS NOW VISIBLE. The intake drop zones showed only the
+       static placeholder after a successful load - confirmation lived
+       in a vanishing toast, so the operator could not tell whether the
+       upload took (their words). renderNew() now paints THUMBNAILS
+       inside each zone via zoneThumbs(): every loaded page at 110px
+       with page number, filename and pixel size, a per-page red ✕
+       remove (confirm + splice + travPage clamp + autosave), and a
+       "drop or paste more pages" hint. Empty zone -> placeholder as
+       before. Zone click/drag/paste behaviour unchanged; ✕ stops
+       propagation so removing does not open the file picker.
+     · First rev shipped via the CP-style chat push.
+
    Rev 20 · 2026-07-26
      · SHIP PROCEDURE ALIGNED WITH CP. Operator pointed out CP has
        never needed a local ritual - its New Chat Prompt has the chat
@@ -1247,7 +1268,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
      · Geometry switch: IAQG (headers row 16) vs CAMCO 5-27-26 (row 6).
        Unresolved which is canonical - operator picks in the part strip.
    ===================================================================== */
-const APP_REV = 20;
+const APP_REV = 21;
 
 /* =======================================================================
    RULESET — CAMCO PFMEA Project Instructions Rev 97 (2026-06-07)
@@ -3875,6 +3896,29 @@ function renderNew(){
     (state.traveller.length ? state.traveller.length + " traveller page(s)" : "No traveller") + " · " +
     (state.drawing.length ? state.drawing.length + " drawing page(s) — will be embedded in the Engineering Drawing tab"
                           : "No engineering drawing — the SC-36 tab will export as a placeholder");
+  zoneThumbs("ncDrop", "trav", "📷 Tap Browse, drag an image or PDF here, or copy one in Chrome and press Paste");
+  zoneThumbs("dwDrop", "dwg", "📐 Tap Browse, drag an image or PDF here, or copy one in Chrome and press Paste");
+}
+
+/* Show what's loaded INSIDE the drop zone — placeholder text only when empty. */
+function zoneThumbs(zoneId, slot, placeholder){
+  const el = $(zoneId); if(!el) return;
+  const list = SLOT[slot].list();
+  if(!list.length){ el.innerHTML = esc(placeholder); return; }
+  el.innerHTML = `<div class="thumbs">` + list.map((p,i) => `
+    <span class="tb">
+      <img src="${p.url}" alt="">
+      <span class="rm" data-zrm="${i}" title="Remove this page">✕</span>
+      <span class="cap">${i+1} · ${esc(p.name || "page")} · ${p.w}×${p.h}</span>
+    </span>`).join("") + `<span class="add">＋ drop or paste more pages</span></div>`;
+  el.querySelectorAll("[data-zrm]").forEach(b => b.onclick = e => {
+    e.stopPropagation();
+    const i = +b.dataset.zrm;
+    if(!confirm("Remove page " + (i+1) + " (" + (list[i].name || "page") + ")?")) return;
+    list.splice(i, 1);
+    if(slot === "trav" && travPage >= list.length) travPage = Math.max(0, list.length - 1);
+    saveWorking(); renderNew(); if(slot === "trav") renderTrav();
+  });
 }
 
 Object.keys(NC_MAP).forEach(id => {
