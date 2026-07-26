@@ -225,10 +225,14 @@ nav{
   padding:44px 20px;text-align:center;color:var(--ink-2);font-size:15px;cursor:pointer;
 }
 .nc-drop:hover,.nc-drop.hot{border-color:var(--stamp);background:#FBF4F3}
-.nc-strip{display:grid;grid-template-columns:repeat(4,1fr);margin:14px 0 22px}
+.slotwrap{display:flex;gap:12px;align-items:stretch;margin:0 0 22px}
+.slotwrap .nc-drop{flex:1;min-width:0;margin:0}
+.nc-strip{display:flex;flex-direction:column;gap:8px;flex:0 0 168px;margin:0}
+.nc-strip button{width:100%}
 .nc-drop .thumbs{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start;justify-content:flex-start;text-align:left}
 .nc-drop .thumbs .tb{position:relative;border:1px solid var(--rule-hard);background:#fff;padding:4px}
-.nc-drop .thumbs .tb img{display:block;height:110px;width:auto;max-width:170px;object-fit:contain}
+.nc-drop .thumbs .tb img{display:block;height:min(46vh,420px);width:auto;max-width:100%;object-fit:contain}
+.nc-drop .thumbs .tb .cap{max-width:none}
 .nc-drop .thumbs .tb .cap{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--ink-2);
   max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:3px}
 .nc-drop .thumbs .tb .rm{position:absolute;top:-8px;right:-8px;width:20px;height:20px;border-radius:50%;
@@ -280,7 +284,7 @@ nav{
 .nc-gen{background:#7C1518;color:#fff;box-shadow:0 3px 0 #52090B;flex:1 1 340px;text-transform:uppercase}
 .nc-actions button:hover{filter:brightness(1.1)}
 .nc-note{font-size:12.5px;color:var(--ink-3);margin-top:12px}
-@media (max-width:900px){.nc-grid,.nc-strip{grid-template-columns:1fr}}
+@media (max-width:900px){.nc-grid{grid-template-columns:1fr}.slotwrap{flex-direction:column}.nc-strip{flex-direction:row;flex-wrap:wrap;flex-basis:auto}}
 
 /* ---------- boot reconnect banner ---------- */
 .boot-bar{
@@ -661,21 +665,25 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 
     <p class="nc-sub">Input Files</p>
     <div class="nc-f2">Traveller / router (image)</div>
-    <div class="nc-drop" id="ncDrop">📷 Tap Browse, drag an image or PDF here, or copy one in Chrome and press Paste</div>
-    <div class="nc-strip">
-      <button id="ncUpload"><i>📁</i>Upload file</button>
-      <button id="ncPaste"><i>📋</i>Paste</button>
-      <button id="ncSew"><i>🧵</i>Sew pages</button>
-      <button id="ncRemove"><i>✕</i>Remove</button>
+    <div class="slotwrap">
+      <div class="nc-drop" id="ncDrop">📷 Tap Browse, drag an image or PDF here, or copy one in Chrome and press Paste</div>
+      <div class="nc-strip">
+        <button id="ncUpload"><i>📁</i><span>Upload file</span></button>
+        <button id="ncPaste"><i>📋</i><span>Paste</span></button>
+        <button id="ncSew"><i>✏️</i><span>Edit pages</span></button>
+        <button id="ncRemove"><i>✕</i><span>Remove all</span></button>
+      </div>
     </div>
 
     <div class="nc-f2">Engineering drawing (SC-36) — goes into the Engineering Drawing tab</div>
-    <div class="nc-drop" id="dwDrop">📐 Tap Browse, drag an image or PDF here, or copy one in Chrome and press Paste</div>
-    <div class="nc-strip">
-      <button id="dwUpload"><i>📁</i>Upload file</button>
-      <button id="dwPaste"><i>📋</i>Paste</button>
-      <button id="dwSew"><i>🧵</i>Sew pages</button>
-      <button id="dwRemove"><i>✕</i>Remove</button>
+    <div class="slotwrap">
+      <div class="nc-drop" id="dwDrop">📐 Tap Browse, drag an image or PDF here, or copy one in Chrome and press Paste</div>
+      <div class="nc-strip">
+        <button id="dwUpload"><i>📁</i><span>Upload file</span></button>
+        <button id="dwPaste"><i>📋</i><span>Paste</span></button>
+        <button id="dwSew"><i>✏️</i><span>Edit pages</span></button>
+        <button id="dwRemove"><i>✕</i><span>Remove all</span></button>
+      </div>
     </div>
     <input type="file" id="dwIn" accept="image/*,application/pdf,.pdf" multiple hidden>
 
@@ -909,10 +917,23 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 
 /* =====================================================================
    CAMCO PFMEA BUILDER
-   APP_REV 24
+   APP_REV 25
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 25 · 2026-07-26
+     · INTAKE SLOTS RE-LAID per operator markup. Each slot is now a
+       flex pair: the drop zone grows to fill the row and the four
+       buttons stack VERTICALLY to its right (168px column; wraps back
+       to a row on narrow screens). Thumbnails grown from 110px to
+       min(46vh, 420px) tall so the traveller reads at a glance.
+     · STATE-DEPENDENT BUTTONS via stripState(): empty slot shows only
+       Upload file + Paste; once pages are loaded the Upload button
+       relabels to "+ Add pages" and EDIT PAGES (renamed from Sew
+       pages, ✏️) + REMOVE ALL appear. Edit opens the sew/nudge editor
+       and now accepts a single page (guard relaxed from 2 to 1) so
+       one sewn or lone page can still be nudged/trimmed.
+
    Rev 24 · 2026-07-26
      · ACTIVE PAGE MADE UNMISTAKABLE. Selected thumbnail now carries a
        bright red border + glow and an ACTIVE ribbon; AND the preview
@@ -1327,7 +1348,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
      · Geometry switch: IAQG (headers row 16) vs CAMCO 5-27-26 (row 6).
        Unresolved which is canonical - operator picks in the part strip.
    ===================================================================== */
-const APP_REV = 24;
+const APP_REV = 25;
 
 /* =======================================================================
    RULESET — CAMCO PFMEA Project Instructions Rev 97 (2026-06-07)
@@ -3170,7 +3191,7 @@ async function sewPreview(){
 
 function sewOpen(slot){
   const list = SLOT[slot].list();
-  if(list.length < 2){ toast("Load at least two pages before sewing them together."); return; }
+  if(list.length < 1){ toast("Load a page first."); return; }
   sewSlot = slot;
   sewOrder = list.map((_,i) => i);
   sewSel = 0; sewOff = {};
@@ -4004,9 +4025,20 @@ function renderNew(){
   zoneThumbs("dwDrop", "dwg", "📐 Tap Browse, drag an image or PDF here, or copy one in Chrome and press Paste");
 }
 
-/* Show what's loaded INSIDE the drop zone — placeholder text only when empty. */
+/* Show what's loaded INSIDE the drop zone — placeholder text only when empty.
+   The button column changes with state: Upload file -> + Add pages,
+   Edit/Remove hidden until something is loaded. */
+function stripState(slot){
+  const ids = slot === "dwg" ? ["dwUpload","dwSew","dwRemove"] : ["ncUpload","ncSew","ncRemove"];
+  const has = SLOT[slot].list().length > 0;
+  const up = $(ids[0]);
+  if(up){ const t = up.querySelector("span"); if(t) t.textContent = has ? "＋ Add pages" : "Upload file"; }
+  if($(ids[1])) $(ids[1]).style.display = has ? "" : "none";
+  if($(ids[2])) $(ids[2]).style.display = has ? "" : "none";
+}
 function zoneThumbs(zoneId, slot, placeholder){
   const el = $(zoneId); if(!el) return;
+  stripState(slot);
   const list = SLOT[slot].list();
   if(!list.length){ el.innerHTML = esc(placeholder); return; }
   el.innerHTML = `<div class="thumbs">` + list.map((p,i) => `
