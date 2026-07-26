@@ -288,6 +288,25 @@ nav{
 .nc-note{font-size:12.5px;color:var(--ink-3);margin-top:12px}
 @media (max-width:900px){.nc-grid{grid-template-columns:1fr}.slotwrap{flex-direction:column}.nc-strip{flex-direction:row;flex-wrap:wrap;flex-basis:auto}}
 
+/* ---------- AI thinking panel ---------- */
+.ai-think{display:none;border:1px solid var(--rule-hard);background:#231A1A;color:#F3E9E4;
+  padding:16px 18px;margin:12px 0;border-left:6px solid var(--stamp)}
+.ai-think.on{display:block}
+.ai-think .top{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.ai-think .orb{width:26px;height:26px;border-radius:50%;border:3px solid rgba(255,255,255,.25);
+  border-top-color:#F0B24A;animation:aispin .9s linear infinite;flex:0 0 auto}
+@keyframes aispin{to{transform:rotate(360deg)}}
+.ai-think .stage{font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.12em;animation:aipulse 1.6s ease-in-out infinite}
+@keyframes aipulse{0%,100%{opacity:1}50%{opacity:.55}}
+.ai-think .clock{margin-left:auto;font-family:var(--mono);font-size:12px;color:#D8BFA4}
+.ai-think .bar{height:10px;background:rgba(255,255,255,.12);overflow:hidden;border:1px solid rgba(255,255,255,.18)}
+.ai-think .bar i{display:block;height:100%;width:38%;
+  background:repeating-linear-gradient(45deg,#7C1518 0 14px,#A33A3D 14px 28px);
+  animation:aislide 1.4s ease-in-out infinite}
+@keyframes aislide{0%{transform:translateX(-110%)}100%{transform:translateX(320%)}}
+.ai-think .hint{font-size:12px;color:#CBB8AE;margin-top:9px;min-height:16px}
+.ai-think .stop{margin-top:10px}
+
 /* ---------- boot reconnect banner ---------- */
 .boot-bar{
   display:none;background:#8A6100;color:#fff;padding:10px 16px;
@@ -731,6 +750,18 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
       <button class="btn key" id="readAI">Read traveller with AI</button>
       <span class="status" id="aiStatus"></span>
     </div>
+    <div class="ai-think" id="aiThink">
+      <div class="top">
+        <span class="orb"></span>
+        <span class="stage" id="aiStage">CLAUDE IS READING THE TRAVELLER…</span>
+        <span class="clock" id="aiClock">0:00</span>
+      </div>
+      <div class="bar"><i></i></div>
+      <div class="hint" id="aiHint"></div>
+      <button class="btn stop" id="aiStop">Stop — nothing will be kept</button>
+    </div>
+    <div style="display:none">
+    </div>
     <p style="font-size:12.5px;color:var(--ink-2);max-width:78ch;margin:0 0 12px">
       Reading the traveller fills this table as a <b>draft</b>. Check each line against the image and tick Verified
       before you generate rows — a workcenter wrong by one digit propagates into every row built on that operation.
@@ -921,10 +952,22 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 
 /* =====================================================================
    CAMCO PFMEA BUILDER
-   APP_REV 26
+   APP_REV 27
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 27 · 2026-07-26
+     · CLAUDE-IS-THINKING PANEL for traveller reading, per operator: the
+       read gave no feedback beyond a static status word. New aiThink
+       panel appears once the gate is confirmed: spinning amber orb,
+       pulsing stage line (PREPARING PAGE N OF M -> CLAUDE IS READING
+       -> SORTING THE OPERATIONS), striped maroon barber-pole bar,
+       live elapsed clock, and a hint line rotating five explanations
+       every 7s. STOP button wired to an AbortController - abort says
+       "Stopped - nothing was kept". Panel closes on every exit path
+       (success / error / abort) via finally; read button disabled
+       while running.
+
    Rev 26 · 2026-07-26
      · WIDER / NARROWER buttons in the nudge bar: stretch or squeeze
        the ACTIVE page's drawn width by the step (1/10/50 px, floor
@@ -1363,7 +1406,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
      · Geometry switch: IAQG (headers row 16) vs CAMCO 5-27-26 (row 6).
        Unresolved which is canonical - operator picks in the part strip.
    ===================================================================== */
-const APP_REV = 26;
+const APP_REV = 27;
 
 /* =======================================================================
    RULESET — CAMCO PFMEA Project Instructions Rev 97 (2026-06-07)
@@ -3015,6 +3058,29 @@ function itarGate(opts){
   });
 }
 
+let _aiTimer = null, _aiT0 = 0, _aiAbort = null, _aiHintIdx = 0;
+const AI_HINTS = [
+  "Claude is looking at every op line — numbers, workcenters, descriptions.",
+  "Big travellers take 20–60 seconds. The stripes keep moving while it thinks.",
+  "Nothing lands in your table until the read finishes — then every line arrives as an unverified draft.",
+  "You will get to check each line against the image before rows are generated.",
+  "If this runs past two minutes, press Stop and try again — or switch to the Opus model on Admin for messy scans.",
+];
+function aiThinkStart(){
+  _aiT0 = Date.now(); _aiHintIdx = 0;
+  $("aiThink").classList.add("on");
+  $("aiHint").textContent = AI_HINTS[0];
+  clearInterval(_aiTimer);
+  _aiTimer = setInterval(() => {
+    const sec = Math.floor((Date.now() - _aiT0) / 1000);
+    $("aiClock").textContent = Math.floor(sec/60) + ":" + String(sec%60).padStart(2,"0");
+    if(sec && sec % 7 === 0){ _aiHintIdx = (_aiHintIdx + 1) % AI_HINTS.length; $("aiHint").textContent = AI_HINTS[_aiHintIdx]; }
+  }, 1000);
+}
+function aiStage(t){ $("aiStage").textContent = t; }
+function aiThinkStop(){ clearInterval(_aiTimer); _aiTimer = null; $("aiThink").classList.remove("on"); }
+$("aiStop").onclick = () => { if(_aiAbort) _aiAbort.abort(); };
+
 async function readTraveller(){
   const st = $("aiStatus");
   const say = (m, bad) => { st.textContent = m; st.classList.toggle("bad", !!bad); };
@@ -3033,16 +3099,20 @@ async function readTraveller(){
   if(!released){ say("Cancelled — nothing was sent."); return; }
 
   $("readAI").disabled = true;
+  _aiAbort = new AbortController();
+  aiThinkStart();
   try{
-    say("Preparing " + state.traveller.length + " page(s)…");
+    say("");
     const imgs = [];
-    for(const p of state.traveller){
-      imgs.push({type:"image", source:{type:"base64", media_type:"image/jpeg", data: await shrink(p.url, 1568)}});
+    for(let i = 0; i < state.traveller.length; i++){
+      aiStage("PREPARING PAGE " + (i+1) + " OF " + state.traveller.length + "…");
+      imgs.push({type:"image", source:{type:"base64", media_type:"image/jpeg", data: await shrink(state.traveller[i].url, 1568)}});
     }
 
-    say("Reading with " + settings.model + "…");
+    aiStage("CLAUDE IS READING THE TRAVELLER…");
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method:"POST",
+      signal: _aiAbort.signal,
       headers:{
         "content-type":"application/json",
         "x-api-key": settings.apiKey,
@@ -3064,6 +3134,7 @@ async function readTraveller(){
       throw new Error("API returned " + res.status + ". " + detail);
     }
 
+    aiStage("READ COMPLETE — SORTING THE OPERATIONS…");
     const data = await res.json();
     const text = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("\n");
     const clean = text.replace(/```json|```/g, "").trim();
@@ -3092,10 +3163,13 @@ async function readTraveller(){
 
   }catch(err){
     const msg = String(err && err.message || err);
-    say(/Failed to fetch|NetworkError|Load failed/i.test(msg)
+    if(err && err.name === "AbortError") say("Stopped — nothing was kept.");
+    else say(/Failed to fetch|NetworkError|Load failed/i.test(msg)
       ? "Could not reach the API — no internet, or the request was blocked. Everything else in this app works offline."
       : msg, true);
   }finally{
+    aiThinkStop();
+    _aiAbort = null;
     $("readAI").disabled = false;
   }
 }
