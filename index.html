@@ -507,7 +507,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 14 · RULESET REV 97 · LOADED JUL 25, 6:56 PM</span>
+      <span class="sub" id="navSub">APP REV 16 · RULESET REV 97 · LOADED JUL 26, 3:14 PM</span>
     </span>
   </div>
   <div class="tabs">
@@ -559,7 +559,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 14 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 16 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -574,7 +574,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
     <p class="nc-lede">Fill in the part, then load the traveller. We'll generate a skeleton PFMEA.</p>
 
     <div class="nc-grid">
-      <div class="nc-f"><label>Part number</label>
+      <div class="nc-f"><label>Part number <b style="color:var(--stamp)">*</b> <i style="font-style:normal;opacity:.6">required — everything else can wait</i></label>
         <input id="nc_part" placeholder="e.g., 912478-M-P"></div>
       <div class="nc-f"><label>Drawing rev</label>
         <input id="nc_dwgrev" placeholder="e.g., 03"></div>
@@ -605,7 +605,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 
     <p class="nc-sub">Input Files</p>
     <div class="nc-f2">Traveller / router (image)</div>
-    <div class="nc-drop" id="ncDrop">📷 Tap Browse, drag an image here, or copy one in Chrome and press Paste</div>
+    <div class="nc-drop" id="ncDrop">📷 Tap Browse, drag an image or PDF here, or copy one in Chrome and press Paste</div>
     <div class="nc-strip">
       <button id="ncUpload"><i>📁</i>Upload file</button>
       <button id="ncPaste"><i>📋</i>Paste</button>
@@ -614,14 +614,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
     </div>
 
     <div class="nc-f2">Engineering drawing (SC-36) — goes into the Engineering Drawing tab</div>
-    <div class="nc-drop" id="dwDrop">📐 Tap Browse, drag an image here, or copy one in Chrome and press Paste</div>
+    <div class="nc-drop" id="dwDrop">📐 Tap Browse, drag an image or PDF here, or copy one in Chrome and press Paste</div>
     <div class="nc-strip">
       <button id="dwUpload"><i>📁</i>Upload file</button>
       <button id="dwPaste"><i>📋</i>Paste</button>
       <button id="dwSew"><i>🧵</i>Sew pages</button>
       <button id="dwRemove"><i>✕</i>Remove</button>
     </div>
-    <input type="file" id="dwIn" accept="image/*" multiple="" hidden="">
+    <input type="file" id="dwIn" accept="image/*,application/pdf,.pdf" multiple="" hidden="">
 
     <div class="nc-actions">
       <button class="nc-draft" id="ncDraft">💾 Save Draft</button>
@@ -644,7 +644,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
       <span>Click to choose files, drag them onto this box, or paste a screenshot with Ctrl+V.
         Load every page of a multi-page traveller. Images stay in the .json working file — they are not exported to the xlsx.</span>
     </div>
-    <input type="file" id="travIn" accept="image/*" multiple="" hidden="">
+    <input type="file" id="travIn" accept="image/*,application/pdf,.pdf" multiple="" hidden="">
 
     <div class="pages" id="travPages"></div>
     <div class="vbar" id="travBar" style="display:none">
@@ -931,10 +931,38 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
 
 /* =====================================================================
    CAMCO PFMEA BUILDER
-   APP_REV 14
+   APP_REV 16
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 16 · 2026-07-26
+     · PDF DRAWINGS ACCEPTED in both intake slots (traveller + SC-36
+       engineering drawing) - browse, drag, or drop. Mechanism mirrored
+       from CP-Rev516's loadPdfJs/convertPdfToImageFile (same cdnjs
+       pdf.js 3.11.174 + worker), extended from page-1-only to ALL pages
+       (cap 15, toast when trimmed) because SC-36 needs every sheet.
+       ~2400px longest edge (scale clamped 1-4), PNG page objects named
+       base-pN.png, so sewing, the viewer, save/resume and the SC-36
+       embed all work unchanged.
+     · ITAR shape: the PDF is rendered LOCALLY - the document never
+       leaves the machine; only the pdf.js library is fetched from
+       cdnjs on first use (needs internet once). Offline -> clear toast
+       with the screenshot-and-paste fallback, not a silent failure.
+     · File pickers accept image/*,application/pdf; drag filter lets
+       PDFs through; drop-zone text updated.
+
+   Rev 15 · 2026-07-26
+     · NEW PFMEA intake: PART NUMBER is now the only mandatory field.
+       Generate blocks with a toast + focus + brief maroon outline when
+       it is blank; every other field is optional at generation time.
+       Label carries a maroon * and "required - everything else can
+       wait". Deliberately a soft gate at intake only: the AUDIT rail
+       still flags missing content (blank modes, unrated rows, SC-37
+       rev, filename inputs) before export, so nothing ships incomplete
+       - the operator just is not forced to fill the strip up front.
+       Saving drafts and Resume never required the part number and
+       still do not.
+
    Rev 14 · 2026-07-25
      · App NAME changed to "PFMEA" - manifest name + short_name and the
        application-name meta. This is the label under the taskbar icon
@@ -1215,7 +1243,7 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
      · Geometry switch: IAQG (headers row 16) vs CAMCO 5-27-26 (row 6).
        Unresolved which is canonical - operator picks in the part strip.
    ===================================================================== */
-const APP_REV = 14;
+const APP_REV = 16;
 
 /* =======================================================================
    RULESET — CAMCO PFMEA Project Instructions Rev 97 (2026-06-07)
@@ -2374,13 +2402,57 @@ async function imagesFromUrl(src){
 }
 
 async function imagesFromTransfer(dt){
-  const direct = [...(dt.files || [])].filter(f => /^image\//.test(f.type));
+  const direct = [...(dt.files || [])].filter(f => /^image\//.test(f.type) || isPdf(f));
   if(direct.length) return direct;
   const html = dt.getData ? dt.getData("text/html") : "";
   const uri  = dt.getData ? (dt.getData("text/uri-list") || dt.getData("text/plain")) : "";
   const src  = (html && (html.match(/<img[^>]+src=["']([^"']+)["']/i) || [])[1]) || uri || "";
   return await imagesFromUrl(src.trim());
 }
+
+/* ---- PDF intake: pdf.js on demand, same source CP-Rev516 uses ---- */
+let _pdfjsReady = null;
+const PDF_MAX_PAGES = 15;
+function loadPdfJs(){
+  if(window.pdfjsLib) return Promise.resolve();
+  if(_pdfjsReady) return _pdfjsReady;
+  _pdfjsReady = new Promise((res, rej) => {
+    const sc = document.createElement("script");
+    sc.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+    sc.onload = () => { try{
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      res();
+    }catch(e){ _pdfjsReady = null; rej(e); } };
+    sc.onerror = () => { _pdfjsReady = null; rej(new Error("offline")); };
+    document.head.appendChild(sc);
+  });
+  return _pdfjsReady;
+}
+/* Render every page of a PDF to PNG page objects at ~2400px longest edge.
+   The PDF itself never leaves this machine - rendering is local; only the
+   pdf.js library is fetched (first use, needs internet, then cached). */
+async function pdfToPages(file){
+  await loadPdfJs();
+  const buf = await file.arrayBuffer();
+  const pdf = await window.pdfjsLib.getDocument({data: buf}).promise;
+  const n = Math.min(pdf.numPages, PDF_MAX_PAGES);
+  const base = (file.name || "drawing").replace(/\.pdf$/i, "");
+  const out = [];
+  for(let i = 1; i <= n; i++){
+    const page = await pdf.getPage(i);
+    const raw = page.getViewport({scale: 1});
+    const scale = Math.min(4, Math.max(1, 2400 / Math.max(raw.width, raw.height)));
+    const vp = page.getViewport({scale});
+    const c = document.createElement("canvas");
+    c.width = Math.round(vp.width); c.height = Math.round(vp.height);
+    await page.render({canvasContext: c.getContext("2d"), viewport: vp}).promise;
+    out.push({name: base + (n > 1 ? "-p" + i : "") + ".png",
+              url: c.toDataURL("image/png"), w: c.width, h: c.height});
+  }
+  return {pages: out, total: pdf.numPages};
+}
+const isPdf = f => f && (f.type === "application/pdf" || /\.pdf$/i.test(f.name || ""));
 
 function chromeHelp(){
   toast("Chrome would not release that image. Right-click it in Chrome, choose COPY IMAGE, click PASTE here, then press Ctrl+V.");
@@ -2389,8 +2461,14 @@ function chromeHelp(){
 function addImages(files, slot){
   slot = slot || "trav";
   const list = SLOT[slot].list();
-  const imgs = [...files].filter(f => /^image\//.test(f.type) || !f.type);
-  if(!imgs.length){ toast("That was not an image. Use PNG or JPG, or copy an image and paste it."); return; }
+  const all = [...files];
+  const pdfs = all.filter(isPdf);
+  const imgs = all.filter(f => !isPdf(f) && (/^image\//.test(f.type) || !f.type));
+  if(pdfs.length) addPdfs(pdfs, slot);
+  if(!imgs.length){
+    if(!pdfs.length) toast("That was not an image or PDF. Use PNG, JPG, or a PDF drawing.");
+    return;
+  }
   let pending = imgs.length;
   imgs.forEach(f => {
     const fr = new FileReader();
@@ -2415,6 +2493,25 @@ function afterImages(slot, n){
   if($("screen-new").classList.contains("on")) renderNew();
   saveWorking();
   toast(n + " " + SLOT[slot].label.toLowerCase() + " page(s) loaded.");
+}
+
+async function addPdfs(pdfs, slot){
+  const list = SLOT[slot].list();
+  for(const f of pdfs){
+    toast("Converting " + (f.name || "PDF") + " to page images…");
+    try{
+      const {pages, total} = await pdfToPages(f);
+      pages.forEach(pg => list.push(pg));
+      afterImages(slot, pages.length);
+      if(total > PDF_MAX_PAGES)
+        toast("That PDF has " + total + " pages — kept the first " + PDF_MAX_PAGES + ".");
+    }catch(e){
+      if(/offline/.test(String(e && e.message)))
+        toast("PDF conversion needs internet the first time (it fetches the reader library). Reconnect and try again, or screenshot the PDF page and paste that instead.");
+      else
+        toast("Could not read " + (f.name || "that PDF") + ": " + (e.message || e) + ". A screenshot of the page pasted in works as a fallback.");
+    }
+  }
 }
 
 /* kept so older call sites still work */
@@ -3673,6 +3770,13 @@ wireDrop("dwDrop","dwIn","dwUpload","dwPaste","dwRemove","dwg");
 $("ncOpen").onclick = () => $("fileIn").click();
 $("ncDraft").onclick = () => { saveWorking(true); $("saveBtn").onclick(); };
 $("ncGen").onclick = () => {
+  if(!(state.meta.part || "").trim()){
+    toast("Part number is the one required field — type it, then generate. Everything else can be filled in later.");
+    $("nc_part").focus();
+    $("nc_part").style.outline = "2px solid var(--stamp)";
+    setTimeout(() => { $("nc_part").style.outline = ""; }, 2500);
+    return;
+  }
   const wanted = parseInt($("nc_ops").value,10);
   if(Number.isFinite(wanted) && wanted > 0 && !state.ops.length){
     for(let i=0;i<Math.min(wanted,40);i++)
