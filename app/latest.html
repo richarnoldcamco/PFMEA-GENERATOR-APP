@@ -250,7 +250,9 @@ nav{
 .sew .row .f select,.sew .row .f input{width:100%;border:1px solid var(--rule-hard);padding:7px 9px;font-size:13px}
 .sew .order{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:0}
 .sew .ot{border:2px solid var(--rule-hard);background:var(--panel-2);padding:4px 6px;text-align:center;font-family:var(--mono);font-size:10px;cursor:pointer}
-.sew .ot.sel{border-color:var(--stamp);box-shadow:0 0 0 2px rgba(124,21,24,.25)}
+.sew .ot.sel{border-color:#E01212;box-shadow:0 0 0 3px rgba(224,18,18,.45)}
+.sew .ot.sel::before{content:"ACTIVE";display:block;background:#E01212;color:#fff;font-size:9px;
+  letter-spacing:.14em;font-weight:800;margin:-4px -6px 3px;padding:2px 0}
 .sew .nudge{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:0;font-family:var(--mono);font-size:11px;letter-spacing:.08em}
 .sew .nudge b{color:var(--stamp)}
 .sew .nudge button{border:1px solid var(--rule-hard);background:#fff;cursor:pointer;font-size:13px;padding:4px 10px}
@@ -907,10 +909,21 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 
 /* =====================================================================
    CAMCO PFMEA BUILDER
-   APP_REV 23
+   APP_REV 24
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 24 · 2026-07-26
+     · ACTIVE PAGE MADE UNMISTAKABLE. Selected thumbnail now carries a
+       bright red border + glow and an ACTIVE ribbon; AND the preview
+       draws a dashed red outline around that page's actual rectangle
+       (offset-aware, all three layouts), so the operator sees exactly
+       which region the nudge keys move. sewCanvas gained an optional
+       markPos - the PREVIEW passes sewSel, APPLY passes nothing, so
+       the red box can never bake into the final sewn image. Clicking
+       a thumbnail refreshes the preview (60ms) so the box jumps
+       immediately.
+
    Rev 23 · 2026-07-26
      · SEW MODAL RE-LAID per operator markup: two columns. Left rail
        (330px, scrolls) holds the intro line, layout/overlap/background
@@ -1314,7 +1327,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
      · Geometry switch: IAQG (headers row 16) vs CAMCO 5-27-26 (row 6).
        Unresolved which is canonical - operator picks in the part strip.
    ===================================================================== */
-const APP_REV = 23;
+const APP_REV = 24;
 
 /* =======================================================================
    RULESET — CAMCO PFMEA Project Instructions Rev 97 (2026-06-07)
@@ -3068,7 +3081,7 @@ function loadImg(url){
   });
 }
 
-async function sewCanvas(slot, layout, overlap, bg){
+async function sewCanvas(slot, layout, overlap, bg, markPos){
   const list = SLOT[slot].list();
   const imgs = await Promise.all(sewOrder.map(i => loadImg(list[i].url)));
   const ov = Math.max(0, overlap|0);
@@ -3076,6 +3089,8 @@ async function sewCanvas(slot, layout, overlap, bg){
   const ctx = c.getContext("2d");
 
   const off = i => sewOff[sewOrder[i]] || {x:0, y:0};
+  let mrect = null;
+  const mark = (i, x, y, w, h) => { if(i === markPos) mrect = {x, y, w, h}; };
   if(layout === "v"){
     const w = Math.max(...imgs.map(i => i.naturalWidth));
     const rows = imgs.map(i => ({i, w, h: Math.round(i.naturalHeight * (w / i.naturalWidth))}));
@@ -3083,7 +3098,7 @@ async function sewCanvas(slot, layout, overlap, bg){
     c.height = Math.max(1, rows.reduce((a,r) => a + r.h, 0) - ov * (rows.length - 1));
     ctx.fillStyle = bg; ctx.fillRect(0,0,c.width,c.height);
     let y = 0;
-    rows.forEach((r,i) => { ctx.drawImage(r.i, off(i).x, y + off(i).y, r.w, r.h); y += r.h - ov; });
+    rows.forEach((r,i) => { ctx.drawImage(r.i, off(i).x, y + off(i).y, r.w, r.h); mark(i, off(i).x, y + off(i).y, r.w, r.h); y += r.h - ov; });
   } else if(layout === "h"){
     const h = Math.max(...imgs.map(i => i.naturalHeight));
     const cols = imgs.map(i => ({i, h, w: Math.round(i.naturalWidth * (h / i.naturalHeight))}));
@@ -3091,7 +3106,7 @@ async function sewCanvas(slot, layout, overlap, bg){
     c.width = Math.max(1, cols.reduce((a,r) => a + r.w, 0) - ov * (cols.length - 1));
     ctx.fillStyle = bg; ctx.fillRect(0,0,c.width,c.height);
     let x = 0;
-    cols.forEach((r,i) => { ctx.drawImage(r.i, x + off(i).x, off(i).y, r.w, r.h); x += r.w - ov; });
+    cols.forEach((r,i) => { ctx.drawImage(r.i, x + off(i).x, off(i).y, r.w, r.h); mark(i, x + off(i).x, off(i).y, r.w, r.h); x += r.w - ov; });
   } else {
     const per = 2, cw = Math.max(...imgs.map(i => i.naturalWidth));
     const cells = imgs.map(i => ({i, w: cw, h: Math.round(i.naturalHeight * (cw / i.naturalWidth))}));
@@ -3106,10 +3121,19 @@ async function sewCanvas(slot, layout, overlap, bg){
       let x = 0;
       cells.slice(r*per,(r+1)*per).forEach((cel,ci) => {
         const o = off(r*per+ci);
-        ctx.drawImage(cel.i, x + o.x, y + o.y, cel.w, cel.h); x += cw - ov;
+        ctx.drawImage(cel.i, x + o.x, y + o.y, cel.w, cel.h);
+        mark(r*per+ci, x + o.x, y + o.y, cel.w, cel.h); x += cw - ov;
       });
       y += rowH[r] - ov;
     }
+  }
+  if(mrect){
+    ctx.strokeStyle = "#E01212";
+    ctx.lineWidth = Math.max(4, Math.round(Math.max(c.width, c.height) / 250));
+    ctx.setLineDash([22, 14]);
+    ctx.strokeRect(mrect.x + ctx.lineWidth/2, mrect.y + ctx.lineWidth/2,
+                   mrect.w - ctx.lineWidth, mrect.h - ctx.lineWidth);
+    ctx.setLineDash([]);
   }
   return c;
 }
@@ -3125,6 +3149,7 @@ function sewRenderOrder(){
   $("sewOrder").querySelectorAll("[data-sp]").forEach(d => d.onclick = e => {
     if(e.target.tagName === "BUTTON") return;
     sewSel = +d.dataset.sp; sewRenderOrder();
+    clearTimeout(_sewPrevTimer); _sewPrevTimer = setTimeout(sewPreview, 60);
   });
   $("sewOrder").querySelectorAll("[data-sl]").forEach(b => b.onclick = () => {
     const i = +b.dataset.sl; if(i<1) return;
@@ -3138,7 +3163,7 @@ function sewRenderOrder(){
 
 async function sewPreview(){
   try{
-    const c = await sewCanvas(sewSlot, $("sewLayout").value, +$("sewOverlap").value, $("sewBgCol").value);
+    const c = await sewCanvas(sewSlot, $("sewLayout").value, +$("sewOverlap").value, $("sewBgCol").value, sewSel);
     $("sewPrev").innerHTML = `<img src="${c.toDataURL("image/jpeg", 0.7)}" title="${c.width} × ${c.height} px" alt="">`;
   }catch(e){ $("sewPrev").innerHTML = "<p style='color:#E8C8C4'>Could not build a preview: " + esc(e.message||e) + "</p>"; }
 }
