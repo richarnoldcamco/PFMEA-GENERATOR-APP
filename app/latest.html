@@ -238,24 +238,29 @@ nav{
 .nc-drop .armtag{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--stamp);margin-top:8px}
 .sew-bg{position:fixed;inset:0;background:rgba(20,12,12,.72);z-index:210;display:none;align-items:center;justify-content:center;padding:20px}
 .sew-bg.on{display:flex}
-.sew{background:var(--panel);max-width:96vw;width:96vw;max-height:96vh;overflow:auto;border:1px solid #000;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+.sew{background:var(--panel);width:97vw;height:96vh;display:flex;flex-direction:column;overflow:hidden;border:1px solid #000;box-shadow:0 18px 50px rgba(0,0,0,.45)}
 .sew .sh{background:var(--stamp);color:#fff;padding:11px 18px;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.16em}
-.sew .sb{padding:16px 20px}
+.sew .sb{flex:1;display:flex;gap:18px;padding:14px 18px;overflow:hidden;min-height:0}
+.sew .rail{flex:0 0 330px;display:flex;flex-direction:column;gap:12px;overflow:auto;min-height:0}
+.sew .rail .row{margin-bottom:0}
+.sew .rail .row .f{flex:1 1 140px}
 .sew .row{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px}
 .sew .row .f{flex:0 0 190px}
 .sew .row .f label{display:block;font-size:11px;letter-spacing:.1em;color:var(--ink-2);margin-bottom:4px}
 .sew .row .f select,.sew .row .f input{width:100%;border:1px solid var(--rule-hard);padding:7px 9px;font-size:13px}
-.sew .order{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.sew .order{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:0}
 .sew .ot{border:2px solid var(--rule-hard);background:var(--panel-2);padding:4px 6px;text-align:center;font-family:var(--mono);font-size:10px;cursor:pointer}
 .sew .ot.sel{border-color:var(--stamp);box-shadow:0 0 0 2px rgba(124,21,24,.25)}
-.sew .nudge{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;font-family:var(--mono);font-size:11px;letter-spacing:.08em}
+.sew .nudge{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:0;font-family:var(--mono);font-size:11px;letter-spacing:.08em}
 .sew .nudge b{color:var(--stamp)}
 .sew .nudge button{border:1px solid var(--rule-hard);background:#fff;cursor:pointer;font-size:13px;padding:4px 10px}
 .sew .nudge select{border:1px solid var(--rule-hard);padding:4px 6px;font-size:12px}
 .sew .ot img{display:block;width:78px;height:56px;object-fit:contain;margin-bottom:3px}
 .sew .ot button{border:1px solid var(--rule-hard);background:#fff;cursor:pointer;font-size:10px;padding:1px 5px}
-.sew .prev{background:#2A2222;border:1px solid var(--rule-hard);padding:10px;text-align:center;margin-bottom:14px;max-height:62vh;min-height:38vh;overflow:auto}
-.sew .prev img{max-width:100%;display:block;margin:0 auto}
+.sew .prev{flex:1;background:#2A2222;border:1px solid var(--rule-hard);padding:8px;margin:0;overflow:auto;min-width:0;
+  display:flex;align-items:flex-start;justify-content:center}
+.sew .prev img{height:99%;width:auto;max-width:none;display:block}
+.sew .rail .sf{margin-top:auto;display:flex;gap:8px;justify-content:flex-start;flex-wrap:wrap}
 .sew .sf{display:flex;gap:8px;justify-content:flex-end}
 .nc-strip button{
   background:#fff;border:1px solid #E3DED6;cursor:pointer;padding:11px 8px;text-align:center;
@@ -478,9 +483,10 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
   <div class="sew" role="dialog" aria-modal="true">
     <div class="sh">Sew pages into one image</div>
     <div class="sb">
-      <p style="margin:0 0 12px;font-size:13px;line-height:1.55">
-        Joins the pages edge to edge in the order below. It is a straight join, not a clever blend —
-        photograph each section square-on and it lines up well. Trim the overlap if your shots overlapped.</p>
+     <div class="rail">
+      <p style="margin:0;font-size:12px;line-height:1.5">
+        Straight edge-to-edge join in the order below. Click a thumbnail, then arrow keys (or the buttons)
+        push that page around. Trim the overlap if your shots overlapped.</p>
       <div class="row">
         <div class="f"><label>Layout</label>
           <select id="sewLayout">
@@ -506,12 +512,13 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
         <span>px</span>
         <button id="nReset">Reset nudges</button>
       </div>
-      <div class="prev" id="sewPrev"></div>
       <div class="sf">
         <button class="btn" id="sewCancel">Cancel</button>
         <button class="btn" id="sewUndo">Undo last sew</button>
         <button class="btn key" id="sewApply">Sew them</button>
       </div>
+     </div>
+     <div class="prev" id="sewPrev"></div>
     </div>
   </div>
 </div>
@@ -900,10 +907,20 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 
 /* =====================================================================
    CAMCO PFMEA BUILDER
-   APP_REV 22
+   APP_REV 23
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 23 · 2026-07-26
+     · SEW MODAL RE-LAID per operator markup: two columns. Left rail
+       (330px, scrolls) holds the intro line, layout/overlap/background
+       controls, page thumbnails, nudge bar and the Cancel/Undo/Sew
+       buttons pinned to its bottom; the PREVIEW takes the entire right
+       side and the FULL modal height (flex:1, img height:99% width:auto
+       max-width:none), so the traveller fills the vertical space with
+       horizontal scroll when wider than the pane. Output pixel size
+       moved into the image tooltip.
+
    Rev 22 · 2026-07-26
      · SEW MODAL ENLARGED to 96vw x 96vh with the preview pane grown to
        38-62vh, per operator request - the 820px box wasted the screen.
@@ -1297,7 +1314,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
      · Geometry switch: IAQG (headers row 16) vs CAMCO 5-27-26 (row 6).
        Unresolved which is canonical - operator picks in the part strip.
    ===================================================================== */
-const APP_REV = 22;
+const APP_REV = 23;
 
 /* =======================================================================
    RULESET — CAMCO PFMEA Project Instructions Rev 97 (2026-06-07)
@@ -3122,9 +3139,7 @@ function sewRenderOrder(){
 async function sewPreview(){
   try{
     const c = await sewCanvas(sewSlot, $("sewLayout").value, +$("sewOverlap").value, $("sewBgCol").value);
-    $("sewPrev").innerHTML = `<img src="${c.toDataURL("image/jpeg", 0.7)}" alt="">` +
-      `<div style="color:#C9BDB8;font-family:var(--mono);font-size:11px;margin-top:7px">` +
-      `${c.width} × ${c.height} px</div>`;
+    $("sewPrev").innerHTML = `<img src="${c.toDataURL("image/jpeg", 0.7)}" title="${c.width} × ${c.height} px" alt="">`;
   }catch(e){ $("sewPrev").innerHTML = "<p style='color:#E8C8C4'>Could not build a preview: " + esc(e.message||e) + "</p>"; }
 }
 
