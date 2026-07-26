@@ -238,7 +238,7 @@ nav{
 .nc-drop .armtag{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--stamp);margin-top:8px}
 .sew-bg{position:fixed;inset:0;background:rgba(20,12,12,.72);z-index:210;display:none;align-items:center;justify-content:center;padding:20px}
 .sew-bg.on{display:flex}
-.sew{background:var(--panel);max-width:820px;width:100%;max-height:90vh;overflow:auto;border:1px solid #000;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+.sew{background:var(--panel);max-width:96vw;width:96vw;max-height:96vh;overflow:auto;border:1px solid #000;box-shadow:0 18px 50px rgba(0,0,0,.45)}
 .sew .sh{background:var(--stamp);color:#fff;padding:11px 18px;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.16em}
 .sew .sb{padding:16px 20px}
 .sew .row{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px}
@@ -246,10 +246,15 @@ nav{
 .sew .row .f label{display:block;font-size:11px;letter-spacing:.1em;color:var(--ink-2);margin-bottom:4px}
 .sew .row .f select,.sew .row .f input{width:100%;border:1px solid var(--rule-hard);padding:7px 9px;font-size:13px}
 .sew .order{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
-.sew .ot{border:2px solid var(--rule-hard);background:var(--panel-2);padding:4px 6px;text-align:center;font-family:var(--mono);font-size:10px}
+.sew .ot{border:2px solid var(--rule-hard);background:var(--panel-2);padding:4px 6px;text-align:center;font-family:var(--mono);font-size:10px;cursor:pointer}
+.sew .ot.sel{border-color:var(--stamp);box-shadow:0 0 0 2px rgba(124,21,24,.25)}
+.sew .nudge{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;font-family:var(--mono);font-size:11px;letter-spacing:.08em}
+.sew .nudge b{color:var(--stamp)}
+.sew .nudge button{border:1px solid var(--rule-hard);background:#fff;cursor:pointer;font-size:13px;padding:4px 10px}
+.sew .nudge select{border:1px solid var(--rule-hard);padding:4px 6px;font-size:12px}
 .sew .ot img{display:block;width:78px;height:56px;object-fit:contain;margin-bottom:3px}
 .sew .ot button{border:1px solid var(--rule-hard);background:#fff;cursor:pointer;font-size:10px;padding:1px 5px}
-.sew .prev{background:#2A2222;border:1px solid var(--rule-hard);padding:10px;text-align:center;margin-bottom:14px;max-height:44vh;overflow:auto}
+.sew .prev{background:#2A2222;border:1px solid var(--rule-hard);padding:10px;text-align:center;margin-bottom:14px;max-height:62vh;min-height:38vh;overflow:auto}
 .sew .prev img{max-width:100%;display:block;margin:0 auto}
 .sew .sf{display:flex;gap:8px;justify-content:flex-end}
 .nc-strip button{
@@ -490,6 +495,17 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
         <button class="btn" id="sewPreview">Update preview</button>
       </div>
       <div class="order" id="sewOrder"></div>
+      <div class="nudge">
+        <span>Nudge page <b id="sewSelLbl">1</b> — click a thumbnail to pick, then push it:</span>
+        <button id="nUp" title="Up (or ↑ key)">▲</button>
+        <button id="nDown" title="Down (or ↓ key)">▼</button>
+        <button id="nLeft" title="Left (or ← key)">◀</button>
+        <button id="nRight" title="Right (or → key)">▶</button>
+        <span>step</span>
+        <select id="nStep"><option>1</option><option selected>10</option><option>50</option></select>
+        <span>px</span>
+        <button id="nReset">Reset nudges</button>
+      </div>
       <div class="prev" id="sewPrev"></div>
       <div class="sf">
         <button class="btn" id="sewCancel">Cancel</button>
@@ -884,10 +900,23 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 
 /* =====================================================================
    CAMCO PFMEA BUILDER
-   APP_REV 21
+   APP_REV 22
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 22 · 2026-07-26
+     · SEW MODAL ENLARGED to 96vw x 96vh with the preview pane grown to
+       38-62vh, per operator request - the 820px box wasted the screen.
+     · PER-PAGE NUDGING. Click a thumbnail to select it (maroon
+       outline), then push it up/down/left/right via the new nudge bar
+       (step 1/10/50 px) or the ARROW KEYS while the modal is open.
+       Offsets live in sewOff keyed by page index, are drawn into all
+       three layouts (drawImage at slot position + offset), shown on
+       the thumbnail caption (x/y), baked into the sewn PNG on apply,
+       and cleared by Reset nudges / on modal open. Preview refresh
+       debounced 160ms so held-down keys stay smooth. Existing undo
+       restores the pre-sew originals unchanged.
+
    Rev 21 · 2026-07-26
      · UPLOADS NOW VISIBLE. The intake drop zones showed only the
        static placeholder after a successful load - confirmation lived
@@ -1268,7 +1297,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
      · Geometry switch: IAQG (headers row 16) vs CAMCO 5-27-26 (row 6).
        Unresolved which is canonical - operator picks in the part strip.
    ===================================================================== */
-const APP_REV = 21;
+const APP_REV = 22;
 
 /* =======================================================================
    RULESET — CAMCO PFMEA Project Instructions Rev 97 (2026-06-07)
@@ -3011,7 +3040,7 @@ $("readAI").onclick = readTraveller;
    A straight edge-to-edge join with an optional overlap trim. Not
    feature-matching: shoot each section square-on and it lines up.
    ======================================================================= */
-let sewSlot = "trav", sewOrder = [], sewBackup = null;
+let sewSlot = "trav", sewOrder = [], sewBackup = null, sewSel = 0, sewOff = {};
 
 function loadImg(url){
   return new Promise((res, rej) => {
@@ -3029,6 +3058,7 @@ async function sewCanvas(slot, layout, overlap, bg){
   const c = document.createElement("canvas");
   const ctx = c.getContext("2d");
 
+  const off = i => sewOff[sewOrder[i]] || {x:0, y:0};
   if(layout === "v"){
     const w = Math.max(...imgs.map(i => i.naturalWidth));
     const rows = imgs.map(i => ({i, w, h: Math.round(i.naturalHeight * (w / i.naturalWidth))}));
@@ -3036,7 +3066,7 @@ async function sewCanvas(slot, layout, overlap, bg){
     c.height = Math.max(1, rows.reduce((a,r) => a + r.h, 0) - ov * (rows.length - 1));
     ctx.fillStyle = bg; ctx.fillRect(0,0,c.width,c.height);
     let y = 0;
-    rows.forEach(r => { ctx.drawImage(r.i, 0, y, r.w, r.h); y += r.h - ov; });
+    rows.forEach((r,i) => { ctx.drawImage(r.i, off(i).x, y + off(i).y, r.w, r.h); y += r.h - ov; });
   } else if(layout === "h"){
     const h = Math.max(...imgs.map(i => i.naturalHeight));
     const cols = imgs.map(i => ({i, h, w: Math.round(i.naturalWidth * (h / i.naturalHeight))}));
@@ -3044,7 +3074,7 @@ async function sewCanvas(slot, layout, overlap, bg){
     c.width = Math.max(1, cols.reduce((a,r) => a + r.w, 0) - ov * (cols.length - 1));
     ctx.fillStyle = bg; ctx.fillRect(0,0,c.width,c.height);
     let x = 0;
-    cols.forEach(r => { ctx.drawImage(r.i, x, 0, r.w, r.h); x += r.w - ov; });
+    cols.forEach((r,i) => { ctx.drawImage(r.i, x + off(i).x, off(i).y, r.w, r.h); x += r.w - ov; });
   } else {
     const per = 2, cw = Math.max(...imgs.map(i => i.naturalWidth));
     const cells = imgs.map(i => ({i, w: cw, h: Math.round(i.naturalHeight * (cw / i.naturalWidth))}));
@@ -3057,7 +3087,10 @@ async function sewCanvas(slot, layout, overlap, bg){
     let y = 0;
     for(let r=0;r<rowsN;r++){
       let x = 0;
-      cells.slice(r*per,(r+1)*per).forEach(cel => { ctx.drawImage(cel.i, x, y, cel.w, cel.h); x += cw - ov; });
+      cells.slice(r*per,(r+1)*per).forEach((cel,ci) => {
+        const o = off(r*per+ci);
+        ctx.drawImage(cel.i, x + o.x, y + o.y, cel.w, cel.h); x += cw - ov;
+      });
       y += rowH[r] - ov;
     }
   }
@@ -3066,10 +3099,16 @@ async function sewCanvas(slot, layout, overlap, bg){
 
 function sewRenderOrder(){
   const list = SLOT[sewSlot].list();
-  $("sewOrder").innerHTML = sewOrder.map((idx,pos) => `
-    <div class="ot"><img src="${list[idx].url}" alt="">
-      ${pos+1} of ${sewOrder.length}<br>
-      <button data-sl="${pos}">◀</button><button data-sr="${pos}">▶</button></div>`).join("");
+  $("sewOrder").innerHTML = sewOrder.map((idx,pos) => {
+    const o = sewOff[idx] || {x:0,y:0};
+    return `<div class="ot${pos===sewSel?" sel":""}" data-sp="${pos}"><img src="${list[idx].url}" alt="">
+      ${pos+1} of ${sewOrder.length}${(o.x||o.y) ? "<br>x"+o.x+" y"+o.y : ""}<br>
+      <button data-sl="${pos}">◀</button><button data-sr="${pos}">▶</button></div>`;}).join("");
+  $("sewSelLbl").textContent = sewSel + 1;
+  $("sewOrder").querySelectorAll("[data-sp]").forEach(d => d.onclick = e => {
+    if(e.target.tagName === "BUTTON") return;
+    sewSel = +d.dataset.sp; sewRenderOrder();
+  });
   $("sewOrder").querySelectorAll("[data-sl]").forEach(b => b.onclick = () => {
     const i = +b.dataset.sl; if(i<1) return;
     [sewOrder[i-1], sewOrder[i]] = [sewOrder[i], sewOrder[i-1]]; sewRenderOrder(); sewPreview();
@@ -3094,13 +3133,38 @@ function sewOpen(slot){
   if(list.length < 2){ toast("Load at least two pages before sewing them together."); return; }
   sewSlot = slot;
   sewOrder = list.map((_,i) => i);
+  sewSel = 0; sewOff = {};
   $("sewBg").classList.add("on");
+  document.addEventListener("keydown", sewKeys);
   sewRenderOrder();
   sewPreview();
 }
-function sewClose(){ $("sewBg").classList.remove("on"); }
+function sewClose(){
+  $("sewBg").classList.remove("on");
+  document.removeEventListener("keydown", sewKeys);
+}
+let _sewPrevTimer = null;
+function nudge(dx, dy){
+  const idx = sewOrder[sewSel];
+  const o = sewOff[idx] || (sewOff[idx] = {x:0, y:0});
+  const step = +$("nStep").value || 10;
+  o.x += dx * step; o.y += dy * step;
+  sewRenderOrder();
+  clearTimeout(_sewPrevTimer);
+  _sewPrevTimer = setTimeout(sewPreview, 160);
+}
+function sewKeys(e){
+  if(!$("sewBg").classList.contains("on")) return;
+  const map = {ArrowUp:[0,-1], ArrowDown:[0,1], ArrowLeft:[-1,0], ArrowRight:[1,0]};
+  if(map[e.key]){ e.preventDefault(); nudge(...map[e.key]); }
+}
 
 $("sewCancel").onclick = sewClose;
+$("nUp").onclick = () => nudge(0,-1);
+$("nDown").onclick = () => nudge(0,1);
+$("nLeft").onclick = () => nudge(-1,0);
+$("nRight").onclick = () => nudge(1,0);
+$("nReset").onclick = () => { sewOff = {}; sewRenderOrder(); sewPreview(); };
 $("sewPreview").onclick = sewPreview;
 $("sewLayout").onchange = sewPreview;
 $("sewOverlap").onchange = sewPreview;
