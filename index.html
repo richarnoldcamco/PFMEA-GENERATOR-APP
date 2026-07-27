@@ -516,6 +516,25 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
   <button class="btn" id="updNo" style="margin-left:6px;background:transparent;color:#fff">Later</button>
 </div>
 
+<div class="mst-bg" id="mstBg">
+  <div class="mst" role="dialog">
+    <div class="mh"><span id="mstTitle">MASTER ROW</span><span id="mstSrc"></span></div>
+    <div class="mb">
+      <p style="margin:0 0 12px;font-size:12px;line-height:1.5">
+        This is the LIBRARY definition behind this failure type — the row every future insert starts from.
+        Edit and SAVE MASTER to change the library on this machine; APPLY TO THIS ROW copies the master into
+        the row you clicked. The Rev 97 wording ships as the baseline; your saved edits override it.</p>
+      <div class="fgrid2" id="mstFields"></div>
+    </div>
+    <div class="mf">
+      <button class="btn" id="mstReset">Reset to Rev 97</button>
+      <button class="btn" id="mstClose">Close</button>
+      <button class="btn" id="mstApply">Apply to this row</button>
+      <button class="btn go" id="mstSave">Save master</button>
+    </div>
+  </div>
+</div>
+
 <div class="sew-bg" id="sewBg">
   <div class="sew" role="dialog" aria-modal="true">
     <div class="sh">Sew pages into one image</div>
@@ -958,6 +977,20 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
   .fview td[contenteditable]:focus{outline:2px solid var(--stamp);outline-offset:-2px;background:#FFFDF4}
   .fview td.docbtn{cursor:pointer;color:var(--stamp);font-weight:800;text-decoration:underline}
   .fview td.docbtn:hover{background:#F3E3E1}
+  .fview td.idcell{position:relative;padding-right:16px}
+  .fview .qmark{position:absolute;top:2px;right:2px;width:13px;height:13px;line-height:13px;border-radius:50%;
+    background:var(--stamp);color:#fff;font-size:9px;font-weight:800;text-align:center;cursor:pointer;user-select:none}
+  .fview .qmark:hover{background:#5C0F11}
+  .mst-bg{position:fixed;inset:0;background:rgba(20,12,12,.72);z-index:230;display:none;align-items:center;justify-content:center;padding:18px}
+  .mst-bg.on{display:flex}
+  .mst{background:var(--panel);width:min(1100px,95vw);max-height:94vh;overflow:auto;border:1px solid #000;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+  .mst .mh{background:var(--stamp);color:#fff;padding:11px 18px;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.16em;display:flex;justify-content:space-between}
+  .mst .mb{padding:14px 18px}
+  .mst .fgrid2{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+  .mst label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--ink-2);margin:0 0 3px}
+  .mst textarea,.mst input{width:100%;border:1px solid var(--rule-hard);padding:6px 8px;font-size:12px;font-family:inherit}
+  .mst textarea{min-height:56px;resize:vertical}
+  .mst .mf{display:flex;gap:8px;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--rule)}
   </style>
   <aside class="rail">
     <h2><span>Audit</span><span id="auditCount"></span></h2>
@@ -981,10 +1014,23 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 
 /* =====================================================================
    CAMCO PFMEA BUILDER
-   APP_REV 35
+   APP_REV 36
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 36 · 2026-07-27
+     · MASTER ROW POPUP, per operator markup: a small maroon ? badge in
+       the top-right corner of every Failure Type ID cell opens the
+       LIBRARY definition behind that failure type (matched by base id
+       across all SETS, -N suffixes stripped). The modal shows every
+       master field editable; SAVE MASTER persists an override to
+       localStorage (pfMasterOverrides) that insertSet now merges over
+       the Rev 97 baseline on every future insert; APPLY TO THIS ROW
+       copies the master into the clicked row; RESET TO REV 97 removes
+       the override. Rows not born from a set can be saved as new
+       masters. Badge is contenteditable=false with mousedown
+       prevented, so it never hijacks cell editing.
+
    Rev 35 · 2026-07-27
      · FORM VIEW IS NOW EDIT-IN-PLACE, per operator markup (drawer
        crossed out). Every text and rating cell is contenteditable:
@@ -1543,7 +1589,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
      · Geometry switch: IAQG (headers row 16) vs CAMCO 5-27-26 (row 6).
        Unresolved which is canonical - operator picks in the part strip.
    ===================================================================== */
-const APP_REV = 35;
+const APP_REV = 36;
 
 /* =======================================================================
    RULESET — CAMCO PFMEA Project Instructions Rev 97 (2026-06-07)
@@ -2087,7 +2133,7 @@ function renderGridForm(){
   state.rows.forEach((r,i)=>{
     const c = calc(r);
     h += `<tr data-i="${i}" class="${i===selIdx?"sel":""}">
-      ${E("id",r,i,r.id,"mid")}
+      <td class="mid idcell" contenteditable="true" spellcheck="false" data-i="${i}" data-f="id">${esc(r.id||"")}<span class="qmark" contenteditable="false" data-mst="${i}" title="Master row for this failure type">?</span></td>
       <td class="mid docbtn" data-open="${i}" title="Open the full editor for this row">${i+1}${r.approved?' <span style="color:#00B050">●</span>':""}</td>
       ${E("op",r,i,r.op,"mid")}${E("wc",r,i,r.wc,"mid")}${E("opName",r,i,r.opName)}
       ${E("step",r,i,r.step)}${E("req",r,i,r.req)}${E("mode",r,i,r.mode)}${E("effect",r,i,r.effect)}
@@ -2109,6 +2155,10 @@ function renderGridForm(){
   const RATE_F = {sev:1,occ:1,detR:1,aSev:1,aOcc:1,aDet:1};
   const g = $("grid");
   g.querySelectorAll("[data-open]").forEach(b => b.onclick = () => select(parseInt(b.dataset.open,10)));
+  g.querySelectorAll("[data-mst]").forEach(b => {
+    b.addEventListener("mousedown", e => e.preventDefault());
+    b.onclick = e => { e.stopPropagation(); mstOpen(parseInt(b.dataset.mst,10)); };
+  });
   g.querySelectorAll("td[contenteditable]").forEach(td => {
     td.addEventListener("focus", () => setSel(parseInt(td.dataset.i,10)));
     td.addEventListener("input", () => {
@@ -4766,11 +4816,82 @@ function renderSets(){
   $("setList").querySelectorAll("[data-ins]").forEach(b => b.onclick = () => { insertSet(b.dataset.ins); go("build"); });
 }
 
+/* ---- master row library: Rev 97 baseline + operator overrides ---- */
+const MST_FIELDS = [["id","Failure Type ID"],["opName","Op name"],["step","Process step"],["req","Requirement"],
+  ["mode","Failure mode"],["effect","Effect"],["cause","Cause"],["prev","Prevention"],["addPrev","Additional prevention"],
+  ["det","Detection"],["addDet","Additional detection"],["sev","SEV"],["occ","OCC"],["detR","DET"],
+  ["cls","Class"],["action","Recommended action"]];
+function mstOverrides(){ try{ return JSON.parse(localStorage.getItem("pfMasterOverrides") || "{}"); }catch(e){ return {}; } }
+function mstFind(id){
+  /* exact id first (SAW-1 and SAW-2 are DIFFERENT failure types);
+     strip trailing -N only as fallback for uniqueId collision copies
+     (SAW-1-2 -> SAW-1). */
+  let cand = String(id || "").trim();
+  for(let hop = 0; hop < 3 && cand; hop++){
+    for(const key of Object.keys(SETS))
+      for(const row of SETS[key].rows)
+        if(String(row.id).toUpperCase() === cand.toUpperCase()) return {key, row, base: row.id};
+    const next = cand.replace(/-\d+$/, "");
+    if(next === cand) break;
+    cand = next;
+  }
+  return null;
+}
+let _mstCtx = null;
+function mstOpen(rowIdx){
+  const r = state.rows[rowIdx];
+  const hit = mstFind(r.id);
+  const base = hit ? hit.base : String(r.id || "").trim();
+  const ov = mstOverrides()[base] || {};
+  const src = hit ? Object.assign({}, hit.row, ov) : Object.assign({}, r);
+  _mstCtx = {rowIdx, base, fromSet: !!hit, setKey: hit ? hit.key : null};
+  $("mstTitle").textContent = "MASTER ROW — " + (_mstCtx.base || "(unnamed)");
+  $("mstSrc").textContent = hit ? SETS[hit.key].name.toUpperCase()
+                               : "NOT IN THE LIBRARY — SAVE MASTER ADDS IT";
+  $("mstFields").innerHTML = MST_FIELDS.map(([f,label]) => {
+    const long = !/^(id|opName|sev|occ|detR|cls)$/.test(f);
+    const v = esc(src[f] == null ? "" : String(src[f]));
+    return `<div style="${long?"grid-column:1 / -1":""}"><label>${label}</label>` +
+      (long ? `<textarea data-mf="${f}">${v}</textarea>` : `<input data-mf="${f}" value="${v}">`) + `</div>`;
+  }).join("");
+  $("mstBg").classList.add("on");
+}
+function mstRead(){
+  const out = {};
+  $("mstFields").querySelectorAll("[data-mf]").forEach(el => out[el.dataset.mf] = el.value.trim());
+  return out;
+}
+$("mstClose").onclick = () => $("mstBg").classList.remove("on");
+$("mstSave").onclick = () => {
+  const v = mstRead(), all = mstOverrides();
+  all[_mstCtx.base] = v;
+  localStorage.setItem("pfMasterOverrides", JSON.stringify(all));
+  toast("Master saved — every future insert of " + _mstCtx.base + " uses this wording on this machine.");
+  $("mstBg").classList.remove("on");
+};
+$("mstReset").onclick = () => {
+  const all = mstOverrides();
+  delete all[_mstCtx.base];
+  localStorage.setItem("pfMasterOverrides", JSON.stringify(all));
+  toast("Override removed — " + _mstCtx.base + " is back to the Rev 97 baseline.");
+  mstOpen(_mstCtx.rowIdx);
+};
+$("mstApply").onclick = () => {
+  const v = mstRead(), r = state.rows[_mstCtx.rowIdx];
+  Object.keys(v).forEach(f => { if(f !== "id") r[f] = v[f]; });
+  saveWorking(); renderGrid(); renderRail();
+  toast("Master applied to " + r.id + ".");
+  $("mstBg").classList.remove("on");
+};
+
 function insertSet(key){
   const set = SETS[key];
+  const ovAll = mstOverrides();
   set.rows.forEach(src => {
     const r = blankRow();
     Object.keys(src).forEach(k => r[k] = src[k]);
+    const ov = ovAll[src.id];
+    if(ov) Object.keys(ov).forEach(k => { if(k !== "id" && ov[k] !== "") r[k] = ov[k]; });
     r.id = uniqueId(r.id);
     if(r.aSev === "") r.aSev = r.sev;
     if(r.aOcc === "") r.aOcc = r.occ;
