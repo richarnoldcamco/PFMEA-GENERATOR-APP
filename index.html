@@ -524,7 +524,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
         This is the LIBRARY definition behind this failure type — the row every future insert starts from.
         Edit and SAVE MASTER to change the library on this machine; APPLY TO THIS ROW copies the master into
         the row you clicked. The Rev 97 wording ships as the baseline; your saved edits override it.</p>
-      <div class="fgrid2" id="mstFields"></div>
+      <div class="mtable-wrap" id="mstFields"></div>
     </div>
     <div class="mf">
       <button class="btn" id="mstReset">Reset to Rev 97</button>
@@ -983,7 +983,9 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
   .fview .qmark:hover{background:#5C0F11}
   .mst-bg{position:fixed;inset:0;background:rgba(20,12,12,.72);z-index:230;display:none;align-items:center;justify-content:center;padding:18px}
   .mst-bg.on{display:flex}
-  .mst{background:var(--panel);width:min(1100px,95vw);max-height:94vh;overflow:auto;border:1px solid #000;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+  .mst{background:var(--panel);width:97vw;max-height:94vh;overflow:auto;border:1px solid #000;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+  .mst .mtable-wrap{overflow-x:auto;border:1px solid var(--rule-hard)}
+  .mst .fview td[data-mf]{min-height:120px;height:150px}
   .mst .mh{background:var(--stamp);color:#fff;padding:11px 18px;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.16em;display:flex;justify-content:space-between}
   .mst .mb{padding:14px 18px}
   .mst .fgrid2{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
@@ -1014,10 +1016,22 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 
 /* =====================================================================
    CAMCO PFMEA BUILDER
-   APP_REV 36
+   APP_REV 37
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 37 · 2026-07-27
+     · MASTER POPUP RE-LAID HORIZONTAL like the spreadsheet, per
+       operator: the vertical field stack replaced by a single
+       .fview-styled row - blue header band with the sheet's column
+       names, 16 editable cells left-to-right (ID, Op Name, Step,
+       Requirements, Mode, Effect, SEV, Cause, Prevention, Add'l Prev,
+       OCC, Detection, Add'l Det, DET, Class, Rec Action), heat colors
+       live on the rating cells (clamp 1-10 + recolor on blur), modal
+       widened to 97vw with horizontal scroll. mstRead switched to
+       contenteditable reads (innerText/textContent). Save/Apply/Reset
+       unchanged.
+
    Rev 36 · 2026-07-27
      · MASTER ROW POPUP, per operator markup: a small maroon ? badge in
        the top-right corner of every Failure Type ID cell opens the
@@ -1589,7 +1603,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
      · Geometry switch: IAQG (headers row 16) vs CAMCO 5-27-26 (row 6).
        Unresolved which is canonical - operator picks in the part strip.
    ===================================================================== */
-const APP_REV = 36;
+const APP_REV = 37;
 
 /* =======================================================================
    RULESET — CAMCO PFMEA Project Instructions Rev 97 (2026-06-07)
@@ -4848,17 +4862,40 @@ function mstOpen(rowIdx){
   $("mstTitle").textContent = "MASTER ROW — " + (_mstCtx.base || "(unnamed)");
   $("mstSrc").textContent = hit ? SETS[hit.key].name.toUpperCase()
                                : "NOT IN THE LIBRARY — SAVE MASTER ADDS IT";
-  $("mstFields").innerHTML = MST_FIELDS.map(([f,label]) => {
-    const long = !/^(id|opName|sev|occ|detR|cls)$/.test(f);
-    const v = esc(src[f] == null ? "" : String(src[f]));
-    return `<div style="${long?"grid-column:1 / -1":""}"><label>${label}</label>` +
-      (long ? `<textarea data-mf="${f}">${v}</textarea>` : `<input data-mf="${f}" value="${v}">`) + `</div>`;
-  }).join("");
+  /* one horizontal row, spreadsheet-style, same columns as the sheet */
+  const MCOLS = [
+    ["id","Failure Type ID",70,"mid"],["opName","Op Name",90,"mid"],["step","Process Step",120],
+    ["req","Requirements",170],["mode","Potential Failure Mode",200],["effect","Potential Effect(s) of Failure",220],
+    ["sev","SEV",40,"rate"],["cause","Potential Cause(s) of Failure",220],["prev","Current Prevention Controls",220],
+    ["addPrev","Additional Prevention Control Evidence",140],["occ","OCC",40,"rate"],
+    ["det","Current Detection Controls",220],["addDet","Additional Detection Control Evidence",140],
+    ["detR","DET",40,"rate"],["cls","Classification",70,"mid"],["action","Recommended Action(s)",220],
+  ];
+  const rateStyle = (f,v) => /^(sev|occ|detR)$/.test(f) ? fvTier(v) : "";
+  $("mstFields").innerHTML =
+    `<table class="fview"><colgroup>${MCOLS.map(c=>`<col style="width:${c[2]}px">`).join("")}</colgroup>` +
+    `<thead><tr>${MCOLS.map(c=>`<th class="${/^(SEV|OCC|DET)$/.test(c[1])?"rate":""}">${c[1]}</th>`).join("")}</tr></thead>` +
+    `<tbody><tr>${MCOLS.map(c => {
+      const v = src[c[0]] == null ? "" : String(src[c[0]]);
+      return `<td class="${c[3]||""}" style="${rateStyle(c[0], v)}" contenteditable="true" spellcheck="false" data-mf="${c[0]}">${esc(v)}</td>`;
+    }).join("")}</tr></tbody></table>`;
+  $("mstFields").querySelectorAll("td[data-mf]").forEach(td => {
+    td.addEventListener("blur", () => {
+      const f = td.dataset.mf;
+      if(/^(sev|occ|detR)$/.test(f)){
+        const x = parseInt((td.innerText !== undefined ? td.innerText : td.textContent).replace(/[^0-9]/g,""),10);
+        const v = isNaN(x) ? "" : String(Math.min(10, Math.max(1, x)));
+        td.textContent = v;
+        td.setAttribute("style", fvTier(v));
+      }
+    });
+  });
   $("mstBg").classList.add("on");
 }
 function mstRead(){
   const out = {};
-  $("mstFields").querySelectorAll("[data-mf]").forEach(el => out[el.dataset.mf] = el.value.trim());
+  $("mstFields").querySelectorAll("[data-mf]").forEach(el =>
+    out[el.dataset.mf] = (el.innerText !== undefined ? el.innerText : el.textContent).replace(/\u00A0/g," ").trim());
   return out;
 }
 $("mstClose").onclick = () => $("mstBg").classList.remove("on");
