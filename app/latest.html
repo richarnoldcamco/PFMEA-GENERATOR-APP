@@ -1016,10 +1016,28 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 
 /* =====================================================================
    CAMCO PFMEA BUILDER
-   APP_REV 37
+   APP_REV 38
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 38 · 2026-07-27
+     · TEMPLATE EXPORT MADE FULLY PER-PART, per operator ("upload the
+       drawing; edit the material type; edit the subcontract
+       processes") - all three were 919517 leftovers riding the
+       template. (1) ENGINEERING DRAWING TAB: the app's uploaded
+       drawing pages now append to the template export as sheet14 /
+       drawing12 / image9N media (SC-36), wired into workbook.xml
+       (sheetId 15, rId24), workbook rels and Content_Types. (2)
+       HEADER: Description + Material/Spec from the Build meta bar
+       replace the "GUIDE - 440C CRES..." family line; Drawing Rev
+       replaces the "Rev A (...CNE9225...)" string. (3) ROUTING TAB:
+       the two 919517 traveller images (image6/7) are replaced with
+       THIS part's traveller pages, and their twoCellAnchors are
+       converted to oneCellAnchors at native aspect so nothing
+       stretches; a one-page traveller drops the second slot. No
+       traveller/drawing loaded -> that portion of the template passes
+       through unchanged.
+
    Rev 37 · 2026-07-27
      · MASTER POPUP RE-LAID HORIZONTAL like the spreadsheet, per
        operator: the vertical field stack replaced by a single
@@ -1603,7 +1621,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
      · Geometry switch: IAQG (headers row 16) vs CAMCO 5-27-26 (row 6).
        Unresolved which is canonical - operator picks in the part strip.
    ===================================================================== */
-const APP_REV = 37;
+const APP_REV = 38;
 
 /* =======================================================================
    RULESET — CAMCO PFMEA Project Instructions Rev 97 (2026-06-07)
@@ -2917,18 +2935,43 @@ async function buildXlsxTemplate(){
   const partSwap = t => {
     let out = t.split("919517").join(m.part || "919517");
     out = out.split("Rev-B").join("Rev-" + (m.revLetter || "B"));
+    /* per-part header content (Rev 38): family / material line + drawing rev */
+    if(m.desc || m.material){
+      const fam = [m.desc, m.material].filter(Boolean).join(" - ");
+      out = out.split("GUIDE - 440C CRES, Heat Treated RC 56-60, Passivated").join(X(fam));
+    }
+    if(m.drawingRev){
+      out = out.split("Rev A (Drawing Rev A per CNE9225, 2024-10-10)").join(X("Rev " + m.drawingRev));
+    }
     return out;
   };
+  const trav = state.traveller;
+  const dataUrlBytes = u => b64ToBytes(String(u).split(",")[1] || "");
+  const imgDims = i => ({w: trav[i].w || 1600, h: trav[i].h || 2000});
   const parts = [];
   for(const e of entries){
     if(e.name === "xl/calcChain.xml") continue;                       /* stale after static Q/R/AB */
     let data = e.data;
-    if(e.name === "xl/sharedStrings.xml" || e.name === "xl/workbook.xml"){
+    if(e.name === "xl/sharedStrings.xml"){
       data = enc.encode(partSwap(td.decode(e.data)));
+    } else if(e.name === "xl/workbook.xml"){
+      let t = partSwap(td.decode(e.data));
+      if(state.drawing.length)
+        t = t.replace("</sheets>", `<sheet name="Engineering Drawing" sheetId="15" r:id="rId24"/></sheets>`);
+      data = enc.encode(t);
     } else if(e.name === "xl/_rels/workbook.xml.rels"){
-      data = enc.encode(td.decode(e.data).replace(/<Relationship[^>]*calcChain[^>]*\/>/, ""));
+      let t = td.decode(e.data).replace(/<Relationship[^>]*calcChain[^>]*\/>/, "");
+      if(state.drawing.length)
+        t = t.replace("</Relationships>",
+          `<Relationship Id="rId24" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet14.xml"/></Relationships>`);
+      data = enc.encode(t);
     } else if(e.name === "[Content_Types].xml"){
-      data = enc.encode(td.decode(e.data).replace(/<Override[^>]*calcChain[^>]*\/>/, ""));
+      let t = td.decode(e.data).replace(/<Override[^>]*calcChain[^>]*\/>/, "");
+      if(state.drawing.length)
+        t = t.replace("</Types>",
+          `<Override PartName="/xl/worksheets/sheet14.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>` +
+          `<Override PartName="/xl/drawings/drawing12.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/></Types>`);
+      data = enc.encode(t);
     } else if(e.name === "xl/worksheets/sheet1.xml"){
       let t = td.decode(e.data);
       /* strip comment/vml hooks so orphan markers cannot float on new rows */
@@ -2945,8 +2988,48 @@ async function buildXlsxTemplate(){
       data = enc.encode(td.decode(e.data)
         .replace(/<Relationship[^>]*comments[^>]*\/>/, "")
         .replace(/<Relationship[^>]*vmlDrawing[^>]*\/>/, ""));
+    } else if(e.name === "xl/drawings/drawing2.xml" && trav.length){
+      /* Routing tab: replace the 919517 traveller with THIS part's pages.
+         Convert each twoCellAnchor to a oneCellAnchor at native aspect so
+         the new pages are never stretched into the old regions. */
+      let t = td.decode(e.data);
+      const anchors = t.match(/<xdr:twoCellAnchor[\s\S]*?<\/xdr:twoCellAnchor>/g) || [];
+      anchors.forEach((a, i) => {
+        if(i > 1) return;
+        if(!trav[i]){ t = t.replace(a, ""); return; }          /* one-page traveller: drop slot 2 */
+        const from = (a.match(/<xdr:from>[\s\S]*?<\/xdr:from>/) || [""])[0];
+        const pic = (a.match(/<xdr:pic>[\s\S]*?<\/xdr:pic>/) || [""])[0];
+        const d = imgDims(i);
+        const cx = Math.round(d.w * 9525), cy = Math.round(d.h * 9525);
+        const pic2 = pic.replace(/<a:ext cx="\d+" cy="\d+"\/>/, `<a:ext cx="${cx}" cy="${cy}"/>`);
+        t = t.replace(a,
+          `<xdr:oneCellAnchor>${from}<xdr:ext cx="${cx}" cy="${cy}"/>${pic2}<xdr:clientData/></xdr:oneCellAnchor>`);
+      });
+      data = enc.encode(t);
+    } else if(e.name === "xl/media/image6.png" && trav.length){
+      data = dataUrlBytes(trav[0].url);
+    } else if(e.name === "xl/media/image7.png" && trav.length && trav[1]){
+      data = dataUrlBytes(trav[1].url);
     }
     parts.push({name: e.name, data});
+  }
+
+  /* SC-36: append THIS part's Engineering Drawing tab to the template */
+  if(state.drawing.length){
+    const media = drawingMedia();
+    parts.push({name:"xl/worksheets/sheet14.xml", data:enc.encode(drawingTabXml(true))});
+    parts.push({name:"xl/worksheets/_rels/sheet14.xml.rels", data:enc.encode(
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing" Target="../drawings/drawing12.xml"/>
+</Relationships>`)});
+    parts.push({name:"xl/drawings/drawing12.xml", data:enc.encode(drawingXml(media))});
+    parts.push({name:"xl/drawings/_rels/drawing12.xml.rels", data:enc.encode(
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">` +
+      media.map((mm,i) => `<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image9${mm.idx}.${mm.ext}"/>`).join("") +
+      `</Relationships>`)});
+    media.forEach(mm => parts.push({name:"xl/media/image9" + mm.idx + "." + mm.ext, data:mm.bytes}));
   }
   return zipStore(parts);
 }
