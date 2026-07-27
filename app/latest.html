@@ -955,6 +955,9 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
   .fview td.mid{text-align:center;vertical-align:middle}
   .fview tr.sel td{outline:2px solid var(--stamp);outline-offset:-2px}
   .fview tr:hover td{background:#FBF7F3}
+  .fview td[contenteditable]:focus{outline:2px solid var(--stamp);outline-offset:-2px;background:#FFFDF4}
+  .fview td.docbtn{cursor:pointer;color:var(--stamp);font-weight:800;text-decoration:underline}
+  .fview td.docbtn:hover{background:#F3E3E1}
   </style>
   <aside class="rail">
     <h2><span>Audit</span><span id="auditCount"></span></h2>
@@ -978,10 +981,25 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 
 /* =====================================================================
    CAMCO PFMEA BUILDER
-   APP_REV 34
+   APP_REV 35
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 35 · 2026-07-27
+     · FORM VIEW IS NOW EDIT-IN-PLACE, per operator markup (drawer
+       crossed out). Every text and rating cell is contenteditable:
+       typing writes straight into the row (input -> state + debounced
+       autosave). Ratings sanitize on blur (digits, clamped 1-10) and
+       the row re-renders in place - heat colors, Q, RPN, AR-RPN all
+       refresh with scroll position preserved; Enter commits a rating.
+       Focusing a cell selects the row (setSel: highlight + toolbar
+       enable, WITHOUT opening the drawer). The full editor is still
+       one click away behind the Doc (Line) # cell (maroon underlined),
+       for dropdown-driven fields like Operation Type.
+     · FAILURE TYPE ID COLUMN RESTORED as the first column (it was
+       dropped in the Rev 33 form view - operator caught it). Editable
+       inline like the rest; approved dot stays on Doc #.
+
    Rev 34 · 2026-07-27
      · UNTITLED SHELL FILES KILLED. Every app boot (including after a
        self-update) starts an empty session, and the folder reconnect
@@ -1525,7 +1543,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
      · Geometry switch: IAQG (headers row 16) vs CAMCO 5-27-26 (row 6).
        Unresolved which is canonical - operator picks in the part strip.
    ===================================================================== */
-const APP_REV = 34;
+const APP_REV = 35;
 
 /* =======================================================================
    RULESET — CAMCO PFMEA Project Instructions Rev 97 (2026-06-07)
@@ -2048,7 +2066,7 @@ function esc(v){
 const trunc = (s,len) => { s = String(s||""); return s.length>len ? s.slice(0,len-1)+"…" : s; };
 
 const FVIEW_COLS = [
-  ["Doc (Line) #",44],["OP",34],["Workcenter",52],["Process Step",70],["Process Description",150],
+  ["Failure Type ID",64],["Doc (Line) #",40],["OP",34],["Workcenter",52],["Process Step",70],["Process Description",150],
   ["Requirements",160],["Potential Failure Mode",170],["Potential Effect(s) of Failure",190],["SEV",34],
   ["Potential Cause(s) of Failure",190],["Current Prevention Controls",190],["Additional Prevention Control Evidence",120],
   ["OCC",34],["Current Detection Controls",190],["Additional Detection Control Evidence",120],["DET",34],
@@ -2064,31 +2082,64 @@ function fvTier(v){
 function renderGridForm(){
   let h = `<table class="fview"><colgroup>${FVIEW_COLS.map(c=>`<col style="width:${c[1]}px">`).join("")}</colgroup>` +
     `<thead><tr>${FVIEW_COLS.map(c=>`<th class="${/^(SEV|OCC|DET|RPN|AR )/.test(c[0])?"rate":""}">${c[0]}</th>`).join("")}</tr></thead><tbody>`;
+  const E = (f, r, i, v, cls, style) =>
+    `<td class="${cls||""}" style="${style||""}" contenteditable="true" spellcheck="false" data-i="${i}" data-f="${f}">${esc(v||"")}</td>`;
   state.rows.forEach((r,i)=>{
     const c = calc(r);
-    const T = v => esc(v || "");
     h += `<tr data-i="${i}" class="${i===selIdx?"sel":""}">
-      <td class="mid">${i+1}${r.approved?' <span style="color:#00B050">●</span>':""}</td>
-      <td class="mid">${T(r.op)}</td><td class="mid">${T(r.wc)}</td><td>${T(r.opName)}</td>
-      <td>${T(r.step)}</td><td>${T(r.req)}</td><td>${T(r.mode)}</td><td>${T(r.effect)}</td>
-      <td class="rate" style="${fvTier(r.sev)}">${T(r.sev)}</td>
-      <td>${T(r.cause)}</td><td>${T(r.prev)}</td><td>${T(r.addPrev)}</td>
-      <td class="rate" style="${fvTier(r.occ)}">${T(r.occ)}</td>
-      <td>${T(r.det)}</td><td>${T(r.addDet)}</td>
-      <td class="rate" style="${fvTier(r.detR)}">${T(r.detR)}</td>
+      ${E("id",r,i,r.id,"mid")}
+      <td class="mid docbtn" data-open="${i}" title="Open the full editor for this row">${i+1}${r.approved?' <span style="color:#00B050">●</span>':""}</td>
+      ${E("op",r,i,r.op,"mid")}${E("wc",r,i,r.wc,"mid")}${E("opName",r,i,r.opName)}
+      ${E("step",r,i,r.step)}${E("req",r,i,r.req)}${E("mode",r,i,r.mode)}${E("effect",r,i,r.effect)}
+      ${E("sev",r,i,r.sev,"rate",fvTier(r.sev))}
+      ${E("cause",r,i,r.cause)}${E("prev",r,i,r.prev)}${E("addPrev",r,i,r.addPrev)}
+      ${E("occ",r,i,r.occ,"rate",fvTier(r.occ))}
+      ${E("det",r,i,r.det)}${E("addDet",r,i,r.addDet)}
+      ${E("detR",r,i,r.detR,"rate",fvTier(r.detR))}
       <td class="rate" style="background:#D9D9D9">${c.q||""}</td>
       <td class="rate">${c.rpn||""}</td>
-      <td class="mid">${T(r.cls)}</td><td>${T(r.action)}</td><td class="mid">${T(r.resp)}</td>
-      <td class="mid">${T(r.target)}</td><td>${T(r.st1)}</td><td class="mid">${T(r.st2)}</td>
-      <td class="rate" style="${fvTier(r.aSev)}">${T(r.aSev)}</td>
-      <td class="rate">${T(r.aOcc)}</td><td class="rate">${T(r.aDet)}</td>
+      ${E("cls",r,i,r.cls,"mid")}${E("action",r,i,r.action)}${E("resp",r,i,r.resp,"mid")}
+      ${E("target",r,i,r.target,"mid")}${E("st1",r,i,r.st1)}${E("st2",r,i,r.st2,"mid")}
+      ${E("aSev",r,i,r.aSev,"rate",fvTier(r.aSev))}
+      ${E("aOcc",r,i,r.aOcc,"rate")}${E("aDet",r,i,r.aDet,"rate")}
       <td class="rate" style="${c.aRpn?"background:#A9D08E":""}">${c.aRpn||""}</td>
     </tr>`;
   });
   $("grid").innerHTML = h + "</tbody></table>";
-  $("grid").querySelectorAll("tbody tr").forEach(tr=>{
-    tr.onclick = () => select(parseInt(tr.dataset.i,10));
+  const RATE_F = {sev:1,occ:1,detR:1,aSev:1,aOcc:1,aDet:1};
+  const g = $("grid");
+  g.querySelectorAll("[data-open]").forEach(b => b.onclick = () => select(parseInt(b.dataset.open,10)));
+  g.querySelectorAll("td[contenteditable]").forEach(td => {
+    td.addEventListener("focus", () => setSel(parseInt(td.dataset.i,10)));
+    td.addEventListener("input", () => {
+      const r = state.rows[parseInt(td.dataset.i,10)];
+      r[td.dataset.f] = (td.innerText !== undefined ? td.innerText : td.textContent).replace(/\u00A0/g," ").trim();
+      saveWorking();
+    });
+    td.addEventListener("blur", () => {
+      const i = parseInt(td.dataset.i,10), f = td.dataset.f, r = state.rows[i];
+      if(RATE_F[f]){
+        const x = parseInt(String(r[f]).replace(/[^0-9]/g,""),10);
+        r[f] = isNaN(x) ? "" : String(Math.min(10, Math.max(1, x)));
+        saveWorking();
+      }
+      if(RATE_F[f] || f === "id"){
+        const sl = g.scrollLeft, st = g.scrollTop;
+        renderGridForm(); renderRail();
+        g.scrollLeft = sl; g.scrollTop = st;
+      }
+    });
+    td.addEventListener("keydown", e => {
+      if(e.key === "Enter" && RATE_F[td.dataset.f]){ e.preventDefault(); td.blur(); }
+    });
   });
+}
+function setSel(i){
+  if(selIdx === i) return;
+  selIdx = i;
+  $("grid").querySelectorAll("tbody tr").forEach(tr =>
+    tr.classList.toggle("sel", parseInt(tr.dataset.i,10) === i));
+  $("dupRow").disabled = $("delRow").disabled = (i < 0);
 }
 
 function renderGrid(){
