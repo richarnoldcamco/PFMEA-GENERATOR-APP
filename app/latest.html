@@ -965,10 +965,22 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 
 /* =====================================================================
    CAMCO PFMEA BUILDER
-   APP_REV 30
+   APP_REV 31
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 31 · 2026-07-27
+     · SCMH LOGO EMBEDDED on the FORM-1200-2 sheet. The operator's
+       69x45 scmh PNG (~4KB) now ships inside the app as LOGO_SCMH and
+       is anchored top-left of sheet1 (two-cell anchor, native size)
+       on every IAQG export. Plumbing: sheet1 gains xmlns:r + a
+       <drawing rId1> hook under IAQG geometry; drawing2.xml + rels +
+       xl/media/logoscmh.png; [Content_Types] assembly refactored to a
+       single extension-set + overrides pass so the logo and the SC-36
+       drawing-tab images can no longer emit duplicate png Defaults.
+       LOGO_L3 slot wired (top-center anchor ready) but empty until
+       the L3Harris image arrives - drop it in chat and it ships.
+
    Rev 30 · 2026-07-26
      · IAQG FORM-1200-2 EXPORT, matched to the operator's real 919517
        Rev-B deliverable. When Template Geometry = IAQG, sheet1 is now
@@ -1456,7 +1468,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
      · Geometry switch: IAQG (headers row 16) vs CAMCO 5-27-26 (row 6).
        Unresolved which is canonical - operator picks in the part strip.
    ===================================================================== */
-const APP_REV = 30;
+const APP_REV = 31;
 
 /* =======================================================================
    RULESET — CAMCO PFMEA Project Instructions Rev 97 (2026-06-07)
@@ -2421,7 +2433,7 @@ function sheetXmlIAQG(){
 
   const lastRow = firstData + Math.max(state.rows.length,1) - 1;
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
 <dimension ref="A1:Z${lastRow}"/>
 <sheetViews><sheetView tabSelected="1" workbookViewId="0" zoomScale="100" zoomScaleNormal="100">
 <pane ySplit="${headerRow}" topLeftCell="A${firstData}" activePane="bottomLeft" state="frozen"/>
@@ -2432,6 +2444,7 @@ ${cols}
 <sheetData>${rows.join("")}</sheetData>
 <pageMargins left="0.25" right="0.25" top="0.5" bottom="0.5" header="0.3" footer="0.3"/>
 <pageSetup orientation="landscape" paperSize="5"/>
+<drawing r:id="rId1"/>
 </worksheet>`;
 }
 
@@ -2586,6 +2599,31 @@ ${hasImages ? '<drawing r:id="rId1"/>' : ""}
 </worksheet>`;
 }
 
+/* FORM-1200-2 logos. scmh supplied by the operator (69x45 native);
+   L3Harris slot empty until its file arrives. */
+const LOGO_SCMH = "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";
+const LOGO_L3 = "";
+function logoDrawingXml(){
+  const anchors = [];
+  let id = 1;
+  const put = (col, colOffPx, w, h, rid) => {
+    anchors.push(`<xdr:twoCellAnchor editAs="oneCell">` +
+      `<xdr:from><xdr:col>${col}</xdr:col><xdr:colOff>${colOffPx*EMU}</xdr:colOff><xdr:row>0</xdr:row><xdr:rowOff>${2*EMU}</xdr:rowOff></xdr:from>` +
+      `<xdr:to><xdr:col>${col + Math.ceil(w/COL_PX)}</xdr:col><xdr:colOff>${(w % COL_PX)*EMU}</xdr:colOff><xdr:row>2</xdr:row><xdr:rowOff>${Math.max(0,(h-30))*EMU}</xdr:rowOff></xdr:to>` +
+      `<xdr:pic><xdr:nvPicPr><xdr:cNvPr id="${id}" name="Logo ${id}"/>` +
+      `<xdr:cNvPicPr><a:picLocks noChangeAspect="1"/></xdr:cNvPicPr></xdr:nvPicPr>` +
+      `<xdr:blipFill><a:blip r:embed="rId${rid}"/><a:stretch><a:fillRect/></a:stretch></xdr:blipFill>` +
+      `<xdr:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${w*EMU}" cy="${h*EMU}"/></a:xfrm>` +
+      `<a:prstGeom prst="rect"><a:avLst/></a:prstGeom></xdr:spPr></xdr:pic>` +
+      `<xdr:clientData/></xdr:twoCellAnchor>`);
+    id++;
+  };
+  put(0, 0, 69, 45, 1);                                   /* scmh, top-left */
+  if(LOGO_L3) put(8, 10, 140, 34, 2);                     /* L3Harris, top-center, when supplied */
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">${anchors.join("")}</xdr:wsDr>`;
+}
+
 function buildXlsx(){
   const files = [
     {name:"[Content_Types].xml", text:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -2618,15 +2656,13 @@ function buildXlsx(){
 
   const parts = files.map(f => ({name:f.name, data:enc.encode(f.text)}));
 
+  const extSet = new Set();
+  let ctOverrides = "";
+
   if(state.drawing.length){
     const media = drawingMedia();
-    /* image content types */
-    const exts = [...new Set(media.map(m => m.ext))]
-      .map(e => `<Default Extension="${e}" ContentType="image/${e}"/>`).join("");
-    parts[0].data = enc.encode(files[0].text
-      .replace('<Default Extension="xml" ContentType="application/xml"/>',
-               '<Default Extension="xml" ContentType="application/xml"/>' + exts +
-               '<Override PartName="/xl/drawings/drawing1.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/>'));
+    media.forEach(m => extSet.add(m.ext));
+    ctOverrides += '<Override PartName="/xl/drawings/drawing1.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/>';
     parts.push({name:"xl/worksheets/_rels/sheet2.xml.rels", data:enc.encode(
       `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
@@ -2635,6 +2671,31 @@ function buildXlsx(){
     parts.push({name:"xl/drawings/drawing1.xml", data:enc.encode(drawingXml(media))});
     parts.push({name:"xl/drawings/_rels/drawing1.xml.rels", data:enc.encode(drawingRels(media))});
     media.forEach(m => parts.push({name:"xl/media/image" + m.idx + "." + m.ext, data:m.bytes}));
+  }
+
+  if(state.meta.geometry === "iaqg"){
+    extSet.add("png");
+    ctOverrides += '<Override PartName="/xl/drawings/drawing2.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/>';
+    parts.push({name:"xl/worksheets/_rels/sheet1.xml.rels", data:enc.encode(
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing" Target="../drawings/drawing2.xml"/>
+</Relationships>`)});
+    parts.push({name:"xl/drawings/drawing2.xml", data:enc.encode(logoDrawingXml())});
+    const logoRels = [`<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/logoscmh.png"/>`];
+    if(LOGO_L3) logoRels.push(`<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/logol3.png"/>`);
+    parts.push({name:"xl/drawings/_rels/drawing2.xml.rels", data:enc.encode(
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">` + logoRels.join("") + `</Relationships>`)});
+    parts.push({name:"xl/media/logoscmh.png", data:b64ToBytes(LOGO_SCMH)});
+    if(LOGO_L3) parts.push({name:"xl/media/logol3.png", data:b64ToBytes(LOGO_L3)});
+  }
+
+  if(extSet.size || ctOverrides){
+    const exts = [...extSet].map(e => `<Default Extension="${e}" ContentType="image/${e}"/>`).join("");
+    parts[0].data = enc.encode(files[0].text
+      .replace('<Default Extension="xml" ContentType="application/xml"/>',
+               '<Default Extension="xml" ContentType="application/xml"/>' + exts + ctOverrides));
   }
 
   return zipStore(parts);
