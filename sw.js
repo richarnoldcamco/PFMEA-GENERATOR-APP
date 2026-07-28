@@ -1,12 +1,29 @@
-/* CAMCO PFMEA Builder service worker (Rev 93).
-   Cache-first for the app HTML: loads are served from this machine's
-   cache in under a second, while the network copy is fetched in the
-   background and stored for the next load. The in-app rev banner
+/* CAMCO PFMEA Builder service worker v2 (Rev 102).
+   Cache-first for the app HTML with PRE-CACHING at install: the worker
+   downloads the app into the local cache in the background the moment
+   it installs, so even the first post-install load is served locally.
+   Background refresh keeps the cache current; the in-app rev banner
    remains the immediate-update path. */
-const CACHE = "pf-app-v1";
+const CACHE = "pf-app-v2";
 
-self.addEventListener("install", e => { self.skipWaiting(); });
-self.addEventListener("activate", e => { e.waitUntil(self.clients.claim()); });
+self.addEventListener("install", e => {
+  e.waitUntil((async () => {
+    try{
+      const c = await caches.open(CACHE);
+      try{ await c.add("./"); }catch(err){}
+      try{ await c.add("index.html"); }catch(err){}
+    }catch(err){}
+    self.skipWaiting();
+  })());
+});
+
+self.addEventListener("activate", e => {
+  e.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)));
+    await self.clients.claim();
+  })());
+});
 
 self.addEventListener("fetch", e => {
   const req = e.request;
@@ -15,17 +32,20 @@ self.addEventListener("fetch", e => {
   if (url.origin !== self.location.origin) return;
   const isApp = req.mode === "navigate" || /\.html$/.test(url.pathname) || url.pathname.endsWith("/");
   if (!isApp) return;
-  const key = url.origin + url.pathname;           /* ?v= cache-busters collapse to one entry */
+  const key = url.origin + url.pathname;
+  const altKey = url.pathname.endsWith("/") ? key + "index.html"
+               : url.pathname.endsWith("/index.html") ? key.slice(0, -("index.html".length)) : null;
 
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);
-    const cached = await cache.match(key);
+    let cached = await cache.match(key);
+    if (!cached && altKey) cached = await cache.match(altKey);
     const refresh = fetch(req).then(r => {
       if (r && r.ok) cache.put(key, r.clone());
       return r;
     }).catch(() => null);
     if (cached) {
-      e.waitUntil(refresh);                        /* background update for next load */
+      e.waitUntil(refresh.then(() => {}));
       return cached;
     }
     const net = await refresh;
