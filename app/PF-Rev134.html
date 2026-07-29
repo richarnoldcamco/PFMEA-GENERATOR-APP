@@ -654,16 +654,16 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 
 <div class="gate-bg" id="gateBg">
   <div class="gate" role="dialog" aria-modal="true" aria-labelledby="gateHead">
-    <div class="gh" id="gateHead">Export control — release confirmation required</div>
+    <div class="gh" id="gateHead">Deploy confirmation required</div>
     <div class="gb">
-      <h3 id="gateTitle">This will send data off this device</h3>
-      <p id="gateLede"></p>
-      <div class="manifest" id="gateManifest"></div>
-      <p id="gateKeep"></p>
-      <div id="gateAcks"></div>
+      <h3 id="gateTitle">This deploys app Rev 137 to every machine</h3>
+      <p id="gateLede">The file is pushed to GitHub and published to the website. Every pinned copy of the app, on every machine, updates itself to this code within a minute. It is program code, not part data — but it is code your machines will run, so check it came from Claude's message and nowhere else.</p>
+      <div class="manifest" id="gateManifest">SOURCE FILE  ·  index_1.html  (600 KB)<br>REV IN FILE  ·  137   (this machine runs 134)<br>CODE REPO  ·  richarnoldcamco/PFMEA-GENERATOR-APP  →  app/latest.html, app/PF-Rev137.html<br>WEBSITE  ·  index.html  →  https://richarnoldcamco.github.io/PFMEA-GENERATOR-APP/</div>
+      <p id="gateKeep"><b>Not sent:</b> PFMEA plans, images, your API key and GitHub token.</p>
+      <div id="gateAcks"><label class="ack" data-ai="0"><input type="checkbox" data-ac="0"><span>I confirm this file came from Claude's delivery in our chat and I want every machine to run it.</span></label></div>
       <div class="gf">
         <button class="btn" id="gateCancel">Cancel</button>
-        <button class="btn key send" id="gateSend" disabled="">Send</button>
+        <button class="btn key send" id="gateSend">Send</button>
       </div>
     </div>
   </div>
@@ -1007,8 +1007,8 @@ const APP_REV = 134;
   }, true);
   </script>
   <div class="tabs">
-    <button class="tab" id="navBack" style="display:none" title="Back one screen">←</button>
-    <button class="tab on" data-go="menu">Menu</button>
+    <button class="tab" id="navBack" style="" title="Back one screen">←</button>
+    <button class="tab" data-go="menu">Menu</button>
     <button class="tab" data-go="build">Build</button>
     <button class="tab" data-go="trav">Traveller</button>
     <button class="tab" data-go="sets">Standard sets</button>
@@ -1016,7 +1016,7 @@ const APP_REV = 134;
     <button class="tab" data-go="photos">Photo library</button>
     <button class="tab" data-go="rules">Ruleset</button>
     <button class="tab" data-go="files">Prior PFMEAs</button>
-    <button class="tab" data-go="sync">GitHub</button>
+    <button class="tab on" data-go="sync">GitHub</button>
     <button class="tab" data-go="admin">Admin</button>
   </div>
   <button id="saveNow" title="Force a save right now">
@@ -1039,7 +1039,7 @@ const APP_REV = 134;
 </div>
 
 <!-- ============================ MENU ============================ -->
-<section class="screen menu-screen on" id="screen-menu">
+<section class="screen menu-screen" id="screen-menu">
   <div class="card">
     <span class="badge">PF</span>
     <h1>CAMCO PFMEA Builder</h1>
@@ -1217,7 +1217,7 @@ const APP_REV = 134;
 </section>
 
 <!-- =========================== SYNC ============================= -->
-<section class="screen doc" id="screen-sync">
+<section class="screen doc on" id="screen-sync">
   <div class="doc-in">
     <h1>GitHub</h1>
     <p class="lede">PFMEA files live in <span class="mono">plans/</span>, app versions in
@@ -1234,12 +1234,12 @@ const APP_REV = 134;
       <button class="btn" id="syPushApp">Push app code</button>
       <button class="btn" id="syPullApp">Pull newest app code</button>
       <button class="btn" id="syAuto">Enable plan autosave</button>
-      <span class="status" id="syStatus"></span>
+      <span class="status bad" id="syStatus">GitHub returned 409. app/latest.html does not match 28800231a53ed61df452da1b9ecc4fb19fb1572d</span>
     </div>
-    <div class="status" id="ghBudget" style="margin-bottom:8px"></div>
+    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 3 / 500 · autosave backs off at 400.</div>
     <input type="file" id="syAppFile" accept=".html" hidden="">
     <input type="file" id="syRevFile" accept=".html,.htm" hidden="">
-    <div id="syList2"></div>
+    <div id="syList2"><p>No plans/ folder yet — push one to create it.</p></div>
   </div>
 </section>
 
