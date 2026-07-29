@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en"><head>
+<html lang="en">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CAMCO PFMEA Builder</title>
@@ -664,7 +665,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
         <button id="nWide" title="Stretch this page wider">⇔ Wider</button>
         <button id="nNarrow" title="Squeeze this page narrower">⇥ Narrower</button>
         <span>step</span>
-        <select id="nStep"><option selected="">1</option><option>2</option><option>5</option><option>10</option><option>25</option><option>50</option></select>
+        <select id="nStep"><option selected>1</option><option>2</option><option>5</option><option>10</option><option>25</option><option>50</option></select>
         <span>px</span>
         <button id="nReset">Reset nudges</button>
       </div>
@@ -690,7 +691,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
       <div id="gateAcks"></div>
       <div class="gf">
         <button class="btn" id="gateCancel">Cancel</button>
-        <button class="btn key send" id="gateSend" disabled="">Send</button>
+        <button class="btn key send" id="gateSend" disabled>Send</button>
       </div>
     </div>
   </div>
@@ -698,7 +699,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 
 <div class="titlebar"><span class="tag">PF</span><span>CAMCO PFMEA Builder</span></div>
 
-
+<div id="bootOverlay" style="position:fixed;inset:0;z-index:500;background:#E9E6E0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;overflow:hidden">
+  <div id="bootStage" style="position:absolute;inset:14px;pointer-events:none"></div>
+  <div style="width:120px;height:120px;border:12px solid #D8D2C8;border-top-color:#7C1518;border-radius:50%;animation:pfspin .9s linear infinite"></div>
+  <div style="font-family:ui-monospace,Consolas,monospace;font-size:26px;font-weight:800;letter-spacing:.18em;color:#7C1518">LOADING FROM GITHUB…</div>
+  <div id="bootTimer" style="font-family:ui-monospace,Consolas,monospace;font-size:52px;font-weight:800;letter-spacing:.1em;color:#1B1616">0:00</div>
+  <div id="bootScene" style="font-family:ui-monospace,Consolas,monospace;font-size:12px;font-weight:800;letter-spacing:.14em;color:#8B8177"></div>
+  <div id="bootOverlaySub" style="font-family:ui-monospace,Consolas,monospace;font-size:13px;letter-spacing:.08em;color:#8B8177;max-width:560px;text-align:center;line-height:1.8">THE FULL APP IS DOWNLOADING — NOTHING CAN BE DONE UNTIL THIS DISAPPEARS. ONLY THE FIRST VISIT ON A MACHINE DOWNLOADS EVERYTHING; AFTER THAT IT OPENS FROM LOCAL CACHE IN UNDER A SECOND.</div>
+</div>
 <style>
 @keyframes pfspin{to{transform:rotate(360deg)}}
 @keyframes pfrace{
@@ -1005,14 +1013,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 137;
+const APP_REV = 138;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 137 · LOADED JUL 29, 5:31 PM</span>
+      <span class="sub" id="navSub">loading…</span>
     </span>
   </div>
   <script>
@@ -1034,8 +1042,8 @@ const APP_REV = 137;
   }, true);
   </script>
   <div class="tabs">
-    <button class="tab" id="navBack" style="" title="Back one screen">←</button>
-    <button class="tab" data-go="menu">Menu</button>
+    <button class="tab" id="navBack" style="display:none" title="Back one screen">←</button>
+    <button class="tab on" data-go="menu">Menu</button>
     <button class="tab" data-go="build">Build</button>
     <button class="tab" data-go="trav">Traveller</button>
     <button class="tab" data-go="sets">Standard sets</button>
@@ -1043,17 +1051,19 @@ const APP_REV = 137;
     <button class="tab" data-go="photos">Photo library</button>
     <button class="tab" data-go="rules">Ruleset</button>
     <button class="tab" data-go="files">Prior PFMEAs</button>
-    <button class="tab on" data-go="sync">GitHub</button>
+    <button class="tab" data-go="sync">GitHub</button>
     <button class="tab" data-go="admin">Admin</button>
   </div>
   <button id="saveNow" title="Force a save right now">
     <b>💾 SAVE</b><span id="saveNowSub">not saved yet</span>
   </button>
-  <button id="topChatPrompt" title="Copy a fresh handoff for starting a new Claude chat" style="margin-left:8px;background:#2F6FAF;color:#fff;border:1px solid #1E4C7C;border-radius:6px;
+  <button id="topChatPrompt" title="Copy a fresh handoff for starting a new Claude chat"
+    style="margin-left:8px;background:#2F6FAF;color:#fff;border:1px solid #1E4C7C;border-radius:6px;
     font-family:var(--mono);font-size:10.5px;font-weight:800;letter-spacing:.08em;padding:8px 12px;cursor:pointer">
     💬 NEW CHAT PROMPT
   </button>
-  <button id="topHandoff" title="Self-diagnose everything on this machine before moving to a new chat" style="margin-left:8px;background:#1E7A34;color:#fff;border:1px solid #124A1F;border-radius:6px;
+  <button id="topHandoff" title="Self-diagnose everything on this machine before moving to a new chat"
+    style="margin-left:8px;background:#1E7A34;color:#fff;border:1px solid #124A1F;border-radius:6px;
     font-family:var(--mono);font-size:10.5px;font-weight:800;letter-spacing:.08em;padding:8px 12px;cursor:pointer">
     ✓ HANDOFF CHECK
   </button>
@@ -1066,7 +1076,7 @@ const APP_REV = 137;
 </div>
 
 <!-- ============================ MENU ============================ -->
-<section class="screen menu-screen" id="screen-menu">
+<section class="screen menu-screen on" id="screen-menu">
   <div class="card">
     <span class="badge">PF</span>
     <h1>CAMCO PFMEA Builder</h1>
@@ -1097,7 +1107,7 @@ const APP_REV = 137;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 137 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot"></div>
   </div>
 </section>
 
@@ -1124,7 +1134,7 @@ const APP_REV = 137;
       <div class="nc-f"><label>Customer</label>
         <select id="nc_customer"></select></div>
       <div class="nc-f"><label>Action trigger</label>
-        <input id="nc_trigger" readonly=""></div>
+        <input id="nc_trigger" readonly></div>
 
       <div class="nc-f"><label>Description</label>
         <input id="nc_desc" placeholder="e.g., BORE, COMPRESSOR"></div>
@@ -1163,7 +1173,7 @@ const APP_REV = 137;
         <button id="dwRemove"><i>✕</i><span>Remove all</span></button>
       </div>
     </div>
-    <input type="file" id="dwIn" accept="image/*,application/pdf,.pdf" multiple="" hidden="">
+    <input type="file" id="dwIn" accept="image/*,application/pdf,.pdf" multiple hidden>
 
     <div class="nc-actions">
       <button class="nc-draft" id="ncDraft">💾 Save Draft</button>
@@ -1186,7 +1196,7 @@ const APP_REV = 137;
       <span>Click to choose files, drag them onto this box, or paste a screenshot with Ctrl+V.
         Load every page of a multi-page traveller. Images stay in the .json working file — they are not exported to the xlsx.</span>
     </div>
-    <input type="file" id="travIn" accept="image/*,application/pdf,.pdf" multiple="" hidden="">
+    <input type="file" id="travIn" accept="image/*,application/pdf,.pdf" multiple hidden>
 
     <div class="pages" id="travPages"></div>
     <div class="vbar" id="travBar" style="display:none">
@@ -1235,8 +1245,8 @@ const APP_REV = 137;
       <button class="btn key" id="fdChoose">Choose save folder</button>
       <button class="btn" id="fdReconnect" style="display:none">Reconnect folder</button>
       <button class="btn" id="fdRefresh">Refresh list</button>
-      <button class="btn" id="fdStop" style="">Stop autosaving</button>
-      <span class="status" id="fdStatus">Saving to PFMEA - SAVED PFMEA'S</span>
+      <button class="btn" id="fdStop" style="display:none">Stop autosaving</button>
+      <span class="status" id="fdStatus"></span>
     </div>
     <div id="fdWarn"></div>
     <div id="fdList"></div>
@@ -1244,7 +1254,7 @@ const APP_REV = 137;
 </section>
 
 <!-- =========================== SYNC ============================= -->
-<section class="screen doc on" id="screen-sync">
+<section class="screen doc" id="screen-sync">
   <div class="doc-in">
     <h1>GitHub</h1>
     <p class="lede">PFMEA files live in <span class="mono">plans/</span>, app versions in
@@ -1260,16 +1270,16 @@ const APP_REV = 137;
       <button class="btn" id="syList">Refresh list</button>
       <button class="btn" id="syPushApp">Push app code</button>
       <button class="btn" id="syPullApp">Pull newest app code</button>
-  <button class="btn key" id="dlWatchBtn" style="">⌁ Auto-deploy from Downloads</button>
-  <button class="btn" id="dlWatchStop" style="display: none;">Stop auto-deploy</button>
+  <button class="btn key" id="dlWatchBtn">⌁ Auto-deploy from Downloads</button>
+  <button class="btn" id="dlWatchStop" style="display:none">Stop auto-deploy</button>
       <button class="btn" id="syAuto">Enable plan autosave</button>
-      <span class="status" id="syStatus">plans → richarnoldcamco/PFMEA-GENERATOR-DATA   ·   code → richarnoldcamco/PFMEA-GENERATOR-APP</span>
-  <div class="status bad" id="dlWatchStatus" style="margin-top:6px">Folder not chosen.</div>
+      <span class="status" id="syStatus"></span>
+  <div class="status" id="dlWatchStatus" style="margin-top:6px"></div>
     </div>
-    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 9 / 500 · autosave backs off at 400.</div>
-    <input type="file" id="syAppFile" accept=".html" hidden="">
-    <input type="file" id="syRevFile" accept=".html,.htm" hidden="">
-    <div id="syList2"><p>No plans/ folder yet — push one to create it.</p></div>
+    <div class="status" id="ghBudget" style="margin-bottom:8px"></div>
+    <input type="file" id="syAppFile" accept=".html" hidden>
+    <input type="file" id="syRevFile" accept=".html,.htm" hidden>
+    <div id="syList2"></div>
   </div>
 </section>
 
@@ -1396,7 +1406,8 @@ const APP_REV = 137;
       <span class="mono" style="font-size:11px;letter-spacing:.05em;margin-left:10px;opacity:.8">
         copies every shipped row into your own list · your existing edits are kept</span>
     </div>
-    <div id="mstSyncNote" class="mono" style="font-size: 11.5px; letter-spacing: 0.05em; margin: 0px 0px 12px; padding: 8px 10px; border-left-width: ; border-left-style: ; border-left-color: rgb(30, 122, 52); background: rgb(243, 239, 233); color: rgb(58, 50, 46);">SYNCED from PFMEA-GENERATOR-DATA — 25 overrides, updated 2026-07-29 19:23</div>
+    <div id="mstSyncNote" class="mono" style="font-size:11.5px;letter-spacing:.05em;margin:0 0 12px;padding:8px 10px;
+      border-left:4px solid var(--rule-hard);background:#F3EFE9">Checking the shared master list…</div>
     <div id="mstTableWrap" style="overflow-x:auto;border:1px solid var(--rule-hard)"></div>
   </div>
 </section>
@@ -1414,110 +1425,22 @@ const APP_REV = 137;
 
 <!-- ========================== RULESET =========================== -->
 <section class="screen doc" id="screen-rules">
-  <div class="doc-in" id="rulesBody">
-<h1>Ruleset — Project Instructions Rev 97</h1>
-<p class="lede">What this app enforces on every row, and what it deliberately leaves to you.
-Where a rule and a rating disagree, the audit rail names the SC or Convention and the fix.</p>
-
-<h2>Action triggers — Convention #5</h2>
-<table style="width:100%">
-<tbody><tr><th>Customer</th><th>Recommended Action is required when</th></tr>
-<tr><td>L3Harris — all parts</td><td>RPN ≥ 100, regardless of Sev</td></tr>
-<tr><td>Default — other customers</td><td>(RPN ≥ 100 <b>and</b> Sev ≥ 7) <b>or</b> RPN ≥ 200</td></tr>
-</tbody></table>
-<div class="box"><b>House amendment #5A (2026-07-28).</b>
-Rows below the trigger carry <b>no Recommended Action at all</b> — column T stays empty at RPN &lt; 100 —
-with two exceptions that keep their Best Practice text because other rules depend on it:
-Mitsubishi per-part-dressing rows (the Occ credit is conditional on the formalization action, §3)
-and CNC program-edit rows (the lockdown reference stays on every machine so the action chain is consistent, §3).
-The audit flags any other sub-100 action; FIX SAFE clears them in one press.</div>
-<div class="box"><b>Sev ≥ 9 alone does not trigger.</b>
-A Sev 9 row with RPN &lt; 100 stays at Best Practice framing — and is still CC class per SC-32,
-because Class tracks the Sev tier independently of trigger state. That combination is correct, not contradictory.
-Clause (a) of the old default trigger was removed 2026-05-30.</div>
-
-<h2>Maximum detection credit without documented Gauge R&amp;R — Convention #3</h2>
-<table style="width:100%">
-<tbody><tr><th>Detection basis</th><th>Best Det</th></tr>
-<tr><td>Manual 100% attribute / go-no-go</td><td>5</td></tr>
-<tr><td>Manual 100% variable / measured</td><td>4</td></tr>
-<tr><td>In-machine probe, no auto-offset</td><td>4 — Detection only, no Occurrence credit</td></tr>
-<tr><td>In-machine probe + auto-offset</td><td>Occurrence credit, not Detection</td></tr>
-<tr><td>Sampled check (not 100%)</td><td>rate on the sampling basis</td></tr>
-<tr><td>No current detection control</td><td>10</td></tr>
-</tbody></table>
-<p>Current-state Det reflects the without-R&amp;R ceiling until R&amp;R is documented on that specific gauge.
-Action-result projections may commit R&amp;R with a target date.
-Project-wide classifications: slug squareness gage is <b>variable</b> (cap 4); go/no-go Deltronic pins on bores
-under .0005″ total tolerance are <b>attribute</b> (cap 5); all Mitsubishi grind inspection is 100%, so run-out is Det 4, not 5.</p>
-
-<h2>The other five conventions</h2>
-<div class="box"><b>#1 — Detection is the single strongest control</b>
-Redundant controls do not reduce Det. Controls checking different characteristics get their own lines.
-Anything in column L or O documents redundancy for audit and earns no rating credit.</div>
-<div class="box"><b>#2 — Severity cannot be reduced by inspection</b>
-Only a design change, process change, or redefined failure-effect scope moves Sev.
-100% inspection changes whether the failure escapes, not the consequence when it does.</div>
-<div class="box"><b>#4 — Probing earns Occurrence credit only with auto-offset</b>
-No CAMCO machine qualifies today. Hardinge Quest lathes have no probes at all; the Haas UMC has the kit
-installed but does not use the auto-offset option. Probing on either is Detection only.</div>
-<div class="box"><b>#6 — Residual risk acceptance</b>
-When RPN cannot go lower, document the floor and why, that prevention and detection are at AIAG limits or
-process capability, and QE plus customer SQE sign-off with a date. Stuck-high RPN with no rationale is an audit finding.</div>
-
-<h2>Current-state process facts — Section 3</h2>
-<p>Facts about how CAMCO operates today, not aspirations. A row crediting a control that does not exist is the
-most damaging error this project produces, because it survives review and misrepresents risk to the customer.</p>
-<div class="box"><b>Certs are not compared to bar tags at receipt</b>
-CX718-1 is authored at Rev-00 but not released; planned operational start Q3 2026.
-Cert-vs-tag-dependent rows rate Det 10 until the gate is released and operating.</div>
-<div class="box"><b>CNC programs are not locked down at any controller</b>
-Hardinge Quest, Mitsubishi grinder, and Haas UMC all allow full operator edit access, with no change-control gate
-and no checksum or diff at setup. Every PFMEA covering a CNC machining op carries the program-edit row until lockdown operates.</div>
-<div class="box"><b>The Mitsubishi grinder dresses the wheel before every part</b>
-Real machine-level prevention worth roughly one Occ step — but it is operator practice, not in a controlled procedure.
-Taking the credit requires a formalization action, and the prevention text must disclose the gap.
-One procedure retires it for every grind op on the machine.</div>
-<div class="box"><b>Hardinge specifics</b>
-Main spindle TIR ≤ .0001, so main spindle runout is not a valid cause on turning ops — use tool wear, work-hardening,
-programming offset, or bar-feed inconsistency. Live-tool spindle runout <i>is</i> valid on cross-hole ops.
-No climb milling and no helical toolpaths; straight drilling, axial plunge, and circular interpolation only.</div>
-<div class="box"><b>Military application by default</b>
-Jungle, desert, maritime environments; thermal and vibration cycling on a reusable unit.
-Write "military hardware," never "flight hardware" or "avionics," and never name a program.
-Flag ferromagnetic substitution near IMU, magnetometer, or gimbal sensors.</div>
-
-<h2>Formatting applied on export</h2>
-<p>SC-7 uniform 200 pt rows · SC-8 rows 3–15 hidden with the header band frozen · SC-9 ratings bold at 20 pt ·
-SC-11 column Q grey and narrow, R and AB traffic-lit red ≥ 100 / green 1–99 / white unrated · SC-12 long-text columns at width 30 ·
-SC-13 wrap on every cell · SC-14 four-tier Severity fill · SC-17 columns L and O headed and kept ·
-SC-23 100% zoom on every sheet · SC-31 column A at width 6 with approved rows green · SC-33 static values in Q, R, and AB,
-never formulas · SC-36 Engineering Drawing tab last. No conditional formatting anywhere.</p>
-
-<h2>What this app does not do</h2>
-<div class="box"><b>No image embedding</b>
-SC-25 reference photos, SC-29 vendor certificates, and the SC-36 drawing go in during the XML-surgery pass.
-Export from here first, embed second — never the reverse. Once a file carries images, openpyxl will silently
-destroy them on save (SC-30), so the surgery path is the only safe one from that point on.</div>
-<div class="box"><b>Template geometry is your call</b>
-Rev 97 describes the IAQG layout (headers row 16, data 17). The canonical CAMCO template dated 5-27-26 puts headers
-at row 6. Both export paths work; pick one in the part strip on the Build screen.</div>
-</div>
+  <div class="doc-in" id="rulesBody"></div>
 </section>
 
 <!-- =========================== BUILD ============================ -->
 <section class="screen" id="screen-build">
-<div class="meta" id="meta"><div class="mf"><label>Part number</label><input data-meta="part" type="text" value=""></div><div class="mf"><label>Drawing No.</label><input data-meta="drawing" type="text" value=""></div><div class="mf"><label>Description</label><input data-meta="desc" type="text" value=""></div><div class="mf"><label>Material / spec</label><div style="display:flex;gap:6px"><input data-meta="material" type="text" value=""><button id="aiMat" title="Have Claude retailor the material-sensitive rows to this material — proposals only, you approve each" style="flex:0 0 auto;background:#1E7A34;color:#fff;border:1px solid #124A1F;border-radius:4px;font-size:10px;font-weight:800;letter-spacing:.06em;padding:0 8px;cursor:pointer">AI ⟳</button></div></div><div class="mf"><label>Customer</label><select data-meta="customer"><option value="L3Harris" selected="">L3Harris</option><option value="Default (other)">Default (other)</option></select></div><div class="mf"><label>Rev letter (SC-5)</label><input data-meta="revLetter" type="text" value="A"></div><div class="mf"><label>Rev counter (SC-37)</label><input data-meta="revNum" type="number" value="1"></div><div class="mf"><label>Template geometry</label><select data-meta="geometry"><option value="iaqg" selected="">IAQG — headers row 16</option><option value="camco27">CAMCO 5-27-26 — headers row 6</option></select></div><div class="mf"><label>Prepared by</label><input data-meta="prepared" type="text" value=""></div></div>
+<div class="meta" id="meta"></div>
 <div class="bar">
   <button class="btn key" id="addRow">+ Row</button>
   <div class="menu" id="setMenu">
     <button class="btn" id="setBtn">Insert standard set ▾</button>
-    <div class="menu-pop" id="setPop"><button data-set="sc15"><b>SC-15 · Ship Receive, raw material</b><small>4 lines · Op 010 · traceability line is XRF-4 in the SC-21 set</small></button><button data-set="sc21"><b>SC-21 · Material Validation Op 015</b><small>exactly 4 lines · WC 09250</small></button><button data-set="sc20"><b>SC-20 · CNC Saw Op 020</b><small>exactly 3 lines · WC 52000</small></button><button data-set="sc24"><b>SC-24 · Mitsubishi grind</b><small>5 cause-based lines · WC 31943</small></button><button data-set="sc27"><b>SC-27 · Ship Away, outbound</b><small>exactly 3 lines · tailor mode 2 and 3</small></button><button data-set="sc16"><b>SC-16 · Ship Receive, vendor return</b><small>5 lines · pairs with SC-27</small></button><button data-set="prog"><b>CNC program-edit row</b><small>1 line · required on every CNC machining op</small></button></div>
+    <div class="menu-pop" id="setPop"></div>
   </div>
   <button class="btn" id="travBtn">Traveller</button>
   <button class="btn" id="viewToggle" title="Switch between the FORM-1200-2 look and the compact list">Compact view</button>
-  <button class="btn" id="dupRow" disabled="">Duplicate</button>
-  <button class="btn" id="delRow" disabled="">Delete</button>
+  <button class="btn" id="dupRow" disabled>Duplicate</button>
+  <button class="btn" id="delRow" disabled>Delete</button>
   <button class="btn" id="mstRefreshBtn">↻ Refresh from master<span class="qm" id="mstRefreshQ" tabindex="0">?<span class="qtip">
     <b>What this does</b>
     A row is COPIED out of the master list when it is first inserted, and never looks at the master again. Edit the master afterwards and this plan keeps the old wording and the old ratings for ever. This button re-reads the master and shows you the difference.
@@ -1534,17 +1457,15 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
     <b>Nothing is written until you approve.</b> REJECT leaves the plan exactly as it was.
   </span></span></button>
   <span class="spacer"></span>
-  <span class="tally" id="tally">0 rows · 0 triggered · 0 approved · <b>0 err</b></span>
+  <span class="tally" id="tally"></span>
   <button class="btn" id="loadBtn">Open .json</button>
   <button class="btn" id="saveBtn">Save .json</button>
   <button class="btn key" id="xlsxBtn">Export .xlsx</button>
-  <input type="file" id="fileIn" accept=".json,application/json" hidden="">
+  <input type="file" id="fileIn" accept=".json,application/json" hidden>
 </div>
 
 <main>
-  <div class="grid-wrap"><div id="grid"><div class="empty"><b>NO ROWS</b>
-      Add a row, or drop in a mandated failure-mode set.<br>
-      Standard sets arrive pre-rated and pre-worded against Rev 97.</div></div></div>
+  <div class="grid-wrap"><div id="grid"></div></div>
   <style>
   .fview{border-collapse:collapse;table-layout:fixed;font-size:10.5px;line-height:1.35;background:#fff}
   .fview th{position:sticky;top:0;z-index:5;background:#BDD7EE;border:1px solid #7F7F7F;
@@ -1644,8 +1565,8 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
   .mst .mf{display:flex;gap:8px;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--rule)}
   </style>
   <aside class="rail">
-    <h2><span>Audit</span><button id="auditFix" title="Apply safe auto-fixes — currently: clear non-exempt Recommended Actions on rows below RPN 100 (House #5A)" style="background:none;border:1px solid rgba(255,255,255,.5);color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;padding:0 5px">fix safe</button><span id="auditCount">CLEAR</span></h2>
-    <div id="findings"><div class="clean">No findings against Rev 97.<br><br>Photos (SC-25 / SC-29) and the<br>Engineering Drawing tab (SC-36)<br>are added after export.</div></div>
+    <h2><span>Audit</span><button id="auditFix" title="Apply safe auto-fixes — currently: clear non-exempt Recommended Actions on rows below RPN 100 (House #5A)" style="background:none;border:1px solid rgba(255,255,255,.5);color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;padding:0 5px">fix safe</button><span id="auditCount"></span></h2>
+    <div id="findings"></div>
   </aside>
 </main>
 
@@ -1694,6 +1615,23 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 138 · 2026-07-29
+     · AUTO-DEPLOY PICKER HARDENED after three failed grants on the
+       operator's machine, the last of which failed SILENTLY - "FOLDER
+       NOT CHOSEN" with no prompt and no reason.
+     · Root cause candidates fixed together: (a) the watcher checked
+       permission with folderPerm, which asks for READWRITE - the
+       picker was opened with mode:"read", so a read-only grant could
+       never satisfy the readwrite query and the handle always looked
+       lapsed. New dlPerm checks READ, matching what was requested and
+       what the watcher needs. (b) the catch block collapsed every
+       failure to "Folder not chosen" - AbortError, SecurityError and
+       genuine API failures were indistinguishable. Each now reports
+       its own name and message, and lands in the action log.
+     · Lapsed-handle path: pressing AUTO-DEPLOY with a stored handle
+       now tries a one-click permission RE-ASK before falling back to
+       the full picker.
+
    Rev 137 · 2026-07-29
      · AUTO-DEPLOY FROM DOWNLOADS, per operator - "I'm already too
        busy". Point the app at Downloads once; from then on it polls
@@ -7516,12 +7454,27 @@ function dlMarkDeployed(r){ try{ localStorage.setItem("pfAutoDeployedRev", Strin
 
 async function dlPickFolder(){
   if(!FOLDER_OK){ dlSay("This browser cannot watch a folder.", true); return; }
+  /* Rev 138: a lapsed handle first tries a plain permission re-ask —
+     one click instead of re-picking the folder every session. */
+  if(dlHandle || (dlHandle = await idbGet("dlwatch"))){
+    try{
+      if(await dlPerm(dlHandle, true)){ dlStart(); return; }
+    }catch(e){}
+    dlHandle = null;
+  }
   try{
     dlHandle = await window.showDirectoryPicker({mode:"read", startIn:"downloads"});
     await idbSet("dlwatch", dlHandle);
     dlStart();
     toast("Watching that folder — new app revs deploy themselves.");
-  }catch(e){ dlSay("Folder not chosen.", true); }
+  }catch(e){
+    /* Rev 138: name the actual failure instead of "folder not chosen" */
+    const n = (e && e.name) || "";
+    if(n === "AbortError") dlSay("Folder not chosen — the picker was closed.", true);
+    else if(n === "SecurityError") dlSay("The browser refused that folder (" + (e.message || "security restriction") + "). Try a folder inside C:\\Users\\<you>.", true);
+    else dlSay("Picker failed: " + n + " — " + (e && e.message ? e.message : e), true);
+    logAct("autodeploy", "pick failed: " + n + " " + (e && e.message || ""));
+  }
 }
 function dlStart(){
   if(dlTimer) clearInterval(dlTimer);
@@ -7541,9 +7494,18 @@ function dlStop(){
   if(sp) sp.style.display = "none";
   dlSay("Auto-deploy off.");
 }
+async function dlPerm(h, ask){
+  if(!h) return false;
+  const o = {mode:"read"};
+  try{
+    if(await h.queryPermission(o) === "granted") return true;
+    if(!ask) return false;
+    return await h.requestPermission(o) === "granted";
+  }catch(e){ return false; }
+}
 async function dlScan(){
   if(!dlHandle || dlBusy) return;
-  if(!(await folderPerm(dlHandle, false))){ dlSay("Folder permission lapsed — press the button again.", true); return; }
+  if(!(await dlPerm(dlHandle, false))){ dlSay("Folder permission lapsed — press AUTO-DEPLOY once to re-grant.", true); return; }
   if(!ghReady()){ dlSay("Set owner, repo and token on Admin before auto-deploy can push.", true); return; }
   dlBusy = true;
   try{
@@ -9334,7 +9296,7 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
   /* pull the newest code the moment we load, not 4s later */
   setTimeout(() => { _updLast = 0; ghAutoUpdateApp(); }, 400);
   if(FOLDER_OK) idbGet("dlwatch").then(async h => {
-  if(h && await folderPerm(h, false)){ dlHandle = h; dlStart(); }
+  if(h && await dlPerm(h, false)){ dlHandle = h; dlStart(); }
 }).catch(()=>{});
 if(FOLDER_OK) idbGet("dir").then(async h => {
     if(!h) return;
@@ -9373,6 +9335,5 @@ if(FOLDER_OK) idbGet("dir").then(async h => {
  }
 })();
 </script>
-
-
-</body></html>
+</body>
+</html>
