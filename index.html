@@ -986,7 +986,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 132;
+const APP_REV = 133;
 </script>
 <nav>
   <div class="brand">
@@ -1571,6 +1571,28 @@ const APP_REV = 132;
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 133 · 2026-07-29
+     · BOOT CRASH FIXED - my bug, introduced by the Rev 128 split and
+       shipped broken in 131/132. assets-vN.js declares
+       "const TEMPLATE_1200_2" and "const SC25_PHOTOS" at top level;
+       the app then declared THE SAME TWO NAMES again to read them off
+       window. Two top-level consts of one name is a redeclaration
+       SyntaxError, so the ENTIRE main script failed to parse, nothing
+       ran, and the loading overlay was never dismissed - an infinite
+       spinner with no error on screen. The DevTools Network tab is
+       what caught it: Load 1.94s, 470kB transferred, assets-v3.js 200
+       from disk cache, and 3 console errors. The download was never
+       the problem.
+     · Fix: the app no longer redeclares either name. The crate's own
+       top-level consts are in the same global lexical scope, so every
+       existing bare reference resolves to them unchanged. Crate is
+       untouched - assets-v3.js stays as uploaded, no re-upload.
+     · Lesson for the notes: after ANY change to the split boundary,
+       load the served page once and check the console before calling
+       it done. A syntax error in one script is silent on screen.
+     · Confirmed by this deploy: the split itself works. 470kB and
+       1.94s against 8.86MB and 3:57 before.
+
    Rev 132 · 2026-07-29
      · CRATE PATH MADE ABSOLUTE: /PFMEA-GENERATOR-APP/app/assets-v3.js
        Relative src was wrong and I had it wrong TWICE. The page the
@@ -5179,8 +5201,9 @@ function logoDrawingXml(){
    repacks. Every width, height, font, logo, and auxiliary tab survives
    byte-for-byte because they are never rebuilt. SC-30 doctrine.
    ======================================================================= */
-/* TEMPLATE_1200_2 lives in assets-v1.js. */
-const TEMPLATE_1200_2 = window.TEMPLATE_1200_2 || "";
+/* TEMPLATE_1200_2 is declared at top level by assets-vN.js, which loads first.
+   Do NOT redeclare it here — two top-level consts of one name is a
+   SyntaxError that kills this entire script. Rev 133. */
 
 async function inflateRaw(bytes){
   const ds = new DecompressionStream("deflate-raw");
@@ -8265,8 +8288,8 @@ function mstFind(id){
   }
   return null;
 }
-/* SC25_PHOTOS lives in assets-v1.js — see the asset-crate guard above. */
-const SC25_PHOTOS = window.SC25_PHOTOS || {};
+/* SC25_PHOTOS is declared at top level by assets-vN.js. Same rule as
+   TEMPLATE_1200_2 above — do not redeclare. Rev 133. */
 
 function renderMasterTable(){
   const wrap = $("mstTableWrap"); if(!wrap) return;
