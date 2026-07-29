@@ -1013,7 +1013,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 137;
+const APP_REV = 138;
 </script>
 <nav>
   <div class="brand">
@@ -1615,6 +1615,23 @@ const APP_REV = 137;
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 138 · 2026-07-29
+     · AUTO-DEPLOY PICKER HARDENED after three failed grants on the
+       operator's machine, the last of which failed SILENTLY - "FOLDER
+       NOT CHOSEN" with no prompt and no reason.
+     · Root cause candidates fixed together: (a) the watcher checked
+       permission with folderPerm, which asks for READWRITE - the
+       picker was opened with mode:"read", so a read-only grant could
+       never satisfy the readwrite query and the handle always looked
+       lapsed. New dlPerm checks READ, matching what was requested and
+       what the watcher needs. (b) the catch block collapsed every
+       failure to "Folder not chosen" - AbortError, SecurityError and
+       genuine API failures were indistinguishable. Each now reports
+       its own name and message, and lands in the action log.
+     · Lapsed-handle path: pressing AUTO-DEPLOY with a stored handle
+       now tries a one-click permission RE-ASK before falling back to
+       the full picker.
+
    Rev 137 · 2026-07-29
      · AUTO-DEPLOY FROM DOWNLOADS, per operator - "I'm already too
        busy". Point the app at Downloads once; from then on it polls
@@ -7437,12 +7454,27 @@ function dlMarkDeployed(r){ try{ localStorage.setItem("pfAutoDeployedRev", Strin
 
 async function dlPickFolder(){
   if(!FOLDER_OK){ dlSay("This browser cannot watch a folder.", true); return; }
+  /* Rev 138: a lapsed handle first tries a plain permission re-ask —
+     one click instead of re-picking the folder every session. */
+  if(dlHandle || (dlHandle = await idbGet("dlwatch"))){
+    try{
+      if(await dlPerm(dlHandle, true)){ dlStart(); return; }
+    }catch(e){}
+    dlHandle = null;
+  }
   try{
     dlHandle = await window.showDirectoryPicker({mode:"read", startIn:"downloads"});
     await idbSet("dlwatch", dlHandle);
     dlStart();
     toast("Watching that folder — new app revs deploy themselves.");
-  }catch(e){ dlSay("Folder not chosen.", true); }
+  }catch(e){
+    /* Rev 138: name the actual failure instead of "folder not chosen" */
+    const n = (e && e.name) || "";
+    if(n === "AbortError") dlSay("Folder not chosen — the picker was closed.", true);
+    else if(n === "SecurityError") dlSay("The browser refused that folder (" + (e.message || "security restriction") + "). Try a folder inside C:\\Users\\<you>.", true);
+    else dlSay("Picker failed: " + n + " — " + (e && e.message ? e.message : e), true);
+    logAct("autodeploy", "pick failed: " + n + " " + (e && e.message || ""));
+  }
 }
 function dlStart(){
   if(dlTimer) clearInterval(dlTimer);
@@ -7462,9 +7494,18 @@ function dlStop(){
   if(sp) sp.style.display = "none";
   dlSay("Auto-deploy off.");
 }
+async function dlPerm(h, ask){
+  if(!h) return false;
+  const o = {mode:"read"};
+  try{
+    if(await h.queryPermission(o) === "granted") return true;
+    if(!ask) return false;
+    return await h.requestPermission(o) === "granted";
+  }catch(e){ return false; }
+}
 async function dlScan(){
   if(!dlHandle || dlBusy) return;
-  if(!(await folderPerm(dlHandle, false))){ dlSay("Folder permission lapsed — press the button again.", true); return; }
+  if(!(await dlPerm(dlHandle, false))){ dlSay("Folder permission lapsed — press AUTO-DEPLOY once to re-grant.", true); return; }
   if(!ghReady()){ dlSay("Set owner, repo and token on Admin before auto-deploy can push.", true); return; }
   dlBusy = true;
   try{
@@ -9255,7 +9296,7 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
   /* pull the newest code the moment we load, not 4s later */
   setTimeout(() => { _updLast = 0; ghAutoUpdateApp(); }, 400);
   if(FOLDER_OK) idbGet("dlwatch").then(async h => {
-  if(h && await folderPerm(h, false)){ dlHandle = h; dlStart(); }
+  if(h && await dlPerm(h, false)){ dlHandle = h; dlStart(); }
 }).catch(()=>{});
 if(FOLDER_OK) idbGet("dir").then(async h => {
     if(!h) return;
