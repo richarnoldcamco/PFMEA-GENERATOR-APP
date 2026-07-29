@@ -1034,8 +1034,8 @@ const APP_REV = 137;
   }, true);
   </script>
   <div class="tabs">
-    <button class="tab" id="navBack" style="display:none" title="Back one screen">←</button>
-    <button class="tab on" data-go="menu">Menu</button>
+    <button class="tab" id="navBack" style="" title="Back one screen">←</button>
+    <button class="tab" data-go="menu">Menu</button>
     <button class="tab" data-go="build">Build</button>
     <button class="tab" data-go="trav">Traveller</button>
     <button class="tab" data-go="sets">Standard sets</button>
@@ -1043,7 +1043,7 @@ const APP_REV = 137;
     <button class="tab" data-go="photos">Photo library</button>
     <button class="tab" data-go="rules">Ruleset</button>
     <button class="tab" data-go="files">Prior PFMEAs</button>
-    <button class="tab" data-go="sync">GitHub</button>
+    <button class="tab on" data-go="sync">GitHub</button>
     <button class="tab" data-go="admin">Admin</button>
   </div>
   <button id="saveNow" title="Force a save right now">
@@ -1066,7 +1066,7 @@ const APP_REV = 137;
 </div>
 
 <!-- ============================ MENU ============================ -->
-<section class="screen menu-screen on" id="screen-menu">
+<section class="screen menu-screen" id="screen-menu">
   <div class="card">
     <span class="badge">PF</span>
     <h1>CAMCO PFMEA Builder</h1>
@@ -1244,7 +1244,7 @@ const APP_REV = 137;
 </section>
 
 <!-- =========================== SYNC ============================= -->
-<section class="screen doc" id="screen-sync">
+<section class="screen doc on" id="screen-sync">
   <div class="doc-in">
     <h1>GitHub</h1>
     <p class="lede">PFMEA files live in <span class="mono">plans/</span>, app versions in
@@ -1260,16 +1260,16 @@ const APP_REV = 137;
       <button class="btn" id="syList">Refresh list</button>
       <button class="btn" id="syPushApp">Push app code</button>
       <button class="btn" id="syPullApp">Pull newest app code</button>
-  <button class="btn key" id="dlWatchBtn">⌁ Auto-deploy from Downloads</button>
-  <button class="btn" id="dlWatchStop" style="display:none">Stop auto-deploy</button>
+  <button class="btn key" id="dlWatchBtn" style="">⌁ Auto-deploy from Downloads</button>
+  <button class="btn" id="dlWatchStop" style="display: none;">Stop auto-deploy</button>
       <button class="btn" id="syAuto">Enable plan autosave</button>
-      <span class="status" id="syStatus"></span>
-  <div class="status" id="dlWatchStatus" style="margin-top:6px"></div>
+      <span class="status" id="syStatus">plans → richarnoldcamco/PFMEA-GENERATOR-DATA   ·   code → richarnoldcamco/PFMEA-GENERATOR-APP</span>
+  <div class="status bad" id="dlWatchStatus" style="margin-top:6px">Folder not chosen.</div>
     </div>
-    <div class="status" id="ghBudget" style="margin-bottom:8px"></div>
+    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 9 / 500 · autosave backs off at 400.</div>
     <input type="file" id="syAppFile" accept=".html" hidden="">
     <input type="file" id="syRevFile" accept=".html,.htm" hidden="">
-    <div id="syList2"></div>
+    <div id="syList2"><p>No plans/ folder yet — push one to create it.</p></div>
   </div>
 </section>
 
