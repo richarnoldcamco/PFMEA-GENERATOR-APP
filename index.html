@@ -532,6 +532,33 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 .ptbl .btn.tdel{background:#6B4A21;border-color:#4E3517;color:#FBF3E7;font-weight:700;padding:7px 15px}
 .ptbl tr.now td{background:#FFFDF7}
 .ptbl tr.now td:first-child{box-shadow:inset 5px 0 0 var(--stamp)}
+
+/* ---------- ? badge + hover explainer (Rev 135) ---------- */
+.qm{display:inline-flex;align-items:center;justify-content:center;position:relative;
+  width:14px;height:14px;margin-left:7px;border-radius:50%;font-size:10px;font-weight:800;
+  line-height:1;background:var(--ink-3);color:var(--panel);cursor:help;vertical-align:middle;flex:none}
+.qm:hover,.qm:focus{background:var(--stamp);outline:none}
+.qm .qtip{display:none;position:absolute;top:calc(100% + 9px);left:-8px;z-index:9999;
+  width:430px;max-width:78vw;padding:13px 15px;text-align:left;text-transform:none;
+  letter-spacing:0;font-size:11.5px;font-weight:400;line-height:1.55;cursor:default;
+  color:var(--ink);background:var(--panel);border:1px solid var(--rule-hard);
+  border-left:4px solid var(--stamp);border-radius:3px;
+  box-shadow:0 10px 30px rgba(0,0,0,.22);white-space:normal}
+.qm:hover .qtip,.qm:focus .qtip{display:block}
+.qm .qtip b{display:block;margin:9px 0 2px;font-size:10.5px;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--stamp)}
+.qm .qtip b:first-child{margin-top:0}
+
+/* ---------- rating approve / reject strip (Rev 136) ---------- */
+.fview td.rate.chg{position:relative;padding-top:19px}
+.fview td.rate .rbx{position:absolute;top:1px;left:0;right:0;display:flex;
+  justify-content:center;gap:3px;line-height:1}
+.fview td.rate .rbx button{font:700 9px/1 var(--mono);padding:2px 4px;cursor:pointer;
+  border:1px solid var(--rule-hard);border-radius:2px}
+.fview td.rate .rbx .cok{background:#1B5E3A;border-color:#14472B;color:#fff}
+.fview td.rate .rbx .cno{background:#7C1518;border-color:#5A0F11;color:#fff}
+.fview td.rate .was{display:block;margin-top:2px;font:400 8.5px/1.2 var(--mono);
+  letter-spacing:0;opacity:.62}
 </style>
 </head>
 <body>
@@ -986,7 +1013,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 134;
+const APP_REV = 136;
 </script>
 <nav>
   <div class="brand">
@@ -1411,7 +1438,21 @@ const APP_REV = 134;
   <button class="btn" id="viewToggle" title="Switch between the FORM-1200-2 look and the compact list">Compact view</button>
   <button class="btn" id="dupRow" disabled>Duplicate</button>
   <button class="btn" id="delRow" disabled>Delete</button>
-  <button class="btn" id="mstRefreshBtn" title="Re-pull the current master definition into this row (or every row) and review the changes before anything is written">↻ Refresh from master</button>
+  <button class="btn" id="mstRefreshBtn">↻ Refresh from master<span class="qm" id="mstRefreshQ" tabindex="0">?<span class="qtip">
+    <b>What this does</b>
+    A row is COPIED out of the master list when it is first inserted, and never looks at the master again. Edit the master afterwards and this plan keeps the old wording and the old ratings for ever. This button re-reads the master and shows you the difference.
+    <b>Scope</b>
+    A row selected — that row only. Nothing selected — every row in the plan.
+    <b>What you get</b>
+    ORIGINAL VERBIAGE on top, PROPOSED VERBIAGE underneath. A preview, not a new row: your row count does not change.
+    <b>Deciding</b>
+    Text cells carry ✓ accept · ✎ edit · ✕ keep the old wording, one set per cell. Sev / Occ / Det move together with the row-level APPROVE — taking a new Det while keeping an old Occ would give an RPN that matches nothing.
+    <b>What never moves</b>
+    Op number and work centre. Those belong to the part, not to the failure type.
+    <b>Blanking counts as a change</b>
+    Where the master has an empty Recommended Action under House Rule #5A, the refresh proposes CLEARING a stale action chain rather than leaving it behind.
+    <b>Nothing is written until you approve.</b> REJECT leaves the plan exactly as it was.
+  </span></span></button>
   <span class="spacer"></span>
   <span class="tally" id="tally"></span>
   <button class="btn" id="loadBtn">Open .json</button>
@@ -1571,6 +1612,42 @@ const APP_REV = 134;
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 136 · 2026-07-29
+     · RATINGS NOW CARRY THEIR OWN APPROVE / REJECT, per operator -
+       reversing my Rev 127 decision to leave them row-level only. Sev,
+       Occ and Det each get a green tick and a red cross when they
+       differ, plus a small "was N" under the value so the old rating
+       stays visible next to the new one.
+     · My original objection was that a partial approval produces an
+       incoherent RPN. That was a reason to RECOMPUTE, not a reason to
+       withhold the control: the Q and RPN cells in the proposed row
+       already derive from the merged row, so rejecting one rating
+       updates the RPN on screen immediately and the number always
+       matches the cells actually accepted.
+     · The XRF-4 case is why this matters. Approving the Recommended
+       Action cell alone cleared the action while the row still read
+       Det 10 / RPN 270, and the audit correctly raised a blank-action
+       non-conformance. With per-rating control the operator can see
+       exactly which cell puts the row over the trigger.
+     · Reuses the existing data-cok / data-cno handlers - no new wiring,
+       and the same per-cell path already covered by MST_REFRESH_FIELDS.
+
+   Rev 135 · 2026-07-29
+     · "?" BADGE on Refresh from master, per operator - hover or
+       keyboard-focus opens a detailed explainer instead of the one-
+       line title attribute. Covers why a row goes stale at all (copy
+       at insert, never re-read), scope with and without a selection,
+       that the two bands are a PREVIEW and the row count does not
+       change, per-cell accept/edit/reject on text vs row-level on the
+       ratings and why they cannot be split, that op and work centre
+       never move, and that an empty master action means the refresh
+       proposes CLEARING a stale chain.
+     · The badge stops click propagation so pressing ? never fires the
+       refresh. Focusable, so it opens from the keyboard too. The tip
+       overrides the global uppercase styling - it is prose, not a
+       control label, and reads badly shouted.
+     · Reusable: .qm / .qtip drop into any other button unchanged.
+
    Rev 134 · 2026-07-29
      · SECOND BOOT CRASH FIXED, same class as Rev 133, also mine.
        Console named it: "Identifier 'MST_FIELDS' has already been
@@ -4379,15 +4456,28 @@ function renderGridForm(){
           `<button class="cno" data-cno="${i}" data-cf="${f}" title="Reject this cell — keep the BEFORE wording">✕</button></span>` : "";
         return `<td class="${chg?"chg":""}" contenteditable="true" spellcheck="false" data-aif="${f}" data-ai="${i}">${strip}${esc(merged[f]||"")}</td>`;
       };
+      /* Rev 136 — ratings get their own approve / reject, per operator.
+         RPN below is recomputed from whatever is currently accepted, so the
+         number on screen always matches the cells actually taken. */
+      const rcell = f => {
+        const chg = Object.prototype.hasOwnProperty.call(p, f) && String(p[f]) !== String(r[f] ?? "");
+        const v = merged[f];
+        if(!chg) return `<td class="rate" style="${fvTier(v)}">${esc(v||"")}</td>`;
+        return `<td class="rate chg" style="${fvTier(v)}">` +
+          `<span class="rbx">` +
+            `<button class="cok" data-cok="${i}" data-cf="${f}" title="Approve this rating">✓</button>` +
+            `<button class="cno" data-cno="${i}" data-cf="${f}" title="Reject — keep ${esc(r[f] ?? "")}">✕</button>` +
+          `</span>${esc(v||"")}<span class="was">was ${esc(r[f] ?? "—")}</span></td>`;
+      };
       h += `<tr class="aiA" data-ai-row="${i}"><td class="mid"><b>${esc(r.id)}</b></td>
         <td class="mid"><div class="aiBtns"><button class="ok" data-aiok="${i}">✓ APPROVE</button><button class="no" data-aino="${i}">✕ REJECT</button></div></td>
         <td class="mid">${esc(r.op)}</td><td class="mid">${esc(r.wc)}</td><td>${esc(r.opName||"")}</td><td>${esc(r.step||"")}</td>
         ${ecell("req")}${ecell("mode")}${ecell("effect")}
-        <td class="rate" style="${fvTier(merged.sev)}">${esc(merged.sev||"")}</td>
+        ${rcell("sev")}
         ${ecell("cause")}${ecell("prev")}${ecell("addPrev")}
-        <td class="rate" style="${fvTier(merged.occ)}">${esc(merged.occ||"")}</td>
+        ${rcell("occ")}
         ${ecell("det")}${ecell("addDet")}
-        <td class="rate" style="${fvTier(merged.detR)}">${esc(merged.detR||"")}</td>
+        ${rcell("detR")}
         <td class="rate" style="background:#D9D9D9">${cm.q||""}</td><td class="rate">${cm.rpn||""}</td>
         <td class="mid">${esc(merged.cls||"")}</td>${ecell("action")}
         <td class="mid">${esc(r.resp||"")}</td><td class="mid">${esc(r.target||"")}</td>
@@ -4720,6 +4810,9 @@ $("dupRow").onclick = () => {
   state.rows.splice(selIdx+1, 0, copy); select(selIdx+1); renderRail();
 };
 $("mstRefreshBtn").onclick = mstRefreshRun;
+{ const q = $("mstRefreshQ");
+  if(q){ q.onclick = e => e.stopPropagation();      /* the ? is a label, not a trigger */
+         q.onmousedown = e => e.preventDefault(); } }
 $("delRow").onclick = () => {
   if(selIdx<0) return;
   state.rows.splice(selIdx,1);
