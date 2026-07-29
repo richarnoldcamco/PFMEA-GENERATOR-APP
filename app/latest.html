@@ -531,6 +531,33 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 .ptbl .btn.tdel{background:#6B4A21;border-color:#4E3517;color:#FBF3E7;font-weight:700;padding:7px 15px}
 .ptbl tr.now td{background:#FFFDF7}
 .ptbl tr.now td:first-child{box-shadow:inset 5px 0 0 var(--stamp)}
+
+/* ---------- ? badge + hover explainer (Rev 135) ---------- */
+.qm{display:inline-flex;align-items:center;justify-content:center;position:relative;
+  width:14px;height:14px;margin-left:7px;border-radius:50%;font-size:10px;font-weight:800;
+  line-height:1;background:var(--ink-3);color:var(--panel);cursor:help;vertical-align:middle;flex:none}
+.qm:hover,.qm:focus{background:var(--stamp);outline:none}
+.qm .qtip{display:none;position:absolute;top:calc(100% + 9px);left:-8px;z-index:9999;
+  width:430px;max-width:78vw;padding:13px 15px;text-align:left;text-transform:none;
+  letter-spacing:0;font-size:11.5px;font-weight:400;line-height:1.55;cursor:default;
+  color:var(--ink);background:var(--panel);border:1px solid var(--rule-hard);
+  border-left:4px solid var(--stamp);border-radius:3px;
+  box-shadow:0 10px 30px rgba(0,0,0,.22);white-space:normal}
+.qm:hover .qtip,.qm:focus .qtip{display:block}
+.qm .qtip b{display:block;margin:9px 0 2px;font-size:10.5px;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--stamp)}
+.qm .qtip b:first-child{margin-top:0}
+
+/* ---------- rating approve / reject strip (Rev 136) ---------- */
+.fview td.rate.chg{position:relative;padding-top:19px}
+.fview td.rate .rbx{position:absolute;top:1px;left:0;right:0;display:flex;
+  justify-content:center;gap:3px;line-height:1}
+.fview td.rate .rbx button{font:700 9px/1 var(--mono);padding:2px 4px;cursor:pointer;
+  border:1px solid var(--rule-hard);border-radius:2px}
+.fview td.rate .rbx .cok{background:#1B5E3A;border-color:#14472B;color:#fff}
+.fview td.rate .rbx .cno{background:#7C1518;border-color:#5A0F11;color:#fff}
+.fview td.rate .was{display:block;margin-top:2px;font:400 8.5px/1.2 var(--mono);
+  letter-spacing:0;opacity:.62}
 </style>
 </head>
 <body>
@@ -654,16 +681,16 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 
 <div class="gate-bg" id="gateBg">
   <div class="gate" role="dialog" aria-modal="true" aria-labelledby="gateHead">
-    <div class="gh" id="gateHead">Deploy confirmation required</div>
+    <div class="gh" id="gateHead">Export control — release confirmation required</div>
     <div class="gb">
-      <h3 id="gateTitle">This deploys app Rev 137 to every machine</h3>
-      <p id="gateLede">The file is pushed to GitHub and published to the website. Every pinned copy of the app, on every machine, updates itself to this code within a minute. It is program code, not part data — but it is code your machines will run, so check it came from Claude's message and nowhere else.</p>
-      <div class="manifest" id="gateManifest">SOURCE FILE  ·  index_1.html  (600 KB)<br>REV IN FILE  ·  137   (this machine runs 134)<br>CODE REPO  ·  richarnoldcamco/PFMEA-GENERATOR-APP  →  app/latest.html, app/PF-Rev137.html<br>WEBSITE  ·  index.html  →  https://richarnoldcamco.github.io/PFMEA-GENERATOR-APP/</div>
-      <p id="gateKeep"><b>Not sent:</b> PFMEA plans, images, your API key and GitHub token.</p>
-      <div id="gateAcks"><label class="ack" data-ai="0"><input type="checkbox" data-ac="0"><span>I confirm this file came from Claude's delivery in our chat and I want every machine to run it.</span></label></div>
+      <h3 id="gateTitle">This will send data off this device</h3>
+      <p id="gateLede"></p>
+      <div class="manifest" id="gateManifest"></div>
+      <p id="gateKeep"></p>
+      <div id="gateAcks"></div>
       <div class="gf">
         <button class="btn" id="gateCancel">Cancel</button>
-        <button class="btn key send" id="gateSend">Send</button>
+        <button class="btn key send" id="gateSend" disabled="">Send</button>
       </div>
     </div>
   </div>
@@ -978,14 +1005,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 134;
+const APP_REV = 137;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 134 · LOADED JUL 29, 5:12 PM</span>
+      <span class="sub" id="navSub">APP REV 137 · LOADED JUL 29, 5:31 PM</span>
     </span>
   </div>
   <script>
@@ -1007,8 +1034,8 @@ const APP_REV = 134;
   }, true);
   </script>
   <div class="tabs">
-    <button class="tab" id="navBack" style="" title="Back one screen">←</button>
-    <button class="tab" data-go="menu">Menu</button>
+    <button class="tab" id="navBack" style="display:none" title="Back one screen">←</button>
+    <button class="tab on" data-go="menu">Menu</button>
     <button class="tab" data-go="build">Build</button>
     <button class="tab" data-go="trav">Traveller</button>
     <button class="tab" data-go="sets">Standard sets</button>
@@ -1016,7 +1043,7 @@ const APP_REV = 134;
     <button class="tab" data-go="photos">Photo library</button>
     <button class="tab" data-go="rules">Ruleset</button>
     <button class="tab" data-go="files">Prior PFMEAs</button>
-    <button class="tab on" data-go="sync">GitHub</button>
+    <button class="tab" data-go="sync">GitHub</button>
     <button class="tab" data-go="admin">Admin</button>
   </div>
   <button id="saveNow" title="Force a save right now">
@@ -1039,7 +1066,7 @@ const APP_REV = 134;
 </div>
 
 <!-- ============================ MENU ============================ -->
-<section class="screen menu-screen" id="screen-menu">
+<section class="screen menu-screen on" id="screen-menu">
   <div class="card">
     <span class="badge">PF</span>
     <h1>CAMCO PFMEA Builder</h1>
@@ -1070,7 +1097,7 @@ const APP_REV = 134;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 134 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 137 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1217,7 +1244,7 @@ const APP_REV = 134;
 </section>
 
 <!-- =========================== SYNC ============================= -->
-<section class="screen doc on" id="screen-sync">
+<section class="screen doc" id="screen-sync">
   <div class="doc-in">
     <h1>GitHub</h1>
     <p class="lede">PFMEA files live in <span class="mono">plans/</span>, app versions in
@@ -1233,13 +1260,16 @@ const APP_REV = 134;
       <button class="btn" id="syList">Refresh list</button>
       <button class="btn" id="syPushApp">Push app code</button>
       <button class="btn" id="syPullApp">Pull newest app code</button>
+  <button class="btn key" id="dlWatchBtn">⌁ Auto-deploy from Downloads</button>
+  <button class="btn" id="dlWatchStop" style="display:none">Stop auto-deploy</button>
       <button class="btn" id="syAuto">Enable plan autosave</button>
-      <span class="status bad" id="syStatus">GitHub returned 409. app/latest.html does not match 28800231a53ed61df452da1b9ecc4fb19fb1572d</span>
+      <span class="status" id="syStatus"></span>
+  <div class="status" id="dlWatchStatus" style="margin-top:6px"></div>
     </div>
-    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 5 / 500 · autosave backs off at 400.</div>
+    <div class="status" id="ghBudget" style="margin-bottom:8px"></div>
     <input type="file" id="syAppFile" accept=".html" hidden="">
     <input type="file" id="syRevFile" accept=".html,.htm" hidden="">
-    <div id="syList2"><p>No plans/ folder yet — push one to create it.</p></div>
+    <div id="syList2"></div>
   </div>
 </section>
 
@@ -1488,7 +1518,21 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
   <button class="btn" id="viewToggle" title="Switch between the FORM-1200-2 look and the compact list">Compact view</button>
   <button class="btn" id="dupRow" disabled="">Duplicate</button>
   <button class="btn" id="delRow" disabled="">Delete</button>
-  <button class="btn" id="mstRefreshBtn" title="Re-pull the current master definition into this row (or every row) and review the changes before anything is written">↻ Refresh from master</button>
+  <button class="btn" id="mstRefreshBtn">↻ Refresh from master<span class="qm" id="mstRefreshQ" tabindex="0">?<span class="qtip">
+    <b>What this does</b>
+    A row is COPIED out of the master list when it is first inserted, and never looks at the master again. Edit the master afterwards and this plan keeps the old wording and the old ratings for ever. This button re-reads the master and shows you the difference.
+    <b>Scope</b>
+    A row selected — that row only. Nothing selected — every row in the plan.
+    <b>What you get</b>
+    ORIGINAL VERBIAGE on top, PROPOSED VERBIAGE underneath. A preview, not a new row: your row count does not change.
+    <b>Deciding</b>
+    Text cells carry ✓ accept · ✎ edit · ✕ keep the old wording, one set per cell. Sev / Occ / Det move together with the row-level APPROVE — taking a new Det while keeping an old Occ would give an RPN that matches nothing.
+    <b>What never moves</b>
+    Op number and work centre. Those belong to the part, not to the failure type.
+    <b>Blanking counts as a change</b>
+    Where the master has an empty Recommended Action under House Rule #5A, the refresh proposes CLEARING a stale action chain rather than leaving it behind.
+    <b>Nothing is written until you approve.</b> REJECT leaves the plan exactly as it was.
+  </span></span></button>
   <span class="spacer"></span>
   <span class="tally" id="tally">0 rows · 0 triggered · 0 approved · <b>0 err</b></span>
   <button class="btn" id="loadBtn">Open .json</button>
@@ -1650,6 +1694,63 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 137 · 2026-07-29
+     · AUTO-DEPLOY FROM DOWNLOADS, per operator - "I'm already too
+       busy". Point the app at Downloads once; from then on it polls
+       every 8s for an app file with a HIGHER APP_REV than the running
+       one and publishes it itself: app/PF-RevNNN.html, app/latest.html
+       and the website index.html. No picker, no confirmation gate, no
+       github.com. Per-rev effort drops to clicking the link in chat.
+     · The token never moves. The app already holds it and already does
+       every other push; this reuses ghPut exactly as the deploy drop
+       does. Nothing new is exposed anywhere.
+     · Guards, since this bypasses the ITAR gate: the file must carry
+       the app's own marker string, must parse an APP_REV, must be
+       100KB-4MB, must be STRICTLY NEWER than the running rev, and must
+       not already be recorded in pfAutoDeployedRev. A stale file in
+       Downloads can never roll every machine backwards, and a rev is
+       never pushed twice.
+     · Does NOT auto-reload. The operator decides when to take new
+       code; pinned copies pick it up on their own timer as always.
+     · Handle persists in IndexedDB under "dlwatch" and restores at
+       boot beside the existing save-folder handle.
+
+   Rev 136 · 2026-07-29
+     · RATINGS NOW CARRY THEIR OWN APPROVE / REJECT, per operator -
+       reversing my Rev 127 decision to leave them row-level only. Sev,
+       Occ and Det each get a green tick and a red cross when they
+       differ, plus a small "was N" under the value so the old rating
+       stays visible next to the new one.
+     · My original objection was that a partial approval produces an
+       incoherent RPN. That was a reason to RECOMPUTE, not a reason to
+       withhold the control: the Q and RPN cells in the proposed row
+       already derive from the merged row, so rejecting one rating
+       updates the RPN on screen immediately and the number always
+       matches the cells actually accepted.
+     · The XRF-4 case is why this matters. Approving the Recommended
+       Action cell alone cleared the action while the row still read
+       Det 10 / RPN 270, and the audit correctly raised a blank-action
+       non-conformance. With per-rating control the operator can see
+       exactly which cell puts the row over the trigger.
+     · Reuses the existing data-cok / data-cno handlers - no new wiring,
+       and the same per-cell path already covered by MST_REFRESH_FIELDS.
+
+   Rev 135 · 2026-07-29
+     · "?" BADGE on Refresh from master, per operator - hover or
+       keyboard-focus opens a detailed explainer instead of the one-
+       line title attribute. Covers why a row goes stale at all (copy
+       at insert, never re-read), scope with and without a selection,
+       that the two bands are a PREVIEW and the row count does not
+       change, per-cell accept/edit/reject on text vs row-level on the
+       ratings and why they cannot be split, that op and work centre
+       never move, and that an empty master action means the refresh
+       proposes CLEARING a stale chain.
+     · The badge stops click propagation so pressing ? never fires the
+       refresh. Focusable, so it opens from the keyboard too. The tip
+       overrides the global uppercase styling - it is prose, not a
+       control label, and reads badly shouted.
+     · Reusable: .qm / .qtip drop into any other button unchanged.
+
    Rev 134 · 2026-07-29
      · SECOND BOOT CRASH FIXED, same class as Rev 133, also mine.
        Console named it: "Identifier 'MST_FIELDS' has already been
@@ -4458,15 +4559,28 @@ function renderGridForm(){
           `<button class="cno" data-cno="${i}" data-cf="${f}" title="Reject this cell — keep the BEFORE wording">✕</button></span>` : "";
         return `<td class="${chg?"chg":""}" contenteditable="true" spellcheck="false" data-aif="${f}" data-ai="${i}">${strip}${esc(merged[f]||"")}</td>`;
       };
+      /* Rev 136 — ratings get their own approve / reject, per operator.
+         RPN below is recomputed from whatever is currently accepted, so the
+         number on screen always matches the cells actually taken. */
+      const rcell = f => {
+        const chg = Object.prototype.hasOwnProperty.call(p, f) && String(p[f]) !== String(r[f] ?? "");
+        const v = merged[f];
+        if(!chg) return `<td class="rate" style="${fvTier(v)}">${esc(v||"")}</td>`;
+        return `<td class="rate chg" style="${fvTier(v)}">` +
+          `<span class="rbx">` +
+            `<button class="cok" data-cok="${i}" data-cf="${f}" title="Approve this rating">✓</button>` +
+            `<button class="cno" data-cno="${i}" data-cf="${f}" title="Reject — keep ${esc(r[f] ?? "")}">✕</button>` +
+          `</span>${esc(v||"")}<span class="was">was ${esc(r[f] ?? "—")}</span></td>`;
+      };
       h += `<tr class="aiA" data-ai-row="${i}"><td class="mid"><b>${esc(r.id)}</b></td>
         <td class="mid"><div class="aiBtns"><button class="ok" data-aiok="${i}">✓ APPROVE</button><button class="no" data-aino="${i}">✕ REJECT</button></div></td>
         <td class="mid">${esc(r.op)}</td><td class="mid">${esc(r.wc)}</td><td>${esc(r.opName||"")}</td><td>${esc(r.step||"")}</td>
         ${ecell("req")}${ecell("mode")}${ecell("effect")}
-        <td class="rate" style="${fvTier(merged.sev)}">${esc(merged.sev||"")}</td>
+        ${rcell("sev")}
         ${ecell("cause")}${ecell("prev")}${ecell("addPrev")}
-        <td class="rate" style="${fvTier(merged.occ)}">${esc(merged.occ||"")}</td>
+        ${rcell("occ")}
         ${ecell("det")}${ecell("addDet")}
-        <td class="rate" style="${fvTier(merged.detR)}">${esc(merged.detR||"")}</td>
+        ${rcell("detR")}
         <td class="rate" style="background:#D9D9D9">${cm.q||""}</td><td class="rate">${cm.rpn||""}</td>
         <td class="mid">${esc(merged.cls||"")}</td>${ecell("action")}
         <td class="mid">${esc(r.resp||"")}</td><td class="mid">${esc(r.target||"")}</td>
@@ -4799,6 +4913,9 @@ $("dupRow").onclick = () => {
   state.rows.splice(selIdx+1, 0, copy); select(selIdx+1); renderRail();
 };
 $("mstRefreshBtn").onclick = mstRefreshRun;
+{ const q = $("mstRefreshQ");
+  if(q){ q.onclick = e => e.stopPropagation();      /* the ? is a label, not a trigger */
+         q.onmousedown = e => e.preventDefault(); } }
 $("delRow").onclick = () => {
   if(selIdx<0) return;
   state.rows.splice(selIdx,1);
@@ -7383,6 +7500,79 @@ async function syncPushApp(){ $("syAppFile").click(); }
 
 /* Full deploy of a Claude-delivered rev: app/latest + app/PF-RevNNN +
    the website index.html, one gate, with sanity checks first. */
+/* ---------- Auto-deploy watcher (Rev 137) ----------
+   Point this at Downloads once. Every few seconds it looks for an app file
+   newer than the running rev and publishes it — repo, latest, website — with
+   no picker, no gate, no github.com. The operator's whole job per rev becomes
+   clicking the download link in chat.
+   Guards: the file must carry the app's own marker AND a HIGHER APP_REV than
+   the running one, so a stale file in Downloads can never roll anyone back,
+   and a rev is never deployed twice. */
+let dlHandle = null, dlTimer = null, dlBusy = false;
+const dlSay = (m, bad) => { const e = $("dlWatchStatus"); if(!e) return;
+  e.textContent = m || ""; e.classList.toggle("bad", !!bad); };
+function dlDeployed(){ try{ return +(localStorage.getItem("pfAutoDeployedRev") || 0); }catch(e){ return 0; } }
+function dlMarkDeployed(r){ try{ localStorage.setItem("pfAutoDeployedRev", String(r)); }catch(e){} }
+
+async function dlPickFolder(){
+  if(!FOLDER_OK){ dlSay("This browser cannot watch a folder.", true); return; }
+  try{
+    dlHandle = await window.showDirectoryPicker({mode:"read", startIn:"downloads"});
+    await idbSet("dlwatch", dlHandle);
+    dlStart();
+    toast("Watching that folder — new app revs deploy themselves.");
+  }catch(e){ dlSay("Folder not chosen.", true); }
+}
+function dlStart(){
+  if(dlTimer) clearInterval(dlTimer);
+  const b = $("dlWatchBtn"), sp = $("dlWatchStop");
+  if(b) b.style.display = "none";
+  if(sp) sp.style.display = "";
+  dlSay("Watching " + (dlHandle && dlHandle.name ? dlHandle.name : "folder") +
+        " — running Rev " + APP_REV + ". Newer revs deploy on their own.");
+  dlScan();
+  dlTimer = setInterval(dlScan, 8000);
+}
+function dlStop(){
+  if(dlTimer) clearInterval(dlTimer);
+  dlTimer = null; dlHandle = null; idbSet("dlwatch", null);
+  const b = $("dlWatchBtn"), sp = $("dlWatchStop");
+  if(b) b.style.display = "";
+  if(sp) sp.style.display = "none";
+  dlSay("Auto-deploy off.");
+}
+async function dlScan(){
+  if(!dlHandle || dlBusy) return;
+  if(!(await folderPerm(dlHandle, false))){ dlSay("Folder permission lapsed — press the button again.", true); return; }
+  if(!ghReady()){ dlSay("Set owner, repo and token on Admin before auto-deploy can push.", true); return; }
+  dlBusy = true;
+  try{
+    let best = null;
+    for await (const [name, h] of dlHandle.entries()){
+      if(h.kind !== "file" || !/\.html?$/i.test(name)) continue;
+      let f; try{ f = await h.getFile(); }catch(e){ continue; }
+      if(f.size < 100000 || f.size > 4000000) continue;        /* the app is ~0.6MB */
+      const text = await f.text();
+      if(text.indexOf("CAMCO PFMEA BUILDER") < 0) continue;
+      const m = /const APP_REV = (\d+);/.exec(text);
+      if(!m) continue;
+      const rev = parseInt(m[1], 10);
+      if(rev <= APP_REV || rev <= dlDeployed()) continue;      /* never back, never twice */
+      if(!best || rev > best.rev) best = {rev: rev, text: text, name: name};
+    }
+    if(!best) return;
+    dlSay("Found Rev " + best.rev + " in " + best.name + " — deploying…");
+    await ghPut(GH_APP_FILE_APPDIR(best.rev), best.text, "App Rev " + best.rev + " via auto-deploy", codeRepo());
+    await ghPut("app/latest.html", best.text, "App latest -> Rev " + best.rev, codeRepo());
+    await ghPut(GH_PAGES_FILE, best.text, "Website Rev " + best.rev + " via auto-deploy", codeRepo());
+    dlMarkDeployed(best.rev);
+    dlSay("Rev " + best.rev + " deployed from " + best.name + ". Reload when you want to run it.");
+    toast("Rev " + best.rev + " deployed automatically — reload when you are ready.");
+    logAct("autodeploy", "Rev " + best.rev + " from " + best.name);
+  }catch(e){ dlSay(String(e.message || e), true); }
+  finally{ dlBusy = false; }
+}
+
 async function deployRevFile(file){
   const st = $("syStatus"), say = (m,bad) => { st.textContent = m; st.classList.toggle("bad", !!bad); };
   if(!ghReady()){ say("Set owner, repo and token on Admin first.", true); go("admin"); return; }
@@ -7485,6 +7675,8 @@ $("syPush").onclick = syncPush;
 $("syList").onclick = syncList;
 $("syPushApp").onclick = syncPushApp;
 $("syPullApp").onclick = syncPullApp;
+$("dlWatchBtn").onclick = dlPickFolder;
+$("dlWatchStop").onclick = dlStop;
 $("syAuto").onclick = async () => {
   if(settings.ghAutoPlan){
     settings.ghAutoPlan = false; saveSettings(); renderSync();
@@ -9141,7 +9333,10 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
   go("menu");
   /* pull the newest code the moment we load, not 4s later */
   setTimeout(() => { _updLast = 0; ghAutoUpdateApp(); }, 400);
-  if(FOLDER_OK) idbGet("dir").then(async h => {
+  if(FOLDER_OK) idbGet("dlwatch").then(async h => {
+  if(h && await folderPerm(h, false)){ dlHandle = h; dlStart(); }
+}).catch(()=>{});
+if(FOLDER_OK) idbGet("dir").then(async h => {
     if(!h) return;
     if(await folderPerm(h, false)){
       /* Chrome kept the permission - fully automatic, nothing to click */
