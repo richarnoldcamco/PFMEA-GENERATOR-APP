@@ -625,6 +625,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
     <div class="mf">
       <button class="btn" id="mstReset">Reset to Rev 97</button>
       <button class="btn" id="mstClose">Close</button>
+      <button class="btn" id="mstAsk" style="background:#1E4E8C;color:#fff;border-color:#14396A">Ask Claude about this row</button>
       <button class="btn" id="mstAiRate" style="background:#1E7A34;color:#fff;border-color:#124A1F">AI ⟳ propose ratings from this wording</button>
       <button class="btn" id="mstApply">Apply to this row</button>
       <button class="btn go" id="mstSave">Save master</button>
@@ -1004,14 +1005,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 144;
+const APP_REV = 146;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 144 · LOADED JUL 30, 11:05 AM</span>
+      <span class="sub" id="navSub">APP REV 146 · LOADED JUL 30, 11:34 AM</span>
     </span>
   </div>
   <script>
@@ -1096,7 +1097,7 @@ const APP_REV = 144;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 144 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 146 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1254,6 +1255,7 @@ const APP_REV = 144;
       <span>Drop the PF-RevNNN.html from Claude's message here (or click to browse).
         This machine pushes it everywhere: GitHub, the website, and every pinned copy — within a minute.</span>
     </div>
+    <div class="mono" id="tryNewMsg" style="font-size:11.5px;margin:0 0 8px;color:var(--ink-2);min-height:15px"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
       <button class="btn" id="tryNew" title="Load the newest rev sitting in your delivery folder — runs it here only, publishes nothing">Test newest from Downloads</button>
       <button class="btn key" id="syPush">Push this PFMEA</button>
@@ -1658,7 +1660,10 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
   @keyframes pfblink{0%,60%,100%{opacity:.15}30%{opacity:1}}
   .mst .aibar{height:6px;margin-top:10px;background:linear-gradient(90deg,#DFF2E4 0%,#1E7A34 50%,#DFF2E4 100%);background-size:200% 100%;animation:pfslide 1.1s linear infinite}
   @keyframes pfslide{to{background-position:-200% 0}}
-  .mst .mf{display:flex;gap:8px;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--rule)}
+  .mst .mf{display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap;
+    padding:12px 18px;border-top:1px solid var(--rule);flex:0 0 auto}
+  .mst .mf .btn{white-space:nowrap}
+  .aiqw .prop .mfhit{background:#FFF3C4}
   </style>
   <aside class="rail">
     <h2><span>Audit</span><button id="auditFix" title="Apply safe auto-fixes — currently: clear non-exempt Recommended Actions on rows below RPN 100 (House #5A)" style="background:none;border:1px solid rgba(255,255,255,.5);color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;padding:0 5px">fix safe</button><span id="auditCount">CLEAR</span></h2>
@@ -1686,6 +1691,38 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 146 · 2026-07-30
+     · TEST NEWEST FROM DOWNLOADS ASKED FOR THE WRONG PERMISSION.
+       Rev 144 requested the folder in READWRITE mode for a button that
+       only ever reads - so Chrome titled the picker "select where this
+       site can save changes" and then asked a SECOND question about
+       editing files. Operator pressed Select Folder and the screen
+       simply returned with nothing done. Now requested as READ.
+     · The saved grant was also being re-checked in readwrite mode, so
+       even a successful grant would have re-prompted on every press.
+       Separate dlPerm() checks read only.
+     · NO MORE SILENT FAILURE. Every outcome now prints on a status line
+       under the buttons and stays there: folder not chosen, permission
+       refused, folder unreadable, nothing found, already on the newest,
+       found Rev N, cancelled at the confirm, starting Rev N. Toasts
+       faded before the operator could read them.
+
+   Rev 145 · 2026-07-30
+     · ASK CLAUDE ON THE MASTER ROW SCREEN, per operator. The master
+       popup footer now carries a blue ASK CLAUDE ABOUT THIS ROW button
+       beside the existing green AI rating button. It opens the same
+       popup as the grid badge, reading the master cells AS THEY STAND
+       in the editor - including edits typed but not yet saved.
+     · PROPOSALS LAND IN THE CELLS, NOT IN THE LIBRARY. In master mode
+       the green button reads PUT PROPOSALS IN THE MASTER CELLS: it
+       fills the editable cells and tints them, sets the unsaved flag,
+       and stops there. SAVE MASTER remains the operator's decision, so
+       nothing reaches the library without a deliberate press.
+     · MASTER FOOTER BUTTONS NO LONGER STRETCH. The footer was a flex
+       row with no vertical alignment, so each button grew to the full
+       height of the empty space below the table - the tall boxes in
+       the operator's screenshot. Centred and allowed to wrap.
+
    Rev 144 · 2026-07-30
      · ONE-BUTTON TEST OF A DELIVERED REV, per operator: "why can't the
        open Downloads, click on index be one button." It can. GITHUB tab
@@ -6350,7 +6387,7 @@ document.addEventListener("click", e => {
    reject pair flow as the material AI. Nothing is written to a row
    until the operator ticks it.
    ====================================================================== */
-let _aiqIdx = -1, _aiqProposals = null, _aiqAbort = null;
+let _aiqIdx = -1, _aiqProposals = null, _aiqAbort = null, _aiqMaster = false;
 
 const AIQ_RULES = `CAMCO PFMEA ruleset (Project Instructions Rev 97 plus the two amendments queued for Rev 98):
 Conv #1 Detection = the SINGLE STRONGEST control only; redundant controls in Additional Detection give no extra credit.
@@ -6364,11 +6401,18 @@ Current-state facts that override any credited control: Hardinge Quest lathes ha
 Material certs: CAMCO now requires certs attached to the barstock and a multi-way match at receipt. Credit that as detection ONLY if the row says the written procedure (CX718-1) is released and operating; if it is only authored, the row stays at no-detection Det 10 and must say so.
 Framing: military hardware only - never "flight hardware" or "avionics", never name a program. No cycle times, run times or throughput anywhere in a PFMEA cell.`;
 
-function aiqOpen(i){
-  const r = state.rows[i]; if(!r) return;
-  _aiqIdx = i; _aiqProposals = null;
+/* Master-row mode: the popup reads the cells as they stand in the master
+   editor, and proposals are written back into those cells - never saved.
+   SAVE MASTER stays the operator's decision. */
+function aiqOpenMaster(){
+  const v = mstRead();
+  const r = Object.assign({id: _mstCtx.base || "(unnamed)"}, v);
+  _aiqMaster = true; _aiqIdx = -1; _aiqProposals = null;
+  aiqPaint(r, "MASTER ROW  ·  " + (_mstCtx.base || ""));
+}
+function aiqPaint(r, who){
   const c = calc(r);
-  $("aiqWho").textContent = (state.meta.part || "") + (state.meta.customer ? "  ·  " + state.meta.customer : "");
+  $("aiqWho").textContent = who;
   $("aiqRow").innerHTML = `<b>${esc(r.id||"(no id)")}</b> &nbsp; Op ${esc(r.op||"—")} &nbsp; WC ${esc(r.wc||"—")} &nbsp; ${esc(r.opName||"")}<br>` +
     `${esc((r.mode||"(no failure mode)")).slice(0,190)}<br>` +
     `SEV <b>${esc(r.sev||"—")}</b> &nbsp; OCC <b>${esc(r.occ||"—")}</b> &nbsp; DET <b>${esc(r.detR||"—")}</b> &nbsp; RPN <b>${c.rpn||"—"}</b> &nbsp; CLASS <b>${esc(r.cls||"—")}</b>`;
@@ -6376,17 +6420,25 @@ function aiqOpen(i){
   $("aiqAns").textContent = ""; $("aiqAns").classList.remove("on");
   $("aiqProp").innerHTML = ""; $("aiqProp").classList.remove("on");
   $("aiqStage").style.display = "none";
+  $("aiqStage").textContent = _aiqMaster ? "PUT PROPOSALS IN THE MASTER CELLS" : "SEND PROPOSALS TO REVIEW";
   $("aiqBusy").classList.remove("on");
   $("aiqAsk").disabled = false;
   $("aiqBg").classList.add("on");
+  _aiqRow = r;
   setTimeout(() => $("aiqQ").focus(), 30);
+}
+let _aiqRow = null;
+function aiqOpen(i){
+  const r = state.rows[i]; if(!r) return;
+  _aiqMaster = false; _aiqIdx = i; _aiqProposals = null;
+  aiqPaint(r, (state.meta.part || "") + (state.meta.customer ? "  ·  " + state.meta.customer : ""));
 }
 function aiqClose(){
   if(_aiqAbort){ try{ _aiqAbort.abort(); }catch(e){} _aiqAbort = null; }
-  $("aiqBg").classList.remove("on"); _aiqIdx = -1;
+  $("aiqBg").classList.remove("on"); _aiqIdx = -1; _aiqMaster = false;
 }
 async function aiqAsk(){
-  const i = _aiqIdx, r = state.rows[i]; if(!r) return;
+  const i = _aiqIdx, r = _aiqMaster ? _aiqRow : state.rows[i]; if(!r) return;
   const q = ($("aiqQ").value || "").trim();
   if(!q){ toast("Type a question, or press one of the buttons."); return; }
   if(!settings.apiKey){ toast("No API key — add it on Admin first."); return; }
@@ -6394,7 +6446,7 @@ async function aiqAsk(){
     head:"AI request confirmation",
     title:"This sends one PFMEA row to Anthropic",
     lede:"Claude reads this row's wording and ratings and answers your question. Any change it suggests is staged as a BEFORE / PROPOSED pair for you to approve or reject — nothing is written to the row by the AI. The row text and your question leave this machine for api.anthropic.com; other rows, images and files do not.",
-    lines:["ROW  ·  " + (r.id || "(no id)"), "QUESTION  ·  " + q.slice(0, 120),
+    lines:[(_aiqMaster ? "MASTER ROW  ·  " : "ROW  ·  ") + (r.id || "(no id)"), "QUESTION  ·  " + q.slice(0, 120),
            "MODEL  ·  " + settings.model, "RETURNS  ·  an answer, plus proposed cell values you approve or reject"],
     keep:"All other rows, traveller and drawing images, saved files, your API key.",
     ackText:"I approve sending this row's text and my question to the AI.",
@@ -6470,7 +6522,22 @@ Use "changes": {} when nothing should change. Valid fields: ${AI_ALL_FIELDS.join
 }
 function aiqStage(){
   const i = _aiqIdx;
-  if(i < 0 || !_aiqProposals || !Object.keys(_aiqProposals).length) return;
+  if(!_aiqProposals || !Object.keys(_aiqProposals).length) return;
+  if(_aiqMaster){
+    let n = 0;
+    Object.keys(_aiqProposals).forEach(f => {
+      const el = $("mstFields").querySelector(`[data-mf="${f}"]`);
+      if(!el) return;
+      el.textContent = _aiqProposals[f];
+      el.style.background = "#FFF3C4";                 /* touched, not saved */
+      n++;
+    });
+    _mstDirty = true;
+    aiqClose();
+    toast(n + " cell(s) filled in the master — nothing is stored until you press SAVE MASTER.");
+    return;
+  }
+  if(i < 0) return;
   aiPending[i] = Object.assign({}, aiPending[i] || {}, _aiqProposals);
   aiFromMat = ""; aiToMat = "";
   settings.gridView = "form"; saveSettings();
@@ -6482,6 +6549,7 @@ document.addEventListener("mousedown", e => { if(e.target && e.target.dataset &&
 document.addEventListener("click", e => {
   const t = e.target; if(!t || !t.dataset) return;
   if(t.dataset.aiq !== undefined){ e.stopPropagation(); aiqOpen(parseInt(t.dataset.aiq, 10)); return; }
+  if(t.id === "mstAsk"){ aiqOpenMaster(); return; }
   if(t.id === "aiqClose"){ aiqClose(); return; }
   if(t.id === "aiqAsk"){ aiqAsk(); return; }
   if(t.id === "aiqStage"){ aiqStage(); return; }
@@ -7796,16 +7864,28 @@ function applyRemoteApp(html, rev){
    other machine is untouched until the file is dropped on the deploy
    box. Falls back to a file picker if the folder cannot be granted.
    ====================================================================== */
+async function dlPerm(h, ask){
+  if(!h) return false;
+  const o = {mode:"read"};                                 /* READ only - this button never writes */
+  try{
+    if(await h.queryPermission(o) === "granted") return true;
+    if(!ask) return false;
+    return await h.requestPermission(o) === "granted";
+  }catch(e){ return false; }
+}
+function tnSay(m){ const el = $("tryNewMsg"); if(el) el.textContent = m; }
 async function tryNewestLocal(){
-  if(!FOLDER_OK){ tryNewestPick(); return; }
+  if(!FOLDER_OK){ tnSay("This browser cannot read a folder — picking the file by hand instead."); tryNewestPick(); return; }
   let h = await idbGet("dlDir");
-  if(h && !(await folderPerm(h, true))) h = null;
+  if(h && !(await dlPerm(h, true))) h = null;
   if(!h){
-    try{ h = await window.showDirectoryPicker({mode:"readwrite", startIn:"downloads"}); }
-    catch(e){ return; }                                   /* operator cancelled the picker */
+    tnSay("Choose your delivery folder (Downloads), then allow this site to VIEW files in it.");
+    try{ h = await window.showDirectoryPicker({mode:"read", startIn:"downloads"}); }
+    catch(e){ tnSay("Folder not chosen — nothing was read."); return; }
+    if(!(await dlPerm(h, true))){ tnSay("Permission to view that folder was not granted — press the button and choose Allow / View files."); return; }
     await idbSet("dlDir", h);
-    toast("Delivery folder set to " + h.name + " — from now on this button is one press.");
-  }
+    tnSay("Delivery folder set to " + h.name + " — one press from now on. Scanning…");
+  } else tnSay("Scanning " + h.name + "…");
   let best = null;
   try{
     for await (const [name, ent] of h.entries()){
@@ -7818,13 +7898,15 @@ async function tryNewestLocal(){
       const rev = parseInt(m[1], 10);
       if(!best || rev > best.rev) best = {rev, file:f, name};
     }
-  }catch(e){ toast("Could not read that folder: " + (e.message || e)); return; }
-  if(!best){ toast("No app file found in " + h.name + " — download the rev first."); return; }
-  if(best.rev <= APP_REV){ toast("Newest in " + h.name + " is Rev " + best.rev + " — you are already on Rev " + APP_REV + "."); return; }
+  }catch(e){ tnSay("Could not read that folder: " + (e.message || e)); return; }
+  if(!best){ tnSay("No app file found in " + h.name + " — download the rev first, then press again."); return; }
+  if(best.rev <= APP_REV){ tnSay("Newest in " + h.name + " is Rev " + best.rev + " (" + best.name + ") — you are already on Rev " + APP_REV + "."); return; }
+  tnSay("Found " + best.name + " — Rev " + best.rev + ".");
   const ok = await appConfirm({icon:"\u26A1", title:"Run Rev " + best.rev + " here?",
     html:`<b>${esc(best.name)}</b> · Rev ${best.rev}<br><br>It runs on this machine only. GitHub, the website and every other pinned copy stay on Rev ${APP_REV} until you drop the file on the deploy box above.`,
     okText:"RUN IT", cancelText:"CANCEL"});
-  if(!ok) return;
+  if(!ok){ tnSay("Left on Rev " + APP_REV + " — " + best.name + " was not run."); return; }
+  tnSay("Starting Rev " + best.rev + "…");
   saveWorking(true);                                       /* freeze the session first */
   applyRemoteApp(await best.file.text(), best.rev);
 }
