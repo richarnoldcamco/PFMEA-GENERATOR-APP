@@ -1007,14 +1007,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 151;
+const APP_REV = 152;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 151 · LOADING…</span>
+      <span class="sub" id="navSub">APP REV 152 · LOADED JUL 30, 1:33 PM</span>
     </span>
   </div>
   <script>
@@ -1036,8 +1036,8 @@ const APP_REV = 151;
   }, true);
   </script>
   <div class="tabs">
-    <button class="tab" id="navBack" style="display:none" title="Back one screen">←</button>
-    <button class="tab on" data-go="menu">Menu</button>
+    <button class="tab" id="navBack" style="" title="Back one screen">←</button>
+    <button class="tab" data-go="menu">Menu</button>
     <button class="tab" data-go="build">Build</button>
     <button class="tab" data-go="trav">Traveller</button>
     <button class="tab" data-go="sets">Standard sets</button>
@@ -1045,7 +1045,7 @@ const APP_REV = 151;
     <button class="tab" data-go="photos">Photo library</button>
     <button class="tab" data-go="rules">Ruleset</button>
     <button class="tab" data-go="files">Prior PFMEAs</button>
-    <button class="tab" data-go="sync">GitHub</button>
+    <button class="tab on" data-go="sync">GitHub</button>
     <button class="tab" data-go="admin">Admin</button>
   </div>
   <button id="saveNow" title="Force a save right now">
@@ -1068,7 +1068,7 @@ const APP_REV = 151;
 </div>
 
 <!-- ============================ MENU ============================ -->
-<section class="screen menu-screen on" id="screen-menu">
+<section class="screen menu-screen" id="screen-menu">
   <div class="card">
     <span class="badge">PF</span>
     <h1>CAMCO PFMEA Builder</h1>
@@ -1099,7 +1099,7 @@ const APP_REV = 151;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 151 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 152 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1246,18 +1246,20 @@ const APP_REV = 151;
 </section>
 
 <!-- =========================== SYNC ============================= -->
-<section class="screen doc" id="screen-sync">
+<section class="screen doc on" id="screen-sync">
   <div class="doc-in">
     <h1>GitHub</h1>
     <p class="lede">PFMEA files live in <span class="mono">plans/</span>, app versions in
       <span class="mono">app/</span>. Deletes are tombstones — the file stays with a deleted marker so it
       cannot come back from another machine.</p>
-    <div class="drop" id="revDrop" style="margin-bottom:14px">
-      <b>Update the app from a delivered file</b>
-      <span>Drop the PF-RevNNN.html from Claude's message here (or click to browse).
-        This machine pushes it everywhere: GitHub, the website, and every pinned copy — within a minute.</span>
+    <div class="drop" id="revDrop" style="margin-bottom:6px;padding:34px 20px;border-width:3px">
+      <b style="font-size:17px">DEPLOY A DELIVERED REV — DRAG IT HERE</b>
+      <span>Drop the PF-RevNNN.html from Claude's message (or click to browse).
+        This machine pushes it everywhere: GitHub, the website, and every pinned copy — within a minute.
+        The whole loop is two actions: click the download card in the chat, drag the file onto this box.</span>
+      <span class="mono" id="dropStatus" style="display:block;margin-top:10px;font-size:12px;color:var(--stamp);font-weight:700"></span>
     </div>
-    <div class="mono" id="watchState" style="font-size:11.5px;margin:0 0 4px;color:var(--ink-2)"></div>
+    <div class="mono" id="watchState" style="font-size:11.5px;margin:0 0 4px;color:var(--ink-2)">OFF — delivered revs are published only when you drop them on the box above.</div>
     <div class="mono" id="tryNewMsg" style="font-size:11.5px;margin:0 0 8px;color:var(--ink-2);min-height:15px"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
       <button class="btn" id="watchBtn" style="background:#1E4E8C;color:#fff;border-color:#14396A">Turn auto-deploy ON</button>
@@ -1269,10 +1271,10 @@ const APP_REV = 151;
       <button class="btn" id="syAuto">Enable plan autosave</button>
       <span class="status" id="syStatus"></span>
     </div>
-    <div class="status" id="ghBudget" style="margin-bottom:8px"></div>
+    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 0 / 500 · autosave backs off at 400.</div>
     <input type="file" id="syAppFile" accept=".html" hidden="">
     <input type="file" id="syRevFile" accept=".html,.htm" hidden="">
-    <div id="syList2"></div>
+    <div id="syList2"><p>No plans/ folder yet — push one to create it.</p></div>
   </div>
 </section>
 
@@ -1419,6 +1421,14 @@ const APP_REV = 151;
 <section class="screen doc" id="screen-rules">
   <div class="doc-in" id="rulesBody">
 <h1>Ruleset — Project Instructions Rev 97</h1>
+<h2>Industry practice text — what "MEET INDUSTRY PRACTICE?" checks against</h2>
+<p>CAMCO's own paraphrase of general process-FMEA practice. It is <b>not</b> a copy of AIAG FMEA 4th Ed., the AIAG-VDA handbook, or any other published manual — those are copyrighted and are not carried in this app. Edit it to match whatever standard you hold and the button checks against your text. Reset restores the built-in paraphrase.</p>
+<textarea id="indRules" spellcheck="false" style="width:100%;min-height:190px;border:1px solid var(--rule-hard);padding:9px;font-size:12.5px;font-family:inherit"></textarea>
+<div style="display:flex;gap:8px;margin:8px 0 20px;align-items:center">
+  <button class="btn go" id="indSave">Save industry text</button>
+  <button class="btn" id="indReset">Reset to built-in</button>
+  <span class="mono" id="indMsg" style="font-size:11.5px;color:var(--ink-2)"></span>
+</div>
 <p class="lede">What this app enforces on every row, and what it deliberately leaves to you.
 Where a rule and a rating disagree, the audit rail names the SC or Convention and the fix.</p>
 
@@ -1695,6 +1705,22 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 152 · 2026-07-30
+     · TWO-ACTION DEPLOY LOOP, per operator. On a machine with GitHub
+       wired (a token saved in Admin), the app now opens straight on the
+       GITHUB screen with the deploy box first in view - so the whole
+       revision loop is: click the download card in the chat, drag the
+       file onto the box. Machines without a token still open on the
+       menu.
+     · The drop box is bigger, bolder, and carries its own status line,
+       so the deploy outcome lands where the operator is already
+       looking instead of in small text further down the page.
+     · The folder-watcher auto-deploy from Revs 150-151 stays in the
+       app but is parked: Chrome refuses to grant this installed-app
+       window a folder (four attempts, every path, reported as a
+       cancellation each time). The drag path has worked every single
+       time today, so it is now the front door.
+
    Rev 151 · 2026-07-30
      · TURN AUTO-DEPLOY ON SAID "NO FOLDER CHOSEN" AFTER THE OPERATOR
        CHOSE ONE. Rev 149 taught the TEST button to name its errors;
@@ -7749,7 +7775,10 @@ async function syncPushApp(){ $("syAppFile").click(); }
 /* Full deploy of a Claude-delivered rev: app/latest + app/PF-RevNNN +
    the website index.html, one gate, with sanity checks first. */
 async function deployRevFile(file, auto){
-  const st = $("syStatus"), say = (m,bad) => { st.textContent = m; st.classList.toggle("bad", !!bad); if(auto) tnSay(m); };
+  const st = $("syStatus"), ds = $("dropStatus"),
+    say = (m,bad) => { st.textContent = m; st.classList.toggle("bad", !!bad);
+      if(ds){ ds.textContent = m; ds.style.color = bad ? "#B00020" : ""; }
+      if(auto) tnSay(m); };
   if(!ghReady()){ say("Set owner, repo and token on Admin first.", true); go("admin"); return; }
   const text = await file.text();
   const m = /const APP_REV = (\d+);/.exec(text);
@@ -9636,7 +9665,10 @@ if($("indRules")) $("indRules").value = settings.industryRules || INDUSTRY_RULES
     const ov = document.getElementById("bootOverlay"); if(ov) ov.remove(); }
   $("menuFoot").textContent = "App Rev " + APP_REV + " · Ruleset Rev 97 · runs offline; AI traveller reading is gated";
   renderAll();
-  go("menu");
+  /* Rev 152: this machine's job, most days, is receiving a delivered rev.
+     If GitHub is wired here, open straight on the deploy screen with the
+     drop box in view; machines without a token keep the menu. */
+  go(ghReady() ? "sync" : "menu");
   /* pull the newest code the moment we load, not 4s later */
   setTimeout(() => { _updLast = 0; ghAutoUpdateApp(); }, 400);
   if(FOLDER_OK) idbGet("dlDir").then(h => { if(h) _dlDirCache = h; watchStatus(); }).catch(() => {});
