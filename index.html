@@ -528,7 +528,8 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
   letter-spacing:.04em;white-space:nowrap}
 .ptbl .pill.on{background:#E7F2E9;border-color:var(--approved);color:#14532B}
 .ptbl .btn.open{background:#1B5E3A;border-color:#14472B;color:#F3FAF5;font-weight:700;padding:7px 15px}
-.ptbl .btn.tdel{background:#6B4A21;border-color:#4E3517;color:#FBF3E7;font-weight:700;padding:7px 15px}
+.ptbl .btn.tdel{background:#C0272D;border-color:#8E1D22;color:#FFF;font-weight:700;padding:7px 15px}
+.ptbl .btn.tdel:hover{background:#9E1F24;border-color:#7A1518}
 .ptbl tr.now td{background:#FFFDF7}
 .ptbl tr.now td:first-child{box-shadow:inset 5px 0 0 var(--stamp)}
 </style>
@@ -549,6 +550,31 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
     <div class="cfoot">
       <button class="ccancel" id="cfCancel">Cancel</button>
       <button class="cok" id="cfOk">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="aiq-bg" id="aiqBg">
+  <div class="aiqw" role="dialog" aria-modal="true">
+    <div class="h"><span>ASK CLAUDE ABOUT THIS ROW</span><span id="aiqWho"></span></div>
+    <div class="b">
+      <div class="rowid" id="aiqRow"></div>
+      <div class="quick" id="aiqQuick">
+        <button data-q="Is the DET rating correct for this row? Check it against the detection controls actually written in this row and against Convention #3.">IS THE DET CORRECT?</button>
+        <button data-q="Is the OCC rating correct for this row? Check it against the prevention controls actually written in this row.">IS THE OCC CORRECT?</button>
+        <button data-q="Is the SEV rating correct for this row, and is the Class field consistent with it per SC-32?">IS THE SEV CORRECT?</button>
+        <button data-q="Does this row comply with the CAMCO Project Instructions - conventions, action trigger, Class field, and the current-state process facts? List anything that conflicts.">DOES THIS ROW MEET THE RULES?</button>
+        <button data-q="Is the action chain on this row correct - Recommended Action, Responsibility and Target Date - given its RPN and the L3Harris trigger plus House Rule 5A?">IS THE ACTION CHAIN RIGHT?</button>
+      </div>
+      <textarea id="aiqQ" spellcheck="false" placeholder="Ask anything about this row - or press one of the buttons above."></textarea>
+      <div class="busy" id="aiqBusy"><span class="ring"></span><span>CLAUDE IS READING THE ROW…</span></div>
+      <div class="ans" id="aiqAns"></div>
+      <div class="prop" id="aiqProp"></div>
+    </div>
+    <div class="f">
+      <button class="close" id="aiqClose">CLOSE</button>
+      <button class="stage" id="aiqStage">SEND PROPOSALS TO REVIEW</button>
+      <button class="ask" id="aiqAsk">ASK CLAUDE</button>
     </div>
   </div>
 </div>
@@ -978,14 +1004,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 141;
+const APP_REV = 144;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 141 · LOADED JUL 30, 9:20 AM</span>
+      <span class="sub" id="navSub">APP REV 144 · LOADED JUL 30, 11:05 AM</span>
     </span>
   </div>
   <script>
@@ -1070,7 +1096,7 @@ const APP_REV = 141;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 141 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 144 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1229,6 +1255,7 @@ const APP_REV = 141;
         This machine pushes it everywhere: GitHub, the website, and every pinned copy — within a minute.</span>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+      <button class="btn" id="tryNew" title="Load the newest rev sitting in your delivery folder — runs it here only, publishes nothing">Test newest from Downloads</button>
       <button class="btn key" id="syPush">Push this PFMEA</button>
       <button class="btn" id="syList">Refresh list</button>
       <button class="btn" id="syPushApp">Push app code</button>
@@ -1236,7 +1263,7 @@ const APP_REV = 141;
       <button class="btn" id="syAuto">Enable plan autosave</button>
       <span class="status" id="syStatus"></span>
     </div>
-    <div class="status" id="ghBudget" style="margin-bottom:8px"></div>
+    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 2 / 500 · autosave backs off at 400.</div>
     <input type="file" id="syAppFile" accept=".html" hidden="">
     <input type="file" id="syRevFile" accept=".html,.htm" hidden="">
     <div id="syList2"></div>
@@ -1538,6 +1565,41 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
   .fview .qmark{position:absolute;top:2px;right:2px;width:13px;height:13px;line-height:13px;border-radius:50%;
     background:var(--stamp);color:#fff;font-size:9px;font-weight:800;text-align:center;cursor:pointer;user-select:none}
   .fview .qmark:hover{background:#5C0F11}
+  .fview td.idcell{padding-bottom:16px}
+  .fview .aiq{position:absolute;bottom:2px;right:2px;padding:0 5px;height:14px;line-height:14px;border-radius:7px;
+    background:#1E4E8C;color:#fff;font-size:8px;font-weight:800;letter-spacing:.08em;cursor:pointer;user-select:none}
+  .fview .aiq:hover{background:#14396A}
+  .aiq-bg{position:fixed;inset:0;background:rgba(20,12,12,.72);z-index:250;display:none;align-items:center;justify-content:center;padding:20px}
+  .aiq-bg.on{display:flex}
+  .aiqw{background:var(--panel);width:min(900px,96vw);max-height:92vh;display:flex;flex-direction:column;
+    border:1px solid #000;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+  .aiqw .h{background:#1E4E8C;color:#fff;padding:11px 18px;font-family:var(--mono);font-size:12px;font-weight:800;
+    letter-spacing:.16em;display:flex;justify-content:space-between;align-items:center}
+  .aiqw .b{padding:14px 18px;overflow:auto;flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:11px}
+  .aiqw .rowid{font-size:12px;color:var(--ink-2);line-height:1.55}
+  .aiqw .rowid b{color:var(--ink);font-size:14px}
+  .aiqw .quick{display:flex;flex-wrap:wrap;gap:7px}
+  .aiqw .quick button{border:1px solid var(--rule-hard);background:#fff;padding:6px 11px;font-size:11px;
+    font-family:var(--mono);letter-spacing:.05em;cursor:pointer}
+  .aiqw .quick button:hover{background:#1E4E8C;color:#fff;border-color:#14396A}
+  .aiqw textarea{width:100%;min-height:64px;border:1px solid var(--rule-hard);padding:8px 9px;font-size:13px;
+    font-family:inherit;resize:vertical}
+  .aiqw .ans{border:1px solid var(--rule);background:#fff;padding:13px 15px;font-size:13px;line-height:1.65;white-space:pre-wrap;display:none}
+  .aiqw .ans.on{display:block}
+  .aiqw .prop{border:1px solid #1E4E8C;background:#EDF3FA;padding:11px 14px;font-size:12px;line-height:1.6;display:none}
+  .aiqw .prop.on{display:block}
+  .aiqw .prop ul{margin:7px 0 0;padding-left:19px}
+  .aiqw .prop li{margin-bottom:4px}
+  .aiqw .f{display:flex;gap:9px;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--rule);flex:0 0 auto;flex-wrap:wrap}
+  .aiqw .f button{border:0;border-radius:6px;padding:9px 17px;font-size:12.5px;font-weight:800;cursor:pointer;
+    font-family:var(--mono);letter-spacing:.06em}
+  .aiqw .f .close{background:#EEE8E3;color:#3A322E}
+  .aiqw .f .ask{background:#1E4E8C;color:#fff}
+  .aiqw .f .ask:disabled{background:#9AA7B6;cursor:default}
+  .aiqw .f .stage{background:var(--approved);color:#fff;display:none}
+  .aiqw .busy{display:none;align-items:center;gap:11px;font-family:var(--mono);font-size:12px;font-weight:800;letter-spacing:.08em}
+  .aiqw .busy.on{display:flex}
+  .aiqw .busy .ring{width:22px;height:22px;border:4px solid #CFE0F2;border-top-color:#1E4E8C;border-radius:50%;animation:pfspin .8s linear infinite}
   .fview .aprw{display:flex;flex-direction:column;align-items:center;gap:4px}
   .fview .apsw{width:30px;height:15px;border-radius:9px;background:#C9C4C2;border:1px solid #8A8078;
     position:relative;cursor:pointer;flex:none;user-select:none;transition:background .12s,border-color .12s}
@@ -1624,6 +1686,58 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 144 · 2026-07-30
+     · ONE-BUTTON TEST OF A DELIVERED REV, per operator: "why can't the
+       open Downloads, click on index be one button." It can. GITHUB tab
+       now carries TEST NEWEST FROM DOWNLOADS beside the deploy box.
+       First press asks for the folder once - the browser will not let a
+       page read a folder it was never given - and the grant is
+       remembered. Every press after that is one click: it scans the
+       folder, reads const APP_REV out of each .html, takes the highest,
+       confirms the rev number, and runs it in place via applyRemoteApp.
+     · TEST IS NOT PUBLISH. Running a rev this way changes this machine
+       only; GitHub, the website and every other pinned copy stay put
+       until the file is dropped on the deploy box. The confirm window
+       says so in as many words.
+     · Falls back to a plain file picker where the folder API is not
+       available, and refuses files that carry no APP_REV line.
+
+   Rev 143 · 2026-07-30
+     · ASK CLAUDE ABOUT THIS ROW, per operator. Every row in form view
+       now carries a small blue AI badge at the bottom-right of the
+       Failure Type ID cell. It opens a popup holding the row's id, op,
+       failure mode and current SEV / OCC / DET / RPN / CLASS, five
+       one-press questions (DET, OCC, SEV, rule compliance, action
+       chain) and a free-text box.
+     · ADVICE FIRST, THEN PROPOSALS. The answer is written in plain
+       sentences. Any cell values Claude would change are listed
+       underneath with a one-line reason each, and SEND PROPOSALS TO
+       REVIEW stages them into the existing BEFORE / PROPOSED pair on
+       the Build grid - per-cell tick, pencil or cross, exactly as the
+       material AI works. The AI never writes a row.
+     · RATINGS ARE NOW APPROVABLE PAIRS. Previously only text fields
+       carried the tick strip, so a proposed SEV / OCC / DET could not
+       be accepted or rejected cell by cell. SEV, OCC, DET, CLASS,
+       RESPONSIBILITY, TARGET and the three action-result ratings now
+       render with the same three buttons when a change is proposed,
+       and Q / RPN recompute live in the PROPOSED line.
+     · The prompt carries the ruleset with it: Conventions 1-6, the
+       L3Harris trigger, House Rule 5A, SC-32 Class tiers, and the
+       Section 3 machine and receiving facts - so an answer is measured
+       against CAMCO's rules, not generic AIAG.
+     · Sending is gated by the same export-control confirmation as the
+       material AI, one row at a time.
+
+   Rev 142 · 2026-07-30
+     · PRIOR PFMEAS TABLE, per operator: DELETE now sits to the RIGHT
+       of OPEN (columns swapped, header reads OPEN / DELETE), and the
+       button is RED (#C0272D) instead of brown.
+     · DELETE NOW ASKS FIRST, both paths. The folder path had a plain
+       browser confirm box; the GitHub path had NO confirmation at all
+       and deleted on the first click. Both now raise the app's own
+       confirm window - title "Delete this PFMEA?", part number in
+       bold, DELETE / CANCEL buttons, Esc or clicking outside cancels.
+
    Rev 141 · 2026-07-30
      · TEMPLATE SURGERY CORRECTED after Excel's repair prompt on the
        first Rev-140 export - the structural check I ran (openpyxl)
@@ -4255,6 +4369,11 @@ function appConfirm(o){
 let aiPending = {};                       /* rowIdx -> {field: proposedValue} */
 let aiFromMat = "", aiToMat = "";          /* which material the pair sides speak */
 const AI_FIELDS = ["req","mode","effect","cause","prev","addPrev","det","addDet","action"];
+/* Short / rating fields the per-row AI may also propose. Same approve-reject
+   pairs as the text fields; ratings drive Q, RPN and the trigger, so they are
+   never written without the operator pressing the tick. */
+const AI_RATE_FIELDS = ["sev","occ","detR","cls","resp","target","aSev","aOcc","aDet"];
+const AI_ALL_FIELDS = AI_FIELDS.concat(AI_RATE_FIELDS);
 function stepQuarter(txt, delta){
   const m = String(txt||"").match(/(\d{4})\s*[-\s]?\s*Q\s*([1-4])/i) ||
             String(txt||"").match(/Q\s*([1-4])[\s-]*(\d{4})/i);
@@ -4301,6 +4420,15 @@ function renderGridForm(){
         ${cell("st1")}<td class="mid">${esc(r.st2)}</td><td class="rate">${esc(r.aSev)}</td><td class="rate">${esc(r.aOcc)}</td>
         <td class="rate">${esc(r.aDet)}</td><td class="rate">${cm.aRpn?"":""}</td></tr>`;
       h += `<tr class="aiCap prop"><td colspan="${FVIEW_COLS.length}">${esc(r.id)} — PROPOSED VERBIAGE${aiToMat ? " USING " + esc(aiToMat.toUpperCase()) : ""}</td></tr>`;
+      const strip = (f) => `<span class="cbx" contenteditable="false">` +
+          `<button class="cok" data-cok="${i}" data-cf="${f}" title="Approve this cell">✓</button>` +
+          `<button class="ced" data-ced="${i}" data-cf="${f}" title="Edit this cell">✎</button>` +
+          `<button class="cno" data-cno="${i}" data-cf="${f}" title="Reject this cell — keep the BEFORE value">✕</button></span>`;
+      /* rating / short cell in the PROPOSED row - only editable when a change is proposed */
+      const rcell = (f, cls, style) => {
+        const chg = p[f] !== undefined;
+        return `<td class="${cls||"rate"}${chg?" chg":""}" style="${style||""}"${chg?` contenteditable="true" spellcheck="false" data-aif="${f}" data-ai="${i}"`:""}>${chg?strip(f):""}${esc(merged[f]||"")}</td>`;
+      };
       const ecell = (f) => {
         const chg = p[f] !== undefined;
         const strip = chg ? `<span class="cbx" contenteditable="false">` +
@@ -4313,21 +4441,21 @@ function renderGridForm(){
         <td class="mid"><div class="aiBtns"><button class="ok" data-aiok="${i}">✓ APPROVE</button><button class="no" data-aino="${i}">✕ REJECT</button></div></td>
         <td class="mid">${esc(r.op)}</td><td class="mid">${esc(r.wc)}</td><td>${esc(r.opName||"")}</td><td>${esc(r.step||"")}</td>
         ${ecell("req")}${ecell("mode")}${ecell("effect")}
-        <td class="rate" style="${fvTier(merged.sev)}">${esc(merged.sev||"")}</td>
+        ${rcell("sev","rate",fvTier(merged.sev))}
         ${ecell("cause")}${ecell("prev")}${ecell("addPrev")}
-        <td class="rate" style="${fvTier(merged.occ)}">${esc(merged.occ||"")}</td>
+        ${rcell("occ","rate",fvTier(merged.occ))}
         ${ecell("det")}${ecell("addDet")}
-        <td class="rate" style="${fvTier(merged.detR)}">${esc(merged.detR||"")}</td>
+        ${rcell("detR","rate",fvTier(merged.detR))}
         <td class="rate" style="background:#D9D9D9">${cm.q||""}</td><td class="rate">${cm.rpn||""}</td>
-        <td class="mid">${esc(merged.cls||"")}</td>${ecell("action")}
-        <td class="mid">${esc(r.resp||"")}</td><td class="mid">${esc(r.target||"")}</td>
+        ${rcell("cls","mid")}${ecell("action")}
+        ${rcell("resp","mid")}${rcell("target","mid")}
         <td>${esc(r.st1||"")}</td><td class="mid">${esc(r.st2||"")}</td>
-        <td class="rate">${esc(r.aSev||"")}</td><td class="rate">${esc(r.aOcc||"")}</td>
-        <td class="rate">${esc(r.aDet||"")}</td><td class="rate">${cm.aRpn||""}</td></tr>`;
+        ${rcell("aSev","rate",fvTier(merged.aSev))}${rcell("aOcc","rate")}
+        ${rcell("aDet","rate")}<td class="rate">${cm.aRpn||""}</td></tr>`;
       return;
     }
     h += `<tr data-i="${i}" class="${i===selIdx?"sel":""}${r.approved?" apr":""}">
-      <td class="mid idcell" contenteditable="true" spellcheck="false" data-i="${i}" data-f="id">${esc(r.id||"")}<span class="qmark" contenteditable="false" data-mst="${i}" title="Master row for this failure type">?</span></td>
+      <td class="mid idcell" contenteditable="true" spellcheck="false" data-i="${i}" data-f="id">${esc(r.id||"")}<span class="qmark" contenteditable="false" data-mst="${i}" title="Master row for this failure type">?</span><span class="aiq" contenteditable="false" data-aiq="${i}" title="Ask Claude about this row — ratings, wording, rule compliance">AI</span></td>
       <td class="mid docbtn"><div class="aprw"><span class="dlink" data-open="${i}" title="Open the full row editor — Operation type, Detection basis, Machine, dressing credit">${i+1}</span><span class="apsw${r.approved?" on":""}" data-apr="${i}" role="switch" aria-checked="${r.approved?"true":"false"}" title="Row approved — QE sign-off. Column A ships green on export (SC-31)."><i></i></span></div></td>
       ${E("op",r,i,r.op,"mid")}${E("wc",r,i,r.wc,"mid")}${E("opName",r,i,r.opName)}
       ${E("step",r,i,r.step)}${E("req",r,i,r.req)}${E("mode",r,i,r.mode)}${E("effect",r,i,r.effect)}
@@ -4451,7 +4579,7 @@ function renderGridForm(){
 }
 function aiApplyOne(i){
   const p = aiPending[i]; if(!p) return;
-  Object.keys(p).forEach(f => { if(AI_FIELDS.includes(f)) state.rows[i][f] = p[f]; });
+  Object.keys(p).forEach(f => { if(AI_ALL_FIELDS.includes(f)) state.rows[i][f] = p[f]; });
 }
 function aiApprove(i){
   aiApplyOne(i);
@@ -6216,6 +6344,155 @@ document.addEventListener("click", e => {
   if(e.target && e.target.id === "aiMat") aiMaterialRun();
 });
 
+/* ======================================================================
+   PER-ROW AI — "AI" badge on every row in form view.
+   Advice first; any proposed cell changes go into the SAME approve /
+   reject pair flow as the material AI. Nothing is written to a row
+   until the operator ticks it.
+   ====================================================================== */
+let _aiqIdx = -1, _aiqProposals = null, _aiqAbort = null;
+
+const AIQ_RULES = `CAMCO PFMEA ruleset (Project Instructions Rev 97 plus the two amendments queued for Rev 98):
+Conv #1 Detection = the SINGLE STRONGEST control only; redundant controls in Additional Detection give no extra credit.
+Conv #2 Severity is NEVER reduced by inspection - only a design change, process change, or redefined effect scope.
+Conv #3 caps without a documented Gauge R&R on the specific gauge: manual 100% attribute / go-no-go = Det 5 floor; manual 100% variable / measured = Det 4 floor; sampled check = worse than 5; no current control = Det 10.
+Conv #4 in-machine probe earns OCCURRENCE credit only with automatic tool-offset compensation; without it the probe is Detection only.
+Conv #5 action trigger. L3Harris: RPN >= 100, regardless of Sev. Other customers: (RPN >= 100 AND Sev >= 7) OR RPN >= 200. Sev 9 alone NEVER triggers.
+HOUSE RULE 5A: a row with RPN < 100 carries NO action chain - Recommended Action, Responsibility and Target Date all EMPTY. Two exceptions keep a full Best Practice chain: Mitsubishi per-part wheel-dressing rows, and CNC program-edit rows.
+SC-32 Class tracks the Sev tier regardless of trigger: Sev 9-10 = CC, Sev 7-8 = SC, Sev <= 6 = TR or blank. Recommended Action text must be concrete and auditable (who does it, what is checked, what evidence is signed off) and must carry a target date.
+Current-state facts that override any credited control: Hardinge Quest lathes have NO probes; the Haas UMC has probes but NO auto-offset, so probing there is Detection only; the Mitsubishi grinder dresses the wheel before every part (real Occ credit, but not yet in a controlled procedure - the row must disclose that gap and carry a formalization action); no CNC program lockdown exists at any controller; all grind-op inspection is 100%, not sampled; go/no-go Deltronic pins on bores tighter than .0005" are an ATTRIBUTE check (Det 5 cap); the slug squareness gage is VARIABLE (Det 4 cap).
+Material certs: CAMCO now requires certs attached to the barstock and a multi-way match at receipt. Credit that as detection ONLY if the row says the written procedure (CX718-1) is released and operating; if it is only authored, the row stays at no-detection Det 10 and must say so.
+Framing: military hardware only - never "flight hardware" or "avionics", never name a program. No cycle times, run times or throughput anywhere in a PFMEA cell.`;
+
+function aiqOpen(i){
+  const r = state.rows[i]; if(!r) return;
+  _aiqIdx = i; _aiqProposals = null;
+  const c = calc(r);
+  $("aiqWho").textContent = (state.meta.part || "") + (state.meta.customer ? "  ·  " + state.meta.customer : "");
+  $("aiqRow").innerHTML = `<b>${esc(r.id||"(no id)")}</b> &nbsp; Op ${esc(r.op||"—")} &nbsp; WC ${esc(r.wc||"—")} &nbsp; ${esc(r.opName||"")}<br>` +
+    `${esc((r.mode||"(no failure mode)")).slice(0,190)}<br>` +
+    `SEV <b>${esc(r.sev||"—")}</b> &nbsp; OCC <b>${esc(r.occ||"—")}</b> &nbsp; DET <b>${esc(r.detR||"—")}</b> &nbsp; RPN <b>${c.rpn||"—"}</b> &nbsp; CLASS <b>${esc(r.cls||"—")}</b>`;
+  $("aiqQ").value = "";
+  $("aiqAns").textContent = ""; $("aiqAns").classList.remove("on");
+  $("aiqProp").innerHTML = ""; $("aiqProp").classList.remove("on");
+  $("aiqStage").style.display = "none";
+  $("aiqBusy").classList.remove("on");
+  $("aiqAsk").disabled = false;
+  $("aiqBg").classList.add("on");
+  setTimeout(() => $("aiqQ").focus(), 30);
+}
+function aiqClose(){
+  if(_aiqAbort){ try{ _aiqAbort.abort(); }catch(e){} _aiqAbort = null; }
+  $("aiqBg").classList.remove("on"); _aiqIdx = -1;
+}
+async function aiqAsk(){
+  const i = _aiqIdx, r = state.rows[i]; if(!r) return;
+  const q = ($("aiqQ").value || "").trim();
+  if(!q){ toast("Type a question, or press one of the buttons."); return; }
+  if(!settings.apiKey){ toast("No API key — add it on Admin first."); return; }
+  const ok = await itarGate({
+    head:"AI request confirmation",
+    title:"This sends one PFMEA row to Anthropic",
+    lede:"Claude reads this row's wording and ratings and answers your question. Any change it suggests is staged as a BEFORE / PROPOSED pair for you to approve or reject — nothing is written to the row by the AI. The row text and your question leave this machine for api.anthropic.com; other rows, images and files do not.",
+    lines:["ROW  ·  " + (r.id || "(no id)"), "QUESTION  ·  " + q.slice(0, 120),
+           "MODEL  ·  " + settings.model, "RETURNS  ·  an answer, plus proposed cell values you approve or reject"],
+    keep:"All other rows, traveller and drawing images, saved files, your API key.",
+    ackText:"I approve sending this row's text and my question to the AI.",
+  });
+  if(!ok) return;
+  const payload = {}; AI_ALL_FIELDS.concat(["id","op","wc","opName","step"]).forEach(f => payload[f] = r[f] || "");
+  const c = calc(r);
+  const prompt = `${AIQ_RULES}
+
+You are reviewing ONE row of a CAMCO PFMEA for a quality engineer.
+PART: ${state.meta.part || "(unstated)"} · MATERIAL: ${state.meta.material || "(unstated)"} · CUSTOMER: ${state.meta.customer || "L3Harris"}
+Computed now: SEV x OCC = ${c.q || "—"}, RPN = ${c.rpn || "—"}.
+
+ROW AS IT STANDS (JSON): ${JSON.stringify(payload)}
+
+THE ENGINEER ASKS: ${q}
+
+Answer directly and briefly. If a rating is wrong, say what it should be and why, naming the convention or fact that decides it. If the row's own wording contradicts its rating, say so plainly. If a fact you would need is not in the row, say what you would need confirmed rather than assuming it.
+Then, if and only if you would change cell values, propose them.
+
+Reply with ONLY a JSON object, no markdown fences:
+{"answer": "your reply in plain sentences", "changes": {field: "new value"}, "why": {field: "one line reason"}}
+Use "changes": {} when nothing should change. Valid fields: ${AI_ALL_FIELDS.join(", ")}. Ratings must be a whole number 1-10 as a string. Never propose a Severity reduction unless the effect scope itself changes.`;
+  _aiqAbort = new AbortController();
+  $("aiqBusy").classList.add("on"); $("aiqAsk").disabled = true;
+  $("aiqAns").classList.remove("on"); $("aiqProp").classList.remove("on"); $("aiqStage").style.display = "none";
+  try{
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST", signal:_aiqAbort.signal,
+      headers:{ "content-type":"application/json", "x-api-key": settings.apiKey,
+        "anthropic-version":"2023-06-01", "anthropic-dangerous-direct-browser-access":"true" },
+      body: JSON.stringify({ model: settings.model, max_tokens: 2000, messages:[{role:"user", content: prompt}] }),
+    });
+    if(!res.ok){
+      let detail = ""; try{ const j = await res.json(); detail = (j.error && j.error.message) || ""; }catch(e){}
+      throw new Error("API returned " + res.status + ". " + detail);
+    }
+    const data = await res.json();
+    const text = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("\n")
+      .replace(/```json|```/g, "").trim();
+    let obj;
+    try{ obj = JSON.parse(text); }
+    catch(e){ obj = {answer: text, changes:{}}; }
+    $("aiqAns").textContent = obj.answer || "(no answer returned)";
+    $("aiqAns").classList.add("on");
+    const clean = {};
+    Object.keys(obj.changes || {}).forEach(f => {
+      if(!AI_ALL_FIELDS.includes(f)) return;
+      const v = String(obj.changes[f]);
+      if(v.trim() === String(r[f] || "").trim()) return;      /* no-op proposals dropped */
+      clean[f] = v;
+    });
+    _aiqProposals = clean;
+    const keys = Object.keys(clean);
+    if(keys.length){
+      const label = f => (FIELDS.find(x => x[0] === f) || [,, f])[2] || f;
+      $("aiqProp").innerHTML = `<b>${keys.length} PROPOSED CHANGE(S)</b> — nothing is written until you approve each one.<ul>` +
+        keys.map(f => `<li><b>${esc(label(f))}</b>: ${esc(String(r[f]||"(blank)").slice(0,60))} → <b>${esc(clean[f].slice(0,90))}</b>` +
+          ((obj.why && obj.why[f]) ? `<br><span class="mut">${esc(String(obj.why[f]).slice(0,160))}</span>` : "") + `</li>`).join("") + "</ul>";
+      $("aiqProp").classList.add("on");
+      $("aiqStage").style.display = "";
+    } else {
+      $("aiqProp").innerHTML = "<b>NO CHANGES PROPOSED</b> — the row stands as written.";
+      $("aiqProp").classList.add("on");
+    }
+  }catch(err){
+    if(err && err.name === "AbortError") $("aiqAns").textContent = "Stopped — nothing was proposed.";
+    else $("aiqAns").textContent = "Could not ask: " + String(err.message || err);
+    $("aiqAns").classList.add("on");
+  }finally{
+    $("aiqBusy").classList.remove("on"); $("aiqAsk").disabled = false; _aiqAbort = null;
+  }
+}
+function aiqStage(){
+  const i = _aiqIdx;
+  if(i < 0 || !_aiqProposals || !Object.keys(_aiqProposals).length) return;
+  aiPending[i] = Object.assign({}, aiPending[i] || {}, _aiqProposals);
+  aiFromMat = ""; aiToMat = "";
+  settings.gridView = "form"; saveSettings();
+  aiqClose();
+  renderGridForm(); renderRail();
+  toast(state.rows[i].id + " — proposals staged. Approve or reject each cell on the red BEFORE / PROPOSED pair.");
+}
+document.addEventListener("mousedown", e => { if(e.target && e.target.dataset && e.target.dataset.aiq !== undefined) e.preventDefault(); });
+document.addEventListener("click", e => {
+  const t = e.target; if(!t || !t.dataset) return;
+  if(t.dataset.aiq !== undefined){ e.stopPropagation(); aiqOpen(parseInt(t.dataset.aiq, 10)); return; }
+  if(t.id === "aiqClose"){ aiqClose(); return; }
+  if(t.id === "aiqAsk"){ aiqAsk(); return; }
+  if(t.id === "aiqStage"){ aiqStage(); return; }
+  if(t.dataset.q !== undefined && t.closest && t.closest("#aiqQuick")){ $("aiqQ").value = t.dataset.q; aiqAsk(); return; }
+  if(t.id === "aiqBg") aiqClose();
+});
+document.addEventListener("keydown", e => {
+  if(e.key === "Escape" && $("aiqBg") && $("aiqBg").classList.contains("on")) aiqClose();
+});
+
+
 async function readTraveller(){
   const st = $("aiStatus");
   const say = (m, bad) => { st.textContent = m; st.classList.toggle("bad", !!bad); };
@@ -6840,6 +7117,9 @@ async function imgSidecarLoad(){
   }catch(e){ /* no sidecar on this machine — plan stays imageless here */ }
 }
 async function cloudDelete(name){
+  if(!await appConfirm({icon:"\u{1F5D1}", title:"Delete this PFMEA?",
+    html:`<b>${esc(planLabel(name).part || name)}</b> will be marked deleted in GitHub.<br><br>This cannot be undone from here.`,
+    okText:"DELETE", cancelText:"CANCEL"})) return;
   await syncTombstone("plans/" + name);
   rowIndexDrop(name);
   renderFiles();
@@ -6970,15 +7250,15 @@ function sessionCardHtml(){
     <td class="mut"><b>${state.rows.length}</b> row${state.rows.length === 1 ? "" : "s"}</td>
     <td><span class="pill on">On screen now</span></td>
     <td class="mut">${esc(gh)}</td>
-    <td></td>
-    <td class="r"><button class="btn open" data-sesscont>Continue →</button></td>
+    <td><button class="btn open" data-sesscont>Continue →</button></td>
+    <td class="r"></td>
   </tr>`;
 }
 function filesTable(rowsHtml){
   if(!rowsHtml) return "<p>No PFMEA files in that folder yet.</p>";
   return `<table class="ptbl"><thead><tr>
       <th>Part number</th><th>Rows</th><th>Where</th><th>Last updated</th>
-      <th></th><th class="r">Open</th>
+      <th>Open</th><th class="r">Delete</th>
     </tr></thead><tbody>${rowsHtml}</tbody></table>`;
 }
 function wireSessionCard(){
@@ -7006,10 +7286,10 @@ function paintFiles(files){
         <td class="mut">${rows} · ${(f.size/1024).toFixed(1)} KB</td>
         <td>${where}</td>
         <td class="mut">${f.when ? esc(new Date(f.when).toLocaleString()) : "—"}</td>
-        <td><button class="btn tdel" data-${f.repo ? "ctomb" : "fdel"}="${esc(f.name)}">Delete</button></td>
-        <td class="r">${onScreen
+        <td>${onScreen
           ? `<button class="btn open" data-sesscont>Continue →</button>`
           : `<button class="btn open" data-${f.repo ? "copen" : "fopen"}="${esc(f.name)}">Open →</button>`}</td>
+        <td class="r"><button class="btn tdel" data-${f.repo ? "ctomb" : "fdel"}="${esc(f.name)}">Delete</button></td>
       </tr>`;
     }).join(""));
     wireSessionCard();
@@ -7060,7 +7340,9 @@ async function folderOpen(name){
 }
 
 async function folderDelete(name){
-  if(!confirm("Delete " + name + " from the folder?\n\nThis removes the file from your computer.")) return;
+  if(!await appConfirm({icon:"\u{1F5D1}", title:"Delete this PFMEA?",
+    html:`<b>${esc(planLabel(name).part || name)}</b> will be removed from your save folder on this computer.<br><br>This cannot be undone.`,
+    okText:"DELETE", cancelText:"CANCEL"})) return;
   try{ await dirHandle.removeEntry(name); rowIndexDrop(name); renderFiles(); toast("Deleted " + name); }
   catch(e){ toast("Could not delete: " + (e.message || e)); }
 }
@@ -7356,6 +7638,7 @@ $("syAuto").onclick = async () => {
   planSync(true);
 };
 $("syAppFile").onchange = e => { const f = e.target.files[0]; if(f) syncPushAppFile(f); e.target.value = ""; };
+$("tryNew").onclick = () => tryNewestLocal();
 $("revDrop").onclick = () => $("syRevFile").click();
 ["dragenter","dragover"].forEach(ev => $("revDrop").addEventListener(ev, e => { e.preventDefault(); $("revDrop").classList.add("hot"); }));
 ["dragleave","drop"].forEach(ev => $("revDrop").addEventListener(ev, e => { e.preventDefault(); $("revDrop").classList.remove("hot"); }));
@@ -7503,6 +7786,63 @@ function applyRemoteApp(html, rev){
     catch(e2){ download("PF-Rev" + String(revNum(rev)).padStart(3,"0") + ".html",
       new Blob([html], {type:"text/html"})); toast("In-place update was blocked — saved the new version instead; open it to update."); }
   }
+}
+
+/* ======================================================================
+   TEST NEWEST FROM DOWNLOADS — one button.
+   Grant the folder once (the browser insists on that), then this reads
+   the highest-rev .html sitting there and runs it in place. Nothing is
+   pushed to GitHub, nothing is published; the pinned copy on every
+   other machine is untouched until the file is dropped on the deploy
+   box. Falls back to a file picker if the folder cannot be granted.
+   ====================================================================== */
+async function tryNewestLocal(){
+  if(!FOLDER_OK){ tryNewestPick(); return; }
+  let h = await idbGet("dlDir");
+  if(h && !(await folderPerm(h, true))) h = null;
+  if(!h){
+    try{ h = await window.showDirectoryPicker({mode:"readwrite", startIn:"downloads"}); }
+    catch(e){ return; }                                   /* operator cancelled the picker */
+    await idbSet("dlDir", h);
+    toast("Delivery folder set to " + h.name + " — from now on this button is one press.");
+  }
+  let best = null;
+  try{
+    for await (const [name, ent] of h.entries()){
+      if(ent.kind !== "file" || !/\.html?$/i.test(name)) continue;
+      const f = await ent.getFile();
+      if(f.size < 100000) continue;                        /* not an app build */
+      const head = await f.slice(0, 400000).text();
+      const m = /const APP_REV = (\d+);/.exec(head);
+      if(!m) continue;
+      const rev = parseInt(m[1], 10);
+      if(!best || rev > best.rev) best = {rev, file:f, name};
+    }
+  }catch(e){ toast("Could not read that folder: " + (e.message || e)); return; }
+  if(!best){ toast("No app file found in " + h.name + " — download the rev first."); return; }
+  if(best.rev <= APP_REV){ toast("Newest in " + h.name + " is Rev " + best.rev + " — you are already on Rev " + APP_REV + "."); return; }
+  const ok = await appConfirm({icon:"\u26A1", title:"Run Rev " + best.rev + " here?",
+    html:`<b>${esc(best.name)}</b> · Rev ${best.rev}<br><br>It runs on this machine only. GitHub, the website and every other pinned copy stay on Rev ${APP_REV} until you drop the file on the deploy box above.`,
+    okText:"RUN IT", cancelText:"CANCEL"});
+  if(!ok) return;
+  saveWorking(true);                                       /* freeze the session first */
+  applyRemoteApp(await best.file.text(), best.rev);
+}
+function tryNewestPick(){
+  const inp = document.createElement("input");
+  inp.type = "file"; inp.accept = ".html,.htm";
+  inp.onchange = async () => {
+    const f = inp.files && inp.files[0]; if(!f) return;
+    const text = await f.text();
+    const m = /const APP_REV = (\d+);/.exec(text);
+    if(!m){ toast("That file is not an app build."); return; }
+    const rev = parseInt(m[1], 10);
+    if(rev <= APP_REV && !(await appConfirm({icon:"\u26A0", title:"That is not newer",
+      html:`The file is Rev ${rev}; you are on Rev ${APP_REV}. Run it anyway?`, okText:"RUN IT", cancelText:"CANCEL"}))) return;
+    saveWorking(true);
+    applyRemoteApp(text, rev);
+  };
+  inp.click();
 }
 
 function showUpdateBanner(rev){
