@@ -1014,7 +1014,7 @@ const APP_REV = 151;
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 151 · LOADED JUL 30, 12:53 PM</span>
+      <span class="sub" id="navSub">APP REV 151 · LOADING…</span>
     </span>
   </div>
   <script>
@@ -1257,7 +1257,7 @@ const APP_REV = 151;
       <span>Drop the PF-RevNNN.html from Claude's message here (or click to browse).
         This machine pushes it everywhere: GitHub, the website, and every pinned copy — within a minute.</span>
     </div>
-    <div class="mono" id="watchState" style="font-size:11.5px;margin:0 0 4px;color:var(--ink-2)">OFF — delivered revs are published only when you drop them on the box above.</div>
+    <div class="mono" id="watchState" style="font-size:11.5px;margin:0 0 4px;color:var(--ink-2)"></div>
     <div class="mono" id="tryNewMsg" style="font-size:11.5px;margin:0 0 8px;color:var(--ink-2);min-height:15px"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
       <button class="btn" id="watchBtn" style="background:#1E4E8C;color:#fff;border-color:#14396A">Turn auto-deploy ON</button>
@@ -1419,14 +1419,6 @@ const APP_REV = 151;
 <section class="screen doc" id="screen-rules">
   <div class="doc-in" id="rulesBody">
 <h1>Ruleset — Project Instructions Rev 97</h1>
-<h2>Industry practice text — what "MEET INDUSTRY PRACTICE?" checks against</h2>
-<p>CAMCO's own paraphrase of general process-FMEA practice. It is <b>not</b> a copy of AIAG FMEA 4th Ed., the AIAG-VDA handbook, or any other published manual — those are copyrighted and are not carried in this app. Edit it to match whatever standard you hold and the button checks against your text. Reset restores the built-in paraphrase.</p>
-<textarea id="indRules" spellcheck="false" style="width:100%;min-height:190px;border:1px solid var(--rule-hard);padding:9px;font-size:12.5px;font-family:inherit"></textarea>
-<div style="display:flex;gap:8px;margin:8px 0 20px;align-items:center">
-  <button class="btn go" id="indSave">Save industry text</button>
-  <button class="btn" id="indReset">Reset to built-in</button>
-  <span class="mono" id="indMsg" style="font-size:11.5px;color:var(--ink-2)"></span>
-</div>
 <p class="lede">What this app enforces on every row, and what it deliberately leaves to you.
 Where a rule and a rating disagree, the audit rail names the SC or Convention and the fix.</p>
 
