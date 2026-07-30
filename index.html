@@ -1007,14 +1007,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 150;
+const APP_REV = 151;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 150 · LOADING…</span>
+      <span class="sub" id="navSub">APP REV 151 · LOADING…</span>
     </span>
   </div>
   <script>
@@ -1099,7 +1099,7 @@ const APP_REV = 150;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 150 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 151 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1695,6 +1695,18 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 151 · 2026-07-30
+     · TURN AUTO-DEPLOY ON SAID "NO FOLDER CHOSEN" AFTER THE OPERATOR
+       CHOSE ONE. Rev 149 taught the TEST button to name its errors;
+       watchToggle() was left with the old single-sentence catch, so a
+       refusal and a cancellation printed the same words and neither
+       could be told apart. It now prints the error name and message.
+     · Retries the picker once with no options before giving up - some
+       Chrome builds reject the options object itself - and reports both
+       attempts if both fail.
+     · A genuine close now says "picker closed without choosing", which
+       is a different sentence from a refusal.
+
    Rev 150 · 2026-07-30
      · AUTO-DEPLOY, per operator: "I want Claude to auto-deploy the
        revisions in this app like it already does in ALL of my other
@@ -8081,8 +8093,27 @@ async function watchToggle(){
   if(!settings.autoDeploy){
     if(!FOLDER_OK){ tnSay("This browser cannot watch a folder."); return; }
     if(!_dlDirCache){
-      try{ _dlDirCache = await window.showDirectoryPicker({mode:"read", startIn:"downloads"}); idbSet("dlDir", _dlDirCache); }
-      catch(e){ tnSay("No folder chosen — auto-deploy stays off."); return; }
+      let h = null, err1 = null;
+      try{ h = await window.showDirectoryPicker({mode:"read", startIn:"downloads"}); }
+      catch(e){ err1 = e; }
+      /* Some Chrome builds reject the options object outright. Ask again
+         plainly before giving up, and never report a refusal as a cancel. */
+      if(!h && err1 && err1.name !== "AbortError"){
+        try{ h = await window.showDirectoryPicker(); }
+        catch(e2){
+          tnSay("Folder picker refused: " + (err1.name || "?") + " — " + (err1.message || "") +
+                " · retry: " + (e2.name || "?") + " — " + (e2.message || ""));
+          return;
+        }
+      }
+      if(!h){
+        tnSay(err1 && err1.name === "AbortError"
+          ? "Picker closed without choosing — auto-deploy stays off."
+          : "No folder handle came back — auto-deploy stays off.");
+        return;
+      }
+      _dlDirCache = h; idbSet("dlDir", h);
+      tnSay("Folder set to " + h.name + " — confirming…");
     }
     const ok = await appConfirm({icon:"\u26A1", title:"Turn on auto-deploy?",
       html:`Any app file in <b>${esc(_dlDirCache.name)}</b> with a HIGHER rev than the one you are running will be published automatically — to GitHub, the website, and every pinned copy — without asking again.<br><br>It will never republish the current rev and never roll back to an older one. Only files that look like this app are touched. Your saved GitHub token does the push.<br><br>Switch it off any time on this screen.`,
