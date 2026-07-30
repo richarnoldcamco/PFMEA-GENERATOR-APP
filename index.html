@@ -563,7 +563,8 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
         <button data-q="Is the DET rating correct for this row? Check it against the detection controls actually written in this row and against Convention #3.">IS THE DET CORRECT?</button>
         <button data-q="Is the OCC rating correct for this row? Check it against the prevention controls actually written in this row.">IS THE OCC CORRECT?</button>
         <button data-q="Is the SEV rating correct for this row, and is the Class field consistent with it per SC-32?">IS THE SEV CORRECT?</button>
-        <button data-q="Does this row comply with the CAMCO Project Instructions - conventions, action trigger, Class field, and the current-state process facts? List anything that conflicts.">DOES THIS ROW MEET THE RULES?</button>
+        <button data-q="Does this row comply with the CAMCO PROJECT INSTRUCTIONS - the conventions, the L3Harris action trigger, House Rule 5A, the SC rules, the Class field and the Section 3 current-state process facts? List anything that conflicts, naming the rule." data-src="camco">MEET MY INSTRUCTIONS?</button>
+        <button data-q="Judge this row against GENERAL INDUSTRY FMEA PRACTICE ONLY - ignore CAMCO house rules entirely. Is it structured and rated the way a process FMEA is normally expected to be? Comment on failure mode / effect / cause separation, whether the ratings are defensible against a standard scale, whether detection is credited only for controls that exist, and whether the action logic is sound." data-src="industry">MEET INDUSTRY PRACTICE?</button>
         <button data-q="Is the action chain on this row correct - Recommended Action, Responsibility and Target Date - given its RPN and the L3Harris trigger plus House Rule 5A?">IS THE ACTION CHAIN RIGHT?</button>
       </div>
       <textarea id="aiqQ" spellcheck="false" placeholder="Ask anything about this row - or press one of the buttons above."></textarea>
@@ -572,6 +573,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
       <div class="prop" id="aiqProp"></div>
     </div>
     <div class="f">
+      <button class="close" id="aiqRawBtn" style="display:none">SHOW REPLY</button>
       <button class="close" id="aiqClose">CLOSE</button>
       <button class="stage" id="aiqStage">SEND PROPOSALS TO REVIEW</button>
       <button class="ask" id="aiqAsk">ASK CLAUDE</button>
@@ -1005,14 +1007,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 146;
+const APP_REV = 150;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 146 · LOADING…</span>
+      <span class="sub" id="navSub">APP REV 150 · LOADING…</span>
     </span>
   </div>
   <script>
@@ -1097,7 +1099,7 @@ const APP_REV = 146;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 146 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 150 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1255,8 +1257,10 @@ const APP_REV = 146;
       <span>Drop the PF-RevNNN.html from Claude's message here (or click to browse).
         This machine pushes it everywhere: GitHub, the website, and every pinned copy — within a minute.</span>
     </div>
+    <div class="mono" id="watchState" style="font-size:11.5px;margin:0 0 4px;color:var(--ink-2)"></div>
     <div class="mono" id="tryNewMsg" style="font-size:11.5px;margin:0 0 8px;color:var(--ink-2);min-height:15px"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+      <button class="btn" id="watchBtn" style="background:#1E4E8C;color:#fff;border-color:#14396A">Turn auto-deploy ON</button>
       <button class="btn" id="tryNew" title="Load the newest rev sitting in your delivery folder — runs it here only, publishes nothing">Test newest from Downloads</button>
       <button class="btn key" id="syPush">Push this PFMEA</button>
       <button class="btn" id="syList">Refresh list</button>
@@ -1691,6 +1695,82 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 150 · 2026-07-30
+     · AUTO-DEPLOY, per operator: "I want Claude to auto-deploy the
+       revisions in this app like it already does in ALL of my other
+       apps." Claude cannot hold the GitHub token, so the app does it
+       with the token already saved on this machine. Armed once with
+       TURN AUTO-DEPLOY ON; from then on it watches the delivery folder
+       every 10 seconds and publishes any HIGHER rev that appears there
+       - app/PF-RevNNN.html, app/latest.html and index.html - with no
+       drag and no press.
+     · Arming is the consent, so the per-file confirmation is skipped
+       while it is on. It will NEVER republish the current rev and NEVER
+       roll back to an older one, and it ignores any file that is not
+       this app. Each rev is attempted once per session.
+     · Status line says what it is doing: watching which folder, what it
+       found, what it published, or that the folder needs one press to
+       reconnect after a restart (the browser drops folder permission on
+       restart - that part cannot be automated away).
+     · Switch it off on the same screen and the drop box works exactly
+       as before.
+
+   Rev 149 · 2026-07-30
+     · TEST NEWEST FROM DOWNLOADS REPORTED "FOLDER NOT CHOSEN" WHEN THE
+       OPERATOR HAD CHOSEN ONE. Root cause: Chrome opens a directory
+       picker only as the direct result of a click, and Rev 146 did an
+       IndexedDB read plus a permission query FIRST. Those awaits spend
+       the click, the picker is refused, and the catch reported it as a
+       cancellation. The saved handle is now preloaded at boot into
+       _dlDirCache, so a press calls the picker (or requestPermission)
+       with the click still intact.
+     · ERRORS NAME THEMSELVES. The catch printed one sentence for every
+       failure; now a genuine close says so, and anything else prints
+       the error name and message.
+     · AND IT FALLS BACK. If the folder picker cannot open at all, the
+       button drops to a plain file picker instead of dead-ending, so
+       the delivered rev can always be run.
+
+   Rev 148 · 2026-07-30
+     · TWO SEPARATE CHECKS, per operator: "the rules" and "the Project
+       Instructions" were being used as if they were one thing, and they
+       are not. DOES THIS ROW MEET THE RULES? is replaced by MEET MY
+       INSTRUCTIONS? (the CAMCO ruleset - conventions, L3Harris trigger,
+       House Rule 5A, SC rules, Section 3 facts) and MEET INDUSTRY
+       PRACTICE? (general FMEA practice only, house rules explicitly out
+       of scope, so a row can pass one and fail the other and the
+       difference is visible).
+     · PROVENANCE MADE VISIBLE. The industry text is CAMCO's own
+       paraphrase of general practice - NOT a reproduction of AIAG FMEA
+       4th Ed., the AIAG-VDA handbook or any other copyrighted manual,
+       none of which are carried in this app. It sits in an editable box
+       at the top of the RULESET tab; whatever is in that box is what
+       the button checks against, so an auditor can read the basis
+       instead of taking the model's word for it.
+     · Every answer is stamped with what it was measured against.
+
+   Rev 147 · 2026-07-30
+     · THE ROW AI RETURNED "(NO ANSWER RETURNED)" ALONGSIDE "NO CHANGES
+       PROPOSED" - which reads as a clean review and was nothing of the
+       kind. Root cause: Rev 143 demanded the whole reply be one exact
+       JSON object. Any other shape - a JSON array, a different key
+       name, a reply cut off at the token limit - and the prose was
+       thrown away, leaving both boxes saying nothing was wrong.
+     · PROSE-FIRST CONTRACT. The answer is now asked for as plain
+       sentences, with an optional single trailing line
+       <<<CHANGES {...} WHY {...}>>> carrying any proposed cell values.
+       The words survive even when the machine-readable part does not.
+     · TOLERANT PARSER. aiqParse() reads the marker form, a bare JSON
+       object, a JSON array, alternate key names (answer / reply /
+       response / text / assessment), or plain prose with no machine
+       part at all. Unknown shapes are shown raw rather than swallowed.
+     · SHOW REPLY button in the footer prints exactly what came back, so
+       a bad reply can be seen instead of guessed at. And an empty reply
+       now says so: "nothing came back to read, not because the row
+       passed."
+     · max_tokens raised 2000 -> 4000; the ruleset preamble left little
+       room for a full answer plus proposals.
+
    Rev 146 · 2026-07-30
      · TEST NEWEST FROM DOWNLOADS ASKED FOR THE WRONG PERMISSION.
        Rev 144 requested the folder in READWRITE mode for a button that
@@ -6061,7 +6141,7 @@ function uniqueId(base){
 /* =======================================================================
    SETTINGS — this browser only. Never written into a .json or .xlsx.
    ======================================================================= */
-const settings = {apiKey:"", model:"claude-sonnet-5", defResp:"QE", defTarget:"2026-Q3",
+const settings = {apiKey:"", model:"claude-sonnet-5", industryRules:"", autoDeploy:false, defResp:"QE", defTarget:"2026-Q3",
   ghOwner:"richarnoldcamco", ghRepo:"PFMEA-GENERATOR-DATA", ghRepoCode:"PFMEA-GENERATOR-APP",
   ghBranch:"main", ghToken:"", ghImages:false, ghAutoPlan:false, ghAppSync:false, ghPagesSync:false, gridView:"form"};
 const SKEY = "camco_pfmea_settings";
@@ -6387,7 +6467,22 @@ document.addEventListener("click", e => {
    reject pair flow as the material AI. Nothing is written to a row
    until the operator ticks it.
    ====================================================================== */
-let _aiqIdx = -1, _aiqProposals = null, _aiqAbort = null, _aiqMaster = false;
+let _aiqIdx = -1, _aiqProposals = null, _aiqAbort = null, _aiqMaster = false, _aiqRaw = "", _aiqSrc = "camco";
+
+/* General FMEA practice, in our own words. NOT a reproduction of AIAG or
+   AIAG-VDA text - those are copyrighted and are not carried in this app.
+   Editable by the operator on the RULESET tab; whatever sits in that box
+   is what the INDUSTRY button checks against, so the basis is visible
+   and auditable rather than assumed. */
+const INDUSTRY_RULES_DEFAULT = `General process-FMEA practice (paraphrased; not a quotation of any published manual):
+Structure: one failure mode per line. Failure mode = how the process step fails to meet the requirement. Effect = the consequence to the customer or end user. Cause = the mechanism that produces the mode. These three are kept distinct; an effect written in the mode column is a common defect.
+Severity rates the consequence of the effect, on a 1-10 scale, and is a property of the effect - not of how likely it is or how well it is caught. Severity is not reduced by adding inspection.
+Occurrence rates how often the CAUSE is expected to occur, and is lowered only by prevention: process change, design change, error-proofing, or a control that stops the cause arising.
+Detection rates the ability of the controls to find the mode or cause BEFORE the part leaves the operation or the plant. Where several controls exist, the rating reflects the most capable one. Automated or error-proofed detection rates better than a human check; a sampled check rates worse than a 100% check; a check whose capability has not been demonstrated cannot claim the best ratings.
+Controls are split into prevention and detection, and only controls actually in place today are credited in the current-state columns. Planned controls belong in the action columns.
+RPN = Severity x Occurrence x Detection, used for prioritising, not as a pass/fail gate on its own. High severity deserves attention regardless of RPN. Newer practice replaces RPN with an Action Priority table combining all three.
+Actions: where risk warrants action, the action names what will be done, who owns it, and by when, and is followed by re-rating once complete. Occurrence-reducing actions are preferred over detection-only actions. Where no further action is taken, the acceptance of the residual risk is recorded rather than left blank.
+Consistency: identical failure modes on similar operations should carry consistent ratings and wording across the document; the same characteristic classified critical in one row should not be unclassified in another.`;
 
 const AIQ_RULES = `CAMCO PFMEA ruleset (Project Instructions Rev 97 plus the two amendments queued for Rev 98):
 Conv #1 Detection = the SINGLE STRONGEST control only; redundant controls in Additional Detection give no extra credit.
@@ -6417,7 +6512,8 @@ function aiqPaint(r, who){
     `${esc((r.mode||"(no failure mode)")).slice(0,190)}<br>` +
     `SEV <b>${esc(r.sev||"—")}</b> &nbsp; OCC <b>${esc(r.occ||"—")}</b> &nbsp; DET <b>${esc(r.detR||"—")}</b> &nbsp; RPN <b>${c.rpn||"—"}</b> &nbsp; CLASS <b>${esc(r.cls||"—")}</b>`;
   $("aiqQ").value = "";
-  $("aiqAns").textContent = ""; $("aiqAns").classList.remove("on");
+  $("aiqAns").textContent = ""; $("aiqAns").classList.remove("on"); $("aiqAns").dataset.raw = "0";
+  _aiqRaw = ""; $("aiqRawBtn").style.display = "none"; $("aiqRawBtn").textContent = "SHOW REPLY";
   $("aiqProp").innerHTML = ""; $("aiqProp").classList.remove("on");
   $("aiqStage").style.display = "none";
   $("aiqStage").textContent = _aiqMaster ? "PUT PROPOSALS IN THE MASTER CELLS" : "SEND PROPOSALS TO REVIEW";
@@ -6425,6 +6521,7 @@ function aiqPaint(r, who){
   $("aiqAsk").disabled = false;
   $("aiqBg").classList.add("on");
   _aiqRow = r;
+  _aiqSrc = "camco";
   setTimeout(() => $("aiqQ").focus(), 30);
 }
 let _aiqRow = null;
@@ -6454,9 +6551,14 @@ async function aiqAsk(){
   if(!ok) return;
   const payload = {}; AI_ALL_FIELDS.concat(["id","op","wc","opName","step"]).forEach(f => payload[f] = r[f] || "");
   const c = calc(r);
-  const prompt = `${AIQ_RULES}
+  const industry = (settings.industryRules || "").trim() || INDUSTRY_RULES_DEFAULT;
+  const useInd = _aiqSrc === "industry";
+  const prompt = `${useInd ? industry : AIQ_RULES}
 
 You are reviewing ONE row of a CAMCO PFMEA for a quality engineer.
+${useInd
+  ? "Judge it ONLY against the general practice above. CAMCO house rules are deliberately out of scope for this answer - if the row departs from house rules but is sound as ordinary FMEA practice, say it is sound. Say plainly that this is general practice, not a citation of any published standard."
+  : "Judge it against the CAMCO ruleset above, which is the customer-facing requirement and overrides generic practice wherever the two differ."}
 PART: ${state.meta.part || "(unstated)"} · MATERIAL: ${state.meta.material || "(unstated)"} · CUSTOMER: ${state.meta.customer || "L3Harris"}
 Computed now: SEV x OCC = ${c.q || "—"}, RPN = ${c.rpn || "—"}.
 
@@ -6467,9 +6569,10 @@ THE ENGINEER ASKS: ${q}
 Answer directly and briefly. If a rating is wrong, say what it should be and why, naming the convention or fact that decides it. If the row's own wording contradicts its rating, say so plainly. If a fact you would need is not in the row, say what you would need confirmed rather than assuming it.
 Then, if and only if you would change cell values, propose them.
 
-Reply with ONLY a JSON object, no markdown fences:
-{"answer": "your reply in plain sentences", "changes": {field: "new value"}, "why": {field: "one line reason"}}
-Use "changes": {} when nothing should change. Valid fields: ${AI_ALL_FIELDS.join(", ")}. Ratings must be a whole number 1-10 as a string. Never propose a Severity reduction unless the effect scope itself changes.`;
+FORMAT. Write your answer first, as plain sentences - no JSON, no markdown fences, no headings. That prose is what the engineer reads.
+THEN, only if you would change cell values, end the message with one line in exactly this form and nothing after it:
+<<<CHANGES {"field":"new value","field2":"new value"} WHY {"field":"one line reason"}>>>
+Omit that line entirely when nothing should change. Valid fields: ${AI_ALL_FIELDS.join(", ")}. Ratings must be a whole number 1-10 as a string. Never propose a Severity reduction unless the effect scope itself changes.`;
   _aiqAbort = new AbortController();
   $("aiqBusy").classList.add("on"); $("aiqAsk").disabled = true;
   $("aiqAns").classList.remove("on"); $("aiqProp").classList.remove("on"); $("aiqStage").style.display = "none";
@@ -6478,20 +6581,28 @@ Use "changes": {} when nothing should change. Valid fields: ${AI_ALL_FIELDS.join
       method:"POST", signal:_aiqAbort.signal,
       headers:{ "content-type":"application/json", "x-api-key": settings.apiKey,
         "anthropic-version":"2023-06-01", "anthropic-dangerous-direct-browser-access":"true" },
-      body: JSON.stringify({ model: settings.model, max_tokens: 2000, messages:[{role:"user", content: prompt}] }),
+      body: JSON.stringify({ model: settings.model, max_tokens: 4000, messages:[{role:"user", content: prompt}] }),
     });
     if(!res.ok){
       let detail = ""; try{ const j = await res.json(); detail = (j.error && j.error.message) || ""; }catch(e){}
       throw new Error("API returned " + res.status + ". " + detail);
     }
     const data = await res.json();
-    const text = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("\n")
-      .replace(/```json|```/g, "").trim();
-    let obj;
-    try{ obj = JSON.parse(text); }
-    catch(e){ obj = {answer: text, changes:{}}; }
-    $("aiqAns").textContent = obj.answer || "(no answer returned)";
+    const raw = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("\n").trim();
+    _aiqRaw = raw;
+    const obj = aiqParse(raw);
+    /* Prose is never discarded. If the reply carried no readable answer at
+       all, say so plainly rather than implying a clean review. */
+    const srcTag = useInd
+      ? "MEASURED AGAINST: general industry practice (the editable block on the RULESET tab) — not a citation of AIAG or any published manual.\n\n"
+      : "MEASURED AGAINST: the CAMCO Project Instructions ruleset.\n\n";
+    if(obj.answer){ $("aiqAns").textContent = srcTag + obj.answer; }
+    else{
+      $("aiqAns").textContent = "The reply came back empty. Nothing has been reviewed — press ASK CLAUDE again, "
+        + "or switch model on the Admin screen. Press SHOW REPLY below to see exactly what came back.";
+    }
     $("aiqAns").classList.add("on");
+    $("aiqRawBtn").style.display = raw ? "" : "none";
     const clean = {};
     Object.keys(obj.changes || {}).forEach(f => {
       if(!AI_ALL_FIELDS.includes(f)) return;
@@ -6509,7 +6620,9 @@ Use "changes": {} when nothing should change. Valid fields: ${AI_ALL_FIELDS.join
       $("aiqProp").classList.add("on");
       $("aiqStage").style.display = "";
     } else {
-      $("aiqProp").innerHTML = "<b>NO CHANGES PROPOSED</b> — the row stands as written.";
+      $("aiqProp").innerHTML = obj.answer
+        ? "<b>NO CHANGES PROPOSED</b> — the row stands as written."
+        : "<b>NO PROPOSALS</b> — because nothing came back to read, not because the row passed.";
       $("aiqProp").classList.add("on");
     }
   }catch(err){
@@ -6519,6 +6632,46 @@ Use "changes": {} when nothing should change. Valid fields: ${AI_ALL_FIELDS.join
   }finally{
     $("aiqBusy").classList.remove("on"); $("aiqAsk").disabled = false; _aiqAbort = null;
   }
+}
+/* Reads a reply in whatever shape it arrives:
+   prose + <<<CHANGES {...} WHY {...}>>>, a bare JSON object, a JSON array,
+   or plain prose with no machine part at all. Prose always wins through. */
+function aiqParse(raw){
+  const out = {answer:"", changes:{}, why:{}};
+  if(!raw) return out;
+  let text = raw;
+  const m = /<<<\s*CHANGES\s*([\s\S]*?)>>>/i.exec(text);
+  if(m){
+    text = text.slice(0, m.index).trim();
+    const body = m[1];
+    const cut = /\bWHY\b/i.exec(body);
+    const cJson = (cut ? body.slice(0, cut.index) : body).trim();
+    const wJson = cut ? body.slice(cut.index + cut[0].length).trim() : "";
+    try{ out.changes = JSON.parse(cJson) || {}; }catch(e){}
+    try{ if(wJson) out.why = JSON.parse(wJson) || {}; }catch(e){}
+    out.answer = text;
+    return out;
+  }
+  /* no marker - maybe the whole thing is JSON anyway */
+  const stripped = text.replace(/```json|```/g, "").trim();
+  if(/^[\[{]/.test(stripped)){
+    try{
+      let j = JSON.parse(stripped);
+      if(Array.isArray(j)) j = j[0] || {};
+      out.answer = j.answer || j.reply || j.response || j.text || j.assessment || j.summary || "";
+      out.changes = j.changes || j.proposed || {};
+      out.why = j.why || j.reasons || {};
+      if(!out.answer && !Object.keys(out.changes).length) out.answer = stripped;   /* unknown shape - show it raw */
+      return out;
+    }catch(e){ /* not valid JSON - fall through and treat as prose */ }
+  }
+  out.answer = text;
+  return out;
+}
+function aiqShowRaw(){
+  const box = $("aiqAns");
+  if(box.dataset.raw === "1"){ box.textContent = aiqParse(_aiqRaw).answer || "(nothing readable)"; box.dataset.raw = "0"; $("aiqRawBtn").textContent = "SHOW REPLY"; }
+  else{ box.textContent = _aiqRaw || "(nothing came back)"; box.dataset.raw = "1"; $("aiqRawBtn").textContent = "SHOW ANSWER"; }
 }
 function aiqStage(){
   const i = _aiqIdx;
@@ -6549,11 +6702,15 @@ document.addEventListener("mousedown", e => { if(e.target && e.target.dataset &&
 document.addEventListener("click", e => {
   const t = e.target; if(!t || !t.dataset) return;
   if(t.dataset.aiq !== undefined){ e.stopPropagation(); aiqOpen(parseInt(t.dataset.aiq, 10)); return; }
+  if(t.id === "aiqRawBtn"){ aiqShowRaw(); return; }
   if(t.id === "mstAsk"){ aiqOpenMaster(); return; }
   if(t.id === "aiqClose"){ aiqClose(); return; }
   if(t.id === "aiqAsk"){ aiqAsk(); return; }
   if(t.id === "aiqStage"){ aiqStage(); return; }
-  if(t.dataset.q !== undefined && t.closest && t.closest("#aiqQuick")){ $("aiqQ").value = t.dataset.q; aiqAsk(); return; }
+  if(t.dataset.q !== undefined && t.closest && t.closest("#aiqQuick")){
+    _aiqSrc = t.dataset.src || "camco"; $("aiqQ").value = t.dataset.q; aiqAsk(); return; }
+  if(t.id === "indSave"){ indSaveRules(); return; }
+  if(t.id === "indReset"){ indResetRules(); return; }
   if(t.id === "aiqBg") aiqClose();
 });
 document.addEventListener("keydown", e => {
@@ -7579,8 +7736,8 @@ async function syncPushApp(){ $("syAppFile").click(); }
 
 /* Full deploy of a Claude-delivered rev: app/latest + app/PF-RevNNN +
    the website index.html, one gate, with sanity checks first. */
-async function deployRevFile(file){
-  const st = $("syStatus"), say = (m,bad) => { st.textContent = m; st.classList.toggle("bad", !!bad); };
+async function deployRevFile(file, auto){
+  const st = $("syStatus"), say = (m,bad) => { st.textContent = m; st.classList.toggle("bad", !!bad); if(auto) tnSay(m); };
   if(!ghReady()){ say("Set owner, repo and token on Admin first.", true); go("admin"); return; }
   const text = await file.text();
   const m = /const APP_REV = (\d+);/.exec(text);
@@ -7588,6 +7745,7 @@ async function deployRevFile(file){
     say("That file does not look like a PFMEA app rev — nothing was pushed.", true); return;
   }
   const rev = parseInt(m[1],10);
+  if(auto && rev <= APP_REV){ return; }                    /* watcher never republishes or rolls back */
   if(rev < APP_REV){
     if(!confirm("That file is Rev " + rev + " — OLDER than the Rev " + APP_REV +
       " you are running.\n\nDeploying it would roll every machine back. Deploy the older version anyway?")) {
@@ -7598,7 +7756,7 @@ async function deployRevFile(file){
       say("Left alone — nothing was pushed."); return;
     }
   }
-  const ok = await itarGate({
+  const ok = auto ? true : await itarGate({
     head:"Deploy confirmation required",
     title:"This deploys app Rev " + rev + " to every machine",
     lede:"The file is pushed to GitHub and published to the website. Every pinned copy of the app, on every machine, updates itself to this code within a minute. It is program code, not part data — but it is code your machines will run, so check it came from Claude's message and nowhere else.",
@@ -7707,6 +7865,7 @@ $("syAuto").onclick = async () => {
 };
 $("syAppFile").onchange = e => { const f = e.target.files[0]; if(f) syncPushAppFile(f); e.target.value = ""; };
 $("tryNew").onclick = () => tryNewestLocal();
+$("watchBtn").onclick = () => watchToggle();
 $("revDrop").onclick = () => $("syRevFile").click();
 ["dragenter","dragover"].forEach(ev => $("revDrop").addEventListener(ev, e => { e.preventDefault(); $("revDrop").classList.add("hot"); }));
 ["dragleave","drop"].forEach(ev => $("revDrop").addEventListener(ev, e => { e.preventDefault(); $("revDrop").classList.remove("hot"); }));
@@ -7874,16 +8033,96 @@ async function dlPerm(h, ask){
   }catch(e){ return false; }
 }
 function tnSay(m){ const el = $("tryNewMsg"); if(el) el.textContent = m; }
+
+/* ======================================================================
+   AUTO-DEPLOY WATCHER. Armed once by the operator; from then on the app
+   watches the delivery folder and publishes any HIGHER rev that appears
+   there - to GitHub, the website and every pinned copy - with no drag
+   and no press. The token it pushes with is the one already saved on
+   this machine; it is never handled anywhere else.
+   Arming IS the consent, so the per-file confirmation is skipped while
+   it is on. It will never republish the current rev and never roll back
+   to an older one. Switch it off and the drop box behaves as before.
+   ====================================================================== */
+let _watchTimer = null, _watchBusy = false, _watchSeen = 0;
+function watchStatus(){
+  const el = $("watchState"); if(!el) return;
+  el.textContent = settings.autoDeploy
+    ? (_dlDirCache ? "ON — watching " + _dlDirCache.name + " every 10 seconds."
+                   : "ON — but the folder needs one press of TEST NEWEST FROM DOWNLOADS to reconnect after a restart.")
+    : "OFF — delivered revs are published only when you drop them on the box above.";
+  const b = $("watchBtn"); if(b) b.textContent = settings.autoDeploy ? "Turn auto-deploy OFF" : "Turn auto-deploy ON";
+}
+async function watchTick(){
+  if(!settings.autoDeploy || _watchBusy || !_dlDirCache || !ghReady()) return;
+  _watchBusy = true;
+  try{
+    if(await _dlDirCache.queryPermission({mode:"read"}) !== "granted"){ _watchBusy = false; return; }
+    let best = null;
+    for await (const [name, ent] of _dlDirCache.entries()){
+      if(ent.kind !== "file" || !/\.html?$/i.test(name)) continue;
+      const f = await ent.getFile();
+      if(f.size < 100000) continue;
+      const head = await f.slice(0, 400000).text();
+      const m = /const APP_REV = (\d+);/.exec(head);
+      if(!m || head.indexOf("CAMCO PFMEA BUILDER") < 0) continue;
+      const rev = parseInt(m[1], 10);
+      if(!best || rev > best.rev) best = {rev, file:f, name};
+    }
+    if(best && best.rev > APP_REV && best.rev > _watchSeen){
+      _watchSeen = best.rev;                                 /* one attempt per rev per session */
+      tnSay("Auto-deploy: found " + best.name + " (Rev " + best.rev + ") — publishing…");
+      await deployRevFile(best.file, true);
+    }
+  }catch(e){ /* folder went away or permission lapsed - silent, next tick retries */ }
+  _watchBusy = false;
+}
+async function watchToggle(){
+  if(!settings.autoDeploy){
+    if(!FOLDER_OK){ tnSay("This browser cannot watch a folder."); return; }
+    if(!_dlDirCache){
+      try{ _dlDirCache = await window.showDirectoryPicker({mode:"read", startIn:"downloads"}); idbSet("dlDir", _dlDirCache); }
+      catch(e){ tnSay("No folder chosen — auto-deploy stays off."); return; }
+    }
+    const ok = await appConfirm({icon:"\u26A1", title:"Turn on auto-deploy?",
+      html:`Any app file in <b>${esc(_dlDirCache.name)}</b> with a HIGHER rev than the one you are running will be published automatically — to GitHub, the website, and every pinned copy — without asking again.<br><br>It will never republish the current rev and never roll back to an older one. Only files that look like this app are touched. Your saved GitHub token does the push.<br><br>Switch it off any time on this screen.`,
+      okText:"TURN IT ON", cancelText:"CANCEL"});
+    if(!ok){ tnSay("Auto-deploy stays off."); return; }
+    settings.autoDeploy = true; saveSettings(); _watchSeen = 0;
+    watchStatus(); tnSay("Auto-deploy ON — download a rev and it publishes itself within 10 seconds.");
+    watchTick();
+  } else {
+    settings.autoDeploy = false; saveSettings(); watchStatus();
+    tnSay("Auto-deploy OFF — use the drop box above.");
+  }
+}
+/* Chrome only opens a folder picker as the DIRECT result of a click. Any
+   await beforehand - an IndexedDB read, a permission query - spends the
+   click and the picker is refused. So the saved handle is preloaded at
+   boot into _dlDirCache, and the first thing this function does on a
+   press is call the picker or requestPermission with the click intact. */
+let _dlDirCache = null;
 async function tryNewestLocal(){
   if(!FOLDER_OK){ tnSay("This browser cannot read a folder — picking the file by hand instead."); tryNewestPick(); return; }
-  let h = await idbGet("dlDir");
-  if(h && !(await dlPerm(h, true))) h = null;
+  let h = _dlDirCache, fresh = false;
+  if(h){
+    let okPerm = false;
+    try{ okPerm = await h.requestPermission({mode:"read"}) === "granted"; }catch(e){ okPerm = false; }
+    if(!okPerm){ h = null; _dlDirCache = null; }
+  }
   if(!h){
-    tnSay("Choose your delivery folder (Downloads), then allow this site to VIEW files in it.");
-    try{ h = await window.showDirectoryPicker({mode:"read", startIn:"downloads"}); }
-    catch(e){ tnSay("Folder not chosen — nothing was read."); return; }
-    if(!(await dlPerm(h, true))){ tnSay("Permission to view that folder was not granted — press the button and choose Allow / View files."); return; }
-    await idbSet("dlDir", h);
+    tnSay("Choose your delivery folder (Downloads) and allow this site to view files in it…");
+    try{ h = await window.showDirectoryPicker({mode:"read", startIn:"downloads"}); fresh = true; }
+    catch(e){
+      const nm = (e && e.name) || "";
+      if(nm === "AbortError"){ tnSay("Folder picker closed — nothing was read."); return; }
+      tnSay("The folder picker could not open (" + (nm || "unknown") + ": " + ((e && e.message) || "") + "). Falling back to picking the file by hand.");
+      tryNewestPick(); return;
+    }
+  }
+  if(fresh){
+    _dlDirCache = h;
+    idbSet("dlDir", h);                                    /* not awaited - nothing below needs it */
     tnSay("Delivery folder set to " + h.name + " — one press from now on. Scanning…");
   } else tnSay("Scanning " + h.name + "…");
   let best = null;
@@ -9228,6 +9467,14 @@ function insertSet(key){
 
 $("rulesBody").innerHTML = `
 <h1>Ruleset — Project Instructions Rev 97</h1>
+<h2>Industry practice text — what "MEET INDUSTRY PRACTICE?" checks against</h2>
+<p>CAMCO's own paraphrase of general process-FMEA practice. It is <b>not</b> a copy of AIAG FMEA 4th Ed., the AIAG-VDA handbook, or any other published manual — those are copyrighted and are not carried in this app. Edit it to match whatever standard you hold and the button checks against your text. Reset restores the built-in paraphrase.</p>
+<textarea id="indRules" spellcheck="false" style="width:100%;min-height:190px;border:1px solid var(--rule-hard);padding:9px;font-size:12.5px;font-family:inherit"></textarea>
+<div style="display:flex;gap:8px;margin:8px 0 20px;align-items:center">
+  <button class="btn go" id="indSave">Save industry text</button>
+  <button class="btn" id="indReset">Reset to built-in</button>
+  <span class="mono" id="indMsg" style="font-size:11.5px;color:var(--ink-2)"></span>
+</div>
 <p class="lede">What this app enforces on every row, and what it deliberately leaves to you.
 Where a rule and a rating disagree, the audit rail names the SC or Convention and the fix.</p>
 
@@ -9316,6 +9563,24 @@ Rev 97 describes the IAQG layout (headers row 16, data 17). The canonical CAMCO 
 at row 6. Both export paths work; pick one in the part strip on the Build screen.</div>
 `;
 
+/* Industry-practice box on the RULESET tab. Written after the tab markup
+   exists, so the textarea is there to fill. */
+function indSaveRules(){
+  const el = $("indRules"); if(!el) return;
+  const v = el.value.trim();
+  settings.industryRules = (v === INDUSTRY_RULES_DEFAULT.trim()) ? "" : v;
+  saveSettings();
+  $("indMsg").textContent = settings.industryRules
+    ? "Saved — your text is what the industry button checks against."
+    : "Saved — back to the built-in paraphrase.";
+}
+function indResetRules(){
+  settings.industryRules = ""; saveSettings();
+  const el = $("indRules"); if(el) el.value = INDUSTRY_RULES_DEFAULT;
+  $("indMsg").textContent = "Reset to the built-in paraphrase.";
+}
+if($("indRules")) $("indRules").value = settings.industryRules || INDUSTRY_RULES_DEFAULT;
+
 /* boot */
 (function boot(){
  try {
@@ -9343,6 +9608,9 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
   go("menu");
   /* pull the newest code the moment we load, not 4s later */
   setTimeout(() => { _updLast = 0; ghAutoUpdateApp(); }, 400);
+  if(FOLDER_OK) idbGet("dlDir").then(h => { if(h) _dlDirCache = h; watchStatus(); }).catch(() => {});
+  watchStatus();
+  if(!_watchTimer) _watchTimer = setInterval(watchTick, 10000);
   if(FOLDER_OK) idbGet("dir").then(async h => {
     if(!h) return;
     if(await folderPerm(h, false)){
