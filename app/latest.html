@@ -566,6 +566,8 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
         <button data-q="Does this row comply with the CAMCO PROJECT INSTRUCTIONS - the conventions, the L3Harris action trigger, House Rule 5A, the SC rules, the Class field and the Section 3 current-state process facts? List anything that conflicts, naming the rule." data-src="camco">MEET MY INSTRUCTIONS?</button>
         <button data-q="Judge this row against GENERAL INDUSTRY FMEA PRACTICE ONLY - ignore CAMCO house rules entirely. Is it structured and rated the way a process FMEA is normally expected to be? Comment on failure mode / effect / cause separation, whether the ratings are defensible against a standard scale, whether detection is credited only for controls that exist, and whether the action logic is sound." data-src="industry">MEET INDUSTRY PRACTICE?</button>
         <button data-q="Is the action chain on this row correct - Recommended Action, Responsibility and Target Date - given its RPN and the L3Harris trigger plus House Rule 5A?">IS THE ACTION CHAIN RIGHT?</button>
+        <button data-q="Suggest concrete ways to reduce this row's RPN, in priority order. Respect the conventions: Severity moves ONLY with a design change, process change, or redefined effect scope - never with added inspection. Occurrence moves only with real prevention that exists or is committed as an action. Detection is capped by Convention 3 and 4 (manual 100% attribute = 5, manual 100% variable = 4, better needs a documented Gauge R&amp;R on the specific gauge; probe without auto-offset is detection only). For each suggestion state which factor it moves, the defensible new rating, what evidence or committed action is required first, and the resulting RPN. Never propose crediting a control that does not exist.">GIVE SUGGESTIONS ON HOW TO REDUCE RPN SCORE</button>
+        <button data-q="Evaluate whether each rating matches the wording actually in this row: does the Effect text justify the SEV, does the Prevention text justify the OCC, and does the Detection text justify the DET under the Convention 3 and 4 caps? Flag any rating the text does not support (either direction - a rating better than the described controls earn, or worse than they earn), and quote the specific words that conflict.">EVALUATE IF RPN SCORE MATCHES TEXT</button>
       </div>
       <textarea id="aiqQ" spellcheck="false" placeholder="Ask anything about this row - or press one of the buttons above."></textarea>
       <div class="busy" id="aiqBusy"><span class="ring"></span><span>CLAUDE IS READING THE ROW…</span></div>
@@ -1054,14 +1056,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 159;
+const APP_REV = 160;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 159 · LOADED AUG 1, 1:49 PM</span>
+      <span class="sub" id="navSub">APP REV 160 · LOADED AUG 1, 4:53 PM</span>
     </span>
   </div>
   <script>
@@ -1146,7 +1148,7 @@ const APP_REV = 159;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 159 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 160 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1318,7 +1320,7 @@ const APP_REV = 159;
       <button class="btn" id="syAuto">Enable plan autosave</button>
       <span class="status" id="syStatus"></span>
     </div>
-    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 6 / 500 · autosave backs off at 400.</div>
+    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 0 / 500 · autosave backs off at 400.</div>
     <input type="file" id="syAppFile" accept=".html" hidden="">
     <input type="file" id="syRevFile" accept=".html,.htm" hidden="">
     <div id="syList2"><p>No plans/ folder yet — push one to create it.</p></div>
@@ -1701,7 +1703,7 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
   .mst-bg{position:fixed;inset:0;background:rgba(20,12,12,.72);z-index:230;display:none;align-items:center;justify-content:center;padding:18px}
   .mst-bg.on{display:flex}
   .mst{background:var(--panel);width:97vw;height:94vh;display:flex;flex-direction:column;overflow:hidden;border:1px solid #000;box-shadow:0 18px 50px rgba(0,0,0,.45)}
-  .mst .mtable-wrap{overflow:auto;border:1px solid var(--rule-hard);flex:1 1 auto;min-height:0}
+  .mst .mtable-wrap{overflow-y:auto;overflow-x:hidden;border:1px solid var(--rule-hard);flex:1 1 auto;min-height:0}
   .mst .fview td[data-mf]{min-height:90px;height:auto;font-size:12.5px;line-height:1.5}
   .mst .fview td[data-mf]:focus{outline:3px solid var(--stamp);background:#FFF9F2}
   .mst .mh{background:var(--stamp);color:#fff;padding:11px 18px;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.16em;display:flex;justify-content:space-between}
@@ -1752,6 +1754,23 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 160 · 2026-08-01
+     · MASTER TABLE FITS THE WINDOW, per operator: "eliminate the
+       scroll bar." The master-row table was 2220px of fixed column
+       widths, so the last columns fell off the right edge behind a
+       horizontal scroll bar. The same width RATIOS are now percentages
+       on a 100%-wide table, so it scales to the popup; long text wraps
+       taller instead of running off the side. Horizontal scrolling is
+       disabled on the wrap; vertical stays.
+     · TWO NEW AI QUESTIONS in the ask popup, per operator: GIVE
+       SUGGESTIONS ON HOW TO REDUCE RPN SCORE - suggestions in priority
+       order, each naming the factor moved, the defensible new rating
+       under the conventions, the evidence or committed action required
+       first, and the resulting RPN; and EVALUATE IF RPN SCORE MATCHES
+       TEXT - checks Sev against the Effect wording, Occ against the
+       Prevention wording, Det against the Detection wording and the
+       Convention 3/4 caps, and quotes the words that conflict.
+
    Rev 159 · 2026-08-01
      · THE WEEK-LONG HANG, FOUND AND KILLED. Rev 157's watchdog finally
        printed it: "SyntaxError: identifier 'LOGO_SCMH' has already been
@@ -9238,8 +9257,9 @@ function mstFill(src, hit){
     ["detR","DET",40,"rate"],["cls","Classification",70,"mid"],["action","Recommended Action(s)",220],
   ];
   const rateStyle = (f,v) => /^(sev|occ|detR)$/.test(f) ? fvTier(v) : "";
+  const MTOT = MCOLS.reduce((a,c)=>a+c[2],0);
   $("mstFields").innerHTML =
-    `<table class="fview"><colgroup>${MCOLS.map(c=>`<col style="width:${c[2]}px">`).join("")}</colgroup>` +
+    `<table class="fview" style="width:100%"><colgroup>${MCOLS.map(c=>`<col style="width:${(c[2]/MTOT*100).toFixed(2)}%">`).join("")}</colgroup>` +
     `<thead><tr>${MCOLS.map(c=>`<th class="${/^(SEV|OCC|DET)$/.test(c[1])?"rate":""}">${c[1]}</th>`).join("")}</tr></thead>` +
     `<tbody><tr>${MCOLS.map(c => {
       const v = src[c[0]] == null ? "" : String(src[c[0]]);
