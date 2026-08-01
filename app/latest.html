@@ -1056,14 +1056,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 161;
+const APP_REV = 163;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 161 · LOADED AUG 1, 5:00 PM</span>
+      <span class="sub" id="navSub">APP REV 163 · LOADED AUG 1, 5:11 PM</span>
     </span>
   </div>
   <script>
@@ -1148,7 +1148,7 @@ const APP_REV = 161;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 161 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 163 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1307,6 +1307,7 @@ const APP_REV = 161;
         This machine pushes it everywhere: GitHub, the website, and every pinned copy — within a minute.
         The whole loop is two actions: click the download card in the chat, drag the file onto this box.</span>
       <span class="mono" id="dropStatus" style="display:block;margin-top:10px;font-size:12px;color:var(--stamp);font-weight:700"></span>
+      <button class="btn key" id="pasteRev" style="margin-top:12px;font-size:13px;padding:10px 22px" title="Deploys the app file currently on the clipboard — right-click the download, Copy, then press this">PASTE THE COPIED REV</button>
     </div>
     <div class="mono" id="watchState" style="font-size:11.5px;margin:0 0 4px;color:var(--ink-2)">OFF — delivered revs are published only when you drop them on the box above.</div>
     <div class="mono" id="tryNewMsg" style="font-size:11.5px;margin:0 0 8px;color:var(--ink-2);min-height:15px"></div>
@@ -1320,7 +1321,7 @@ const APP_REV = 161;
       <button class="btn" id="syAuto">Enable plan autosave</button>
       <span class="status" id="syStatus"></span>
     </div>
-    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 3 / 500 · autosave backs off at 400.</div>
+    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 7 / 500 · autosave backs off at 400.</div>
     <input type="file" id="syAppFile" accept=".html" hidden="">
     <input type="file" id="syRevFile" accept=".html,.htm" hidden="">
     <div id="syList2"><p>No plans/ folder yet — push one to create it.</p></div>
@@ -1754,6 +1755,31 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 163 · 2026-08-01
+     · PASTE IS NOW A BUTTON, per operator: "so I don't have to click
+       the ctrl and v buttons." A dark PASTE THE COPIED REV button sits
+       inside the deploy box. Press it and the app reads the clipboard
+       itself - the press is the permission the browser requires - finds
+       the copied app file (checked for the APP_REV line and the app's
+       own title before anything is pushed), and deploys it. Loop:
+       download card -> right-click Copy -> press the button.
+     · Honest limit stated on-screen when it applies: some browsers
+       refuse to hand file clipboard contents to a page at all; the
+       button then says so and Ctrl+V remains the fallback that always
+       works. Rev checks and the older/same-rev confirms still apply.
+
+   Rev 162 · 2026-08-01
+     · PASTE DEPLOYS, per operator: "that's too many clicks." A copied
+       app file pasted with Ctrl+V anywhere in the app (any screen)
+       jumps to the GitHub screen and deploys it - so the loop can be:
+       download card -> right-click the item on Chrome's download shelf
+       -> Copy -> click the app -> Ctrl+V. No Explorer, no folder
+       navigation. Only .html files are accepted; all the same rev
+       checks apply.
+     · The auto-deploy folder picker remembers its spot (id "pfdl") and
+       asks to open directly in Downloads, so if the browser honors it
+       the grant is Select Folder and nothing else.
+
    Rev 161 · 2026-08-01
      · DEPLOY CONFIRMATION FORM REMOVED, per operator. Dropping a NEWER
        rev on the box no longer raises the full checkbox form - the
@@ -8100,6 +8126,49 @@ $("revDrop").addEventListener("drop", e => {
   if(f) deployRevFile(f); else toast("Drop the PF-RevNNN.html file itself.");
 });
 $("syRevFile").onchange = e => { const f = e.target.files[0]; if(f) deployRevFile(f); e.target.value = ""; };
+/* Rev 162: paste deploys. Right-click the downloaded file (in the browser's
+   download shelf or Explorer) -> Copy, then Ctrl+V anywhere in the app.
+   Works from any screen; only .html files are accepted. */
+/* Rev 163: one on-screen button does the Ctrl+V. Clipboard reading needs a
+   click to be allowed by the browser - this button IS that click. It reads
+   the clipboard, takes the first .html file on it, and deploys it. */
+$("pasteRev").onclick = async (e) => {
+  e.stopPropagation();                                       /* the box behind it opens a picker on click */
+  const say = m => { const el = $("dropStatus"); if(el) el.textContent = m; };
+  try{
+    if(!navigator.clipboard || !navigator.clipboard.read){
+      say("This browser will not hand the clipboard to a page — use Ctrl+V instead."); return;
+    }
+    const items = await navigator.clipboard.read();
+    for(const it of items){
+      for(const t of it.types){
+        try{
+          const b = await it.getType(t);
+          if(b && b.size > 100000){
+            const head = await b.slice(0, 400000).text();
+            if(/const APP_REV = \d+;/.test(head) && head.indexOf("CAMCO PFMEA BUILDER") >= 0){
+              deployRevFile(new File([b], "clipboard-rev.html", {type:"text/html"}));
+              return;
+            }
+          }
+        }catch(err){ /* this type would not read as text - try the next */ }
+      }
+    }
+    say("Nothing on the clipboard looks like an app rev — right-click the downloaded file, choose Copy, then press this button.");
+  }catch(err){
+    if(err && err.name === "NotAllowedError")
+      say("The browser asked permission to read the clipboard and it was not granted — allow it, or use Ctrl+V.");
+    else
+      say("Could not read the clipboard (" + ((err && err.name) || "?") + ") — use Ctrl+V instead; that path always works.");
+  }
+};
+
+document.addEventListener("paste", e => {
+  const items = (e.clipboardData && e.clipboardData.files) || [];
+  for(const f of items){
+    if(/\.html?$/i.test(f.name || "")){ e.preventDefault(); go("sync"); deployRevFile(f); return; }
+  }
+});
 
 $("ghSave").onclick = () => {
   ["ghOwner","ghRepo","ghRepoCode","ghBranch","ghToken"].forEach(k => settings[k] = $(k).value.trim());
@@ -8335,7 +8404,7 @@ async function watchToggle(){
     if(!FOLDER_OK){ tnSay("This browser cannot watch a folder."); return; }
     if(!_dlDirCache){
       let h = null, err1 = null;
-      try{ h = await window.showDirectoryPicker({mode:"read", startIn:"downloads"}); }
+      try{ h = await window.showDirectoryPicker({id:"pfdl", mode:"read", startIn:"downloads"}); }
       catch(e){ err1 = e; }
       /* Some Chrome builds reject the options object outright. Ask again
          plainly before giving up, and never report a refusal as a cancel. */
