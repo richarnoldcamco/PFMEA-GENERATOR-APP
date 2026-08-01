@@ -683,16 +683,16 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 
 <div class="gate-bg" id="gateBg">
   <div class="gate" role="dialog" aria-modal="true" aria-labelledby="gateHead">
-    <div class="gh" id="gateHead">Deploy confirmation required</div>
+    <div class="gh" id="gateHead">Export control — release confirmation required</div>
     <div class="gb">
-      <h3 id="gateTitle">This deploys app Rev 152 to every machine</h3>
-      <p id="gateLede">The file is pushed to GitHub and published to the website. Every pinned copy of the app, on every machine, updates itself to this code within a minute. It is program code, not part data — but it is code your machines will run, so check it came from Claude's message and nowhere else.</p>
-      <div class="manifest" id="gateManifest">SOURCE FILE  ·  PF-Rev152.html  (774 KB)<br>REV IN FILE  ·  152   (this machine runs 152)<br>CODE REPO  ·  RICHARNOLDCAMCO/PFMEA-GENERATOR-APP  →  app/latest.html, app/PF-Rev152.html<br>WEBSITE  ·  index.html  →  https://richarnoldcamco.github.io/PFMEA-GENERATOR-APP/</div>
-      <p id="gateKeep"><b>Not sent:</b> PFMEA plans, images, your API key and GitHub token.</p>
-      <div id="gateAcks"><label class="ack" data-ai="0"><input type="checkbox" data-ac="0"><span>I confirm this file came from Claude's delivery in our chat and I want every machine to run it.</span></label></div>
+      <h3 id="gateTitle">This will send data off this device</h3>
+      <p id="gateLede"></p>
+      <div class="manifest" id="gateManifest"></div>
+      <p id="gateKeep"></p>
+      <div id="gateAcks"></div>
       <div class="gf">
         <button class="btn" id="gateCancel">Cancel</button>
-        <button class="btn key send" id="gateSend">Send</button>
+        <button class="btn key send" id="gateSend" disabled="">Send</button>
       </div>
     </div>
   </div>
@@ -1007,14 +1007,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 152;
+const APP_REV = 155;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 152 · LOADED JUL 30, 1:33 PM</span>
+      <span class="sub" id="navSub">APP REV 155 · LOADED AUG 1, 10:52 AM</span>
     </span>
   </div>
   <script>
@@ -1099,7 +1099,7 @@ const APP_REV = 152;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 152 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 155 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1257,7 +1257,7 @@ const APP_REV = 152;
       <span>Drop the PF-RevNNN.html from Claude's message (or click to browse).
         This machine pushes it everywhere: GitHub, the website, and every pinned copy — within a minute.
         The whole loop is two actions: click the download card in the chat, drag the file onto this box.</span>
-      <span class="mono" id="dropStatus" style="display: block; margin-top: 10px; font-size: 12px; font-weight: 700; color: rgb(176, 0, 32);">GitHub returned 409. app/latest.html does not match 5fe7ea9bfbd27627bbb0d1ec3333daafb7acb7a8</span>
+      <span class="mono" id="dropStatus" style="display:block;margin-top:10px;font-size:12px;color:var(--stamp);font-weight:700"></span>
     </div>
     <div class="mono" id="watchState" style="font-size:11.5px;margin:0 0 4px;color:var(--ink-2)">OFF — delivered revs are published only when you drop them on the box above.</div>
     <div class="mono" id="tryNewMsg" style="font-size:11.5px;margin:0 0 8px;color:var(--ink-2);min-height:15px"></div>
@@ -1269,9 +1269,9 @@ const APP_REV = 152;
       <button class="btn" id="syPushApp">Push app code</button>
       <button class="btn" id="syPullApp">Pull newest app code</button>
       <button class="btn" id="syAuto">Enable plan autosave</button>
-      <span class="status bad" id="syStatus">GitHub returned 409. app/latest.html does not match 5fe7ea9bfbd27627bbb0d1ec3333daafb7acb7a8</span>
+      <span class="status" id="syStatus"></span>
     </div>
-    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 3 / 500 · autosave backs off at 400.</div>
+    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 2 / 500 · autosave backs off at 400.</div>
     <input type="file" id="syAppFile" accept=".html" hidden="">
     <input type="file" id="syRevFile" accept=".html,.htm" hidden="">
     <div id="syList2"><p>No plans/ folder yet — push one to create it.</p></div>
@@ -1705,6 +1705,49 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 155 · 2026-07-30
+     · DROP BOX COMPARED AGAINST THE WRONG THING. The same-rev check
+       used APP_REV — what THIS WINDOW runs — but the window swaps
+       itself to a new rev from app/latest.html the moment it appears,
+       so dropping that same rev said "already the most recent" while
+       index.html (what the taskbar icon loads) was still revisions
+       behind. Every icon launch then loaded the old rev and sat
+       through the slow in-place swap. The check now fetches the rev
+       the WEBSITE actually serves and compares against that; a lagging
+       index.html is detected and the deploy proceeds without asking,
+       finishing the half-landed state instead of refusing to.
+
+   Rev 154 · 2026-07-30
+     · APPLY FROM MASTER NOW GOES THROUGH CELL-BY-CELL APPROVAL, per
+       operator: "I thought that I had a cell by cell approval." It was
+       a blind overwrite; only the AI path had pairs. The button - now
+       COMPARE & APPLY TO THIS ROW - stages every DIFFERING cell as a
+       BEFORE / PROPOSED pair on the Build grid with the tick / pencil /
+       cross, identical cells left alone, so the differences are visible
+       and each change is the operator's decision.
+     · HOUSE #5A ENFORCED ON EVERY PATH. XRF-4 landed at RPN 90 with QE
+       and 2026-Q3 still in U / V because (a) the master itself carries
+       a stale action chain and (b) houseSweep only ran on file open.
+       Now: mstRead() blanks T/U/V at the source when the master's own
+       ratings sit below trigger (dressing / lockdown rows excepted), so
+       no path - apply, standard-set insert, or AI - can propagate them;
+       and the sweep also runs after every approved proposal, so a
+       rating change that drops a row below 100 cleans its chain in the
+       same action. SAVE MASTER still stores exactly what was typed.
+
+   Rev 153 · 2026-07-30
+     · STALE ERROR TEXT CLEARED. The deploy box's status was only ever
+       overwritten by the next deploy, so the red 409 from the 1:33 PM
+       collision sat on screen long after the deploy had succeeded and
+       read as a live failure. The box now wipes its status the moment
+       any deploy starts.
+     · 409s RETRY INSTEAD OF DYING MID-WRITE. When two windows push at
+       once, GitHub refuses the stale hash and Rev 152's deployer
+       stopped between files, leaving app/ and index.html on different
+       revs. Each file write now re-reads and retries up to twice with
+       a short backoff before surfacing the error, so a collision heals
+       itself instead of half-landing.
+
    Rev 152 · 2026-07-30
      · TWO-ACTION DEPLOY LOOP, per operator. On a machine with GitHub
        wired (a token saved in Admin), the app now opens straight on the
@@ -4735,6 +4778,7 @@ function renderGridForm(){
 function aiApplyOne(i){
   const p = aiPending[i]; if(!p) return;
   Object.keys(p).forEach(f => { if(AI_ALL_FIELDS.includes(f)) state.rows[i][f] = p[f]; });
+  houseSweep();
 }
 function aiApprove(i){
   aiApplyOne(i);
@@ -7775,6 +7819,7 @@ async function syncPushApp(){ $("syAppFile").click(); }
 /* Full deploy of a Claude-delivered rev: app/latest + app/PF-RevNNN +
    the website index.html, one gate, with sanity checks first. */
 async function deployRevFile(file, auto){
+  { const d0 = $("dropStatus"); if(d0){ d0.textContent = ""; d0.style.color = ""; } }
   const st = $("syStatus"), ds = $("dropStatus"),
     say = (m,bad) => { st.textContent = m; st.classList.toggle("bad", !!bad);
       if(ds){ ds.textContent = m; ds.style.color = bad ? "#B00020" : ""; }
@@ -7786,16 +7831,31 @@ async function deployRevFile(file, auto){
     say("That file does not look like a PFMEA app rev — nothing was pushed.", true); return;
   }
   const rev = parseInt(m[1],10);
-  if(auto && rev <= APP_REV){ return; }                    /* watcher never republishes or rolls back */
-  if(rev < APP_REV){
-    if(!confirm("That file is Rev " + rev + " — OLDER than the Rev " + APP_REV +
-      " you are running.\n\nDeploying it would roll every machine back. Deploy the older version anyway?")) {
+  /* Rev 155: compare against what the WEBSITE serves, not what this window
+     happens to be running. This window may already have swapped itself to
+     the new rev in memory (it watches app/latest.html), which made a drop
+     of that same rev look like a pointless re-push while index.html was
+     still revisions behind — the exact half-landed state the drop exists
+     to fix. If index.html lags, the deploy proceeds without asking. */
+  let siteRev = null;
+  try{
+    const sr = await fetch("https://raw.githubusercontent.com/" + settings.ghOwner + "/" + codeRepo() + "/main/index.html",
+      {cache:"no-store"});
+    if(sr.ok){ const sm = /const APP_REV = (\d+);/.exec(await sr.text()); if(sm) siteRev = parseInt(sm[1],10); }
+  }catch(e){ /* offline or blocked - fall back to this window's rev below */ }
+  const base = (siteRev !== null) ? siteRev : APP_REV;
+  if(auto && rev <= base){ return; }                       /* watcher never republishes or rolls back */
+  if(rev < base){
+    if(!confirm("That file is Rev " + rev + " — OLDER than the Rev " + base +
+      " the website serves.\n\nDeploying it would roll every machine back. Deploy the older version anyway?")) {
       say("Left alone — nothing was pushed."); return;
     }
-  } else if(rev === APP_REV){
-    if(!confirm("That file is the same Rev " + APP_REV + " you are already running. Push it again anyway?")){
+  } else if(rev === base){
+    if(!confirm("The website already serves Rev " + base + ". Push it again anyway?")){
       say("Left alone — nothing was pushed."); return;
     }
+  } else if(siteRev !== null && rev === APP_REV && siteRev < rev){
+    say("Website is on Rev " + siteRev + " but should be on Rev " + rev + " — finishing the half-landed deploy…");
   }
   const ok = auto ? true : await itarGate({
     head:"Deploy confirmation required",
@@ -7809,11 +7869,25 @@ async function deployRevFile(file, auto){
     ackText:"I confirm this file came from Claude's delivery in our chat and I want every machine to run it.",
   });
   if(!ok){ say("Cancelled — nothing was pushed."); return; }
+  /* Two windows can push at once (this happened 2026-07-30: a deploy and a
+     just-opened copy's auto-check collided). GitHub then answers 409 on the
+     stale file hash. Retry: re-read the file's current state and push again,
+     up to twice, before surfacing the error. */
+  const putR = async (path, msg) => {
+    for(let a = 0; ; a++){
+      try{ await ghPut(path, text, msg, codeRepo()); return; }
+      catch(e){
+        if(a >= 2 || !/409/.test(String(e && e.message || e))) throw e;
+        say("GitHub was busy on " + path + " — retrying (" + (a+1) + "/2)…");
+        await new Promise(r => setTimeout(r, 1200 + Math.random()*800));
+      }
+    }
+  };
   try{
     say("Deploying Rev " + rev + "…");
-    await ghPut(GH_APP_FILE_APPDIR(rev), text, "App Rev " + rev + " via deploy drop", codeRepo());
-    await ghPut("app/latest.html", text, "App latest -> Rev " + rev, codeRepo());
-    await ghPut(GH_PAGES_FILE, text, "Website Rev " + rev + " via deploy drop", codeRepo());
+    await putR(GH_APP_FILE_APPDIR(rev), "App Rev " + rev + " via deploy drop");
+    await putR("app/latest.html", "App latest -> Rev " + rev);
+    await putR(GH_PAGES_FILE, "Website Rev " + rev + " via deploy drop");
     say("Deployed Rev " + rev + " — pinned copies update within a minute.");
     toast("Rev " + rev + " is live. This window will pick it up on its next check.");
   }catch(e){ say(String(e.message || e), true); }
@@ -9073,6 +9147,7 @@ function mstFill(src, hit){
     if(ph){ const im = phEl.querySelector("img"); if(im) im.onclick = () => imgLightbox(ph.url); }
   }
   $("mstApply").style.display = _mstCtx.rowIdx < 0 ? "none" : "";
+  $("mstApply").textContent = "Compare & apply to this row";
   const ao = $("mstAiOut"); if(ao){ ao.style.display = "none"; ao.innerHTML = ""; }
   $("mstAiRate").onclick = mstAiRate;
   mstAiLogPaint();
@@ -9304,7 +9379,11 @@ function mstAskSave(){
 document.addEventListener("input", e => {
   if(e.target && e.target.closest && e.target.closest("#mstFields [data-mf]")) _mstDirty = true;
 }, true);
-function mstRead(){
+/* House #5A applied at the source: when the master's own ratings sit below
+   trigger (and the row is not dressing / lockdown exempt), its stored
+   action / responsibility / target are stale library content and are
+   blanked on read, so no path — apply, insert, or AI — can propagate them. */
+function mstReadRaw(){
   const out = {};
   $("mstFields").querySelectorAll("[data-mf]").forEach(el => {
     const t = (el.innerText !== undefined ? el.innerText : el.textContent).replace(/\u00A0/g," ").trim();
@@ -9312,13 +9391,21 @@ function mstRead(){
   });
   return out;
 }
+function mstRead(){
+  const v = mstReadRaw();
+  const cm = calc(v);
+  if(cm.rpn > 0 && cm.rpn < 100 && !triggered(v, state.meta && state.meta.customer) && !actionExempt(v)){
+    v.action = ""; v.resp = ""; v.target = "";
+  }
+  return v;
+}
 $("mstClose").onclick = () => {
   if(!mstAskSave()) return;
   $("mstBg").classList.remove("on");
 };
 $("mstSave").onclick = async () => {
   _mstDirty = false;
-  const v = mstRead(), all = mstOverrides(), base = _mstCtx.base;
+  const v = mstReadRaw(), all = mstOverrides(), base = _mstCtx.base;
   const merged = Object.assign({}, all[base], v);   /* merge — keeps aiLog and future extras */
   for(const k in merged){ if(merged[k] === "") delete merged[k]; }   /* self-clean stale blanks */
   all[base] = merged;
@@ -9369,17 +9456,40 @@ $("mstReset").onclick = async () => {
   await mastersPush("reset " + base + " to baseline");
 };
 $("mstApply").onclick = () => {
-  const v = mstRead(), r = state.rows[_mstCtx.rowIdx];
-  Object.keys(v).forEach(f => { if(f !== "id") r[f] = v[f]; });
-  saveWorking(); renderGrid(); renderRail();
-  toast("Master applied to " + r.id + ".");
-  if(_mstDirty && confirm("SAVE CHANGES TO THE MASTER FILE?\n\nThe row got your typed changes — but the MASTER FILE (shared library) has not.\n\nOK = SAVE MASTER too.\nCancel = row only; the library keeps its old wording.")){
-    _mstSkipProp = true;
-    try{ $("mstSave").onclick(); }finally{ _mstSkipProp = false; }
+  /* Rev 154: APPLY no longer overwrites the row. Master values are staged as
+     a BEFORE / PROPOSED pair on the Build grid — every differing cell gets
+     the tick / pencil / cross, exactly like an AI proposal — so the operator
+     sees the differences and approves each cell. Identical cells are not
+     staged. House #5A: if the master's ratings put the row below trigger,
+     the staged action chain is EMPTY (dressing / lockdown rows excepted),
+     even when the master file still carries stale T/U/V values. */
+  const v = mstRead(), i = _mstCtx.rowIdx, r = state.rows[i];
+  const cand = {};
+  AI_ALL_FIELDS.concat(["step","opName","wc","op"]).forEach(f => {
+    if(v[f] === undefined) return;
+    if(String(v[f]).trim() !== String(r[f] || "").trim()) cand[f] = String(v[f]);
+  });
+  const m = Object.assign({}, r, cand);
+  const cm = calc(m);
+  if(cm.rpn > 0 && cm.rpn < 100 && !triggered(m, state.meta.customer) && !actionExempt(m)){
+    ["action","resp","target"].forEach(f => {
+      const cur = String(r[f] || "").trim();
+      if(String(cand[f] ?? cur).trim()){ cand[f] = ""; }       /* stage a clearing */
+      if(!cur && cand[f] === "") delete cand[f];               /* already empty - nothing to stage */
+    });
+  }
+  if(!Object.keys(cand).length){
+    toast(r.id + " already matches the master — nothing to change.");
+    _mstDirty = false; $("mstBg").classList.remove("on");
     return;
   }
+  aiPending[i] = Object.assign({}, aiPending[i] || {}, cand);
+  aiFromMat = ""; aiToMat = "";
+  settings.gridView = "form"; saveSettings();
   _mstDirty = false;
   $("mstBg").classList.remove("on");
+  renderGridForm(); renderRail();
+  toast(r.id + " — " + Object.keys(cand).length + " differing cell(s) staged from the master. Approve or reject each on the BEFORE / PROPOSED pair.");
 };
 
 /* =======================================================================
