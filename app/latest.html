@@ -1007,14 +1007,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 154;
+const APP_REV = 155;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 154 · LOADED JUL 30, 3:26 PM</span>
+      <span class="sub" id="navSub">APP REV 155 · LOADED AUG 1, 10:52 AM</span>
     </span>
   </div>
   <script>
@@ -1099,7 +1099,7 @@ const APP_REV = 154;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 154 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 155 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1705,6 +1705,18 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 155 · 2026-07-30
+     · DROP BOX COMPARED AGAINST THE WRONG THING. The same-rev check
+       used APP_REV — what THIS WINDOW runs — but the window swaps
+       itself to a new rev from app/latest.html the moment it appears,
+       so dropping that same rev said "already the most recent" while
+       index.html (what the taskbar icon loads) was still revisions
+       behind. Every icon launch then loaded the old rev and sat
+       through the slow in-place swap. The check now fetches the rev
+       the WEBSITE actually serves and compares against that; a lagging
+       index.html is detected and the deploy proceeds without asking,
+       finishing the half-landed state instead of refusing to.
+
    Rev 154 · 2026-07-30
      · APPLY FROM MASTER NOW GOES THROUGH CELL-BY-CELL APPROVAL, per
        operator: "I thought that I had a cell by cell approval." It was
@@ -7819,16 +7831,31 @@ async function deployRevFile(file, auto){
     say("That file does not look like a PFMEA app rev — nothing was pushed.", true); return;
   }
   const rev = parseInt(m[1],10);
-  if(auto && rev <= APP_REV){ return; }                    /* watcher never republishes or rolls back */
-  if(rev < APP_REV){
-    if(!confirm("That file is Rev " + rev + " — OLDER than the Rev " + APP_REV +
-      " you are running.\n\nDeploying it would roll every machine back. Deploy the older version anyway?")) {
+  /* Rev 155: compare against what the WEBSITE serves, not what this window
+     happens to be running. This window may already have swapped itself to
+     the new rev in memory (it watches app/latest.html), which made a drop
+     of that same rev look like a pointless re-push while index.html was
+     still revisions behind — the exact half-landed state the drop exists
+     to fix. If index.html lags, the deploy proceeds without asking. */
+  let siteRev = null;
+  try{
+    const sr = await fetch("https://raw.githubusercontent.com/" + settings.ghOwner + "/" + codeRepo() + "/main/index.html",
+      {cache:"no-store"});
+    if(sr.ok){ const sm = /const APP_REV = (\d+);/.exec(await sr.text()); if(sm) siteRev = parseInt(sm[1],10); }
+  }catch(e){ /* offline or blocked - fall back to this window's rev below */ }
+  const base = (siteRev !== null) ? siteRev : APP_REV;
+  if(auto && rev <= base){ return; }                       /* watcher never republishes or rolls back */
+  if(rev < base){
+    if(!confirm("That file is Rev " + rev + " — OLDER than the Rev " + base +
+      " the website serves.\n\nDeploying it would roll every machine back. Deploy the older version anyway?")) {
       say("Left alone — nothing was pushed."); return;
     }
-  } else if(rev === APP_REV){
-    if(!confirm("That file is the same Rev " + APP_REV + " you are already running. Push it again anyway?")){
+  } else if(rev === base){
+    if(!confirm("The website already serves Rev " + base + ". Push it again anyway?")){
       say("Left alone — nothing was pushed."); return;
     }
+  } else if(siteRev !== null && rev === APP_REV && siteRev < rev){
+    say("Website is on Rev " + siteRev + " but should be on Rev " + rev + " — finishing the half-landed deploy…");
   }
   const ok = auto ? true : await itarGate({
     head:"Deploy confirmation required",
