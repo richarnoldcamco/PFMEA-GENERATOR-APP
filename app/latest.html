@@ -1056,14 +1056,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 160;
+const APP_REV = 161;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 160 · LOADED AUG 1, 4:53 PM</span>
+      <span class="sub" id="navSub">APP REV 161 · LOADED AUG 1, 5:00 PM</span>
     </span>
   </div>
   <script>
@@ -1148,7 +1148,7 @@ const APP_REV = 160;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 160 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 161 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1320,7 +1320,7 @@ const APP_REV = 160;
       <button class="btn" id="syAuto">Enable plan autosave</button>
       <span class="status" id="syStatus"></span>
     </div>
-    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 0 / 500 · autosave backs off at 400.</div>
+    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 3 / 500 · autosave backs off at 400.</div>
     <input type="file" id="syAppFile" accept=".html" hidden="">
     <input type="file" id="syRevFile" accept=".html,.htm" hidden="">
     <div id="syList2"><p>No plans/ folder yet — push one to create it.</p></div>
@@ -1754,6 +1754,14 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 161 · 2026-08-01
+     · DEPLOY CONFIRMATION FORM REMOVED, per operator. Dropping a NEWER
+       rev on the box no longer raises the full checkbox form - the
+       drag is the decision. The box simply reports "Uploading new
+       Rev N…" and then the deploy progress. The two protective
+       confirms that remain: rolling BACK to an older rev, and
+       re-pushing the same rev the website already serves.
+
    Rev 160 · 2026-08-01
      · MASTER TABLE FITS THE WINDOW, per operator: "eliminate the
        scroll bar." The master-row table was 2220px of fixed column
@@ -7966,18 +7974,12 @@ async function deployRevFile(file, auto){
   } else if(siteRev !== null && rev === APP_REV && siteRev < rev){
     say("Website is on Rev " + siteRev + " but should be on Rev " + rev + " — finishing the half-landed deploy…");
   }
-  const ok = auto ? true : await itarGate({
-    head:"Deploy confirmation required",
-    title:"This deploys app Rev " + rev + " to every machine",
-    lede:"The file is pushed to GitHub and published to the website. Every pinned copy of the app, on every machine, updates itself to this code within a minute. It is program code, not part data — but it is code your machines will run, so check it came from Claude's message and nowhere else.",
-    lines:["SOURCE FILE  ·  " + (file.name || "picked file") + "  (" + (file.size/1024).toFixed(0) + " KB)",
-           "REV IN FILE  ·  " + rev + "   (this machine runs " + APP_REV + ")",
-           "CODE REPO  ·  " + settings.ghOwner + "/" + codeRepo() + "  →  app/latest.html, app/PF-Rev" + String(rev).padStart(3,"0") + ".html",
-           "WEBSITE  ·  index.html  →  https://" + settings.ghOwner.toLowerCase() + ".github.io/" + codeRepo() + "/"],
-    keep:"PFMEA plans, images, your API key and GitHub token.",
-    ackText:"I confirm this file came from Claude's delivery in our chat and I want every machine to run it.",
-  });
-  if(!ok){ say("Cancelled — nothing was pushed."); return; }
+  /* Rev 161: the full deploy-confirmation form is gone for a NEWER rev,
+     per operator. Dragging the file onto the box IS the decision; the
+     app just says what it is doing. The confirms that remain are the
+     protective rare ones above: rolling BACK to an older rev, or
+     re-pushing the same rev. */
+  say("Uploading new Rev " + rev + "…");
   /* Two windows can push at once (this happened 2026-07-30: a deploy and a
      just-opened copy's auto-check collided). GitHub then answers 409 on the
      stale file hash. Retry: re-read the file's current state and push again,
