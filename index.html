@@ -566,7 +566,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
         <button data-q="Does this row comply with the CAMCO PROJECT INSTRUCTIONS - the conventions, the L3Harris action trigger, House Rule 5A, the SC rules, the Class field and the Section 3 current-state process facts? List anything that conflicts, naming the rule." data-src="camco">MEET MY INSTRUCTIONS?</button>
         <button data-q="Judge this row against GENERAL INDUSTRY FMEA PRACTICE ONLY - ignore CAMCO house rules entirely. Is it structured and rated the way a process FMEA is normally expected to be? Comment on failure mode / effect / cause separation, whether the ratings are defensible against a standard scale, whether detection is credited only for controls that exist, and whether the action logic is sound." data-src="industry">MEET INDUSTRY PRACTICE?</button>
         <button data-q="Is the action chain on this row correct - Recommended Action, Responsibility and Target Date - given its RPN and the L3Harris trigger plus House Rule 5A?">IS THE ACTION CHAIN RIGHT?</button>
-        <button data-q="Suggest concrete ways to reduce this row's RPN, in priority order. Respect the conventions: Severity moves ONLY with a design change, process change, or redefined effect scope - never with added inspection. Occurrence moves only with real prevention that exists or is committed as an action. Detection is capped by Convention 3 and 4 (manual 100% attribute = 5, manual 100% variable = 4, better needs a documented Gauge R&amp;R on the specific gauge; probe without auto-offset is detection only). For each suggestion state which factor it moves, the defensible new rating, what evidence or committed action is required first, and the resulting RPN. Never propose crediting a control that does not exist.">GIVE SUGGESTIONS ON HOW TO REDUCE RPN SCORE</button>
+        <button data-q="Suggest concrete ways to reduce this row's RPN, in priority order. Respect the conventions: Severity moves ONLY with a design change, process change, or redefined effect scope - never with added inspection. Occurrence moves only with real prevention that exists or is committed as an action. Detection is capped by Convention 3 and 4 (manual 100% attribute = 5, manual 100% variable = 4, better needs a documented Gauge R&R on the specific gauge; probe without auto-offset is detection only). For each suggestion state which factor it moves, the defensible new rating, what evidence or committed action is required first, and the resulting RPN. Never propose crediting a control that does not exist.">GIVE SUGGESTIONS ON HOW TO REDUCE RPN SCORE</button>
         <button data-q="Evaluate whether each rating matches the wording actually in this row: does the Effect text justify the SEV, does the Prevention text justify the OCC, and does the Detection text justify the DET under the Convention 3 and 4 caps? Flag any rating the text does not support (either direction - a rating better than the described controls earn, or worse than they earn), and quote the specific words that conflict.">EVALUATE IF RPN SCORE MATCHES TEXT</button>
       </div>
       <textarea id="aiqQ" spellcheck="false" placeholder="Ask anything about this row - or press one of the buttons above."></textarea>
@@ -1056,14 +1056,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 161;
+const APP_REV = 163;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 161 · LOADED AUG 1, 5:00 PM</span>
+      <span class="sub" id="navSub">APP REV 163 · LOADING…</span>
     </span>
   </div>
   <script>
@@ -1085,7 +1085,7 @@ const APP_REV = 161;
   }, true);
   </script>
   <div class="tabs">
-    <button class="tab" id="navBack" style="" title="Back one screen">←</button>
+    <button class="tab" id="navBack" style="display:none" title="Back one screen">←</button>
     <button class="tab on" data-go="menu">Menu</button>
     <button class="tab" data-go="build">Build</button>
     <button class="tab" data-go="trav">Traveller</button>
@@ -1148,7 +1148,7 @@ const APP_REV = 161;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 161 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 163 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1306,9 +1306,11 @@ const APP_REV = 161;
       <span>Drop the PF-RevNNN.html from Claude's message (or click to browse).
         This machine pushes it everywhere: GitHub, the website, and every pinned copy — within a minute.
         The whole loop is two actions: click the download card in the chat, drag the file onto this box.</span>
-      <span class="mono" id="dropStatus" style="display: block; margin-top: 10px; font-size: 12px; font-weight: 700; color: rgb(176, 0, 32);">GitHub returned 409. app/latest.html does not match e813a34f8f4660959d4fbc03b6508d97f77a2556</span>
+      <span class="mono" id="dropStatus" style="display:block;margin-top:10px;font-size:12px;color:var(--stamp);font-weight:700"></span>
+      <button class="btn key" id="pasteRev" style="margin-top:12px;font-size:13px;padding:10px 22px"
+        title="Deploys the app file currently on the clipboard — right-click the download, Copy, then press this">PASTE THE COPIED REV</button>
     </div>
-    <div class="mono" id="watchState" style="font-size:11.5px;margin:0 0 4px;color:var(--ink-2)">OFF — delivered revs are published only when you drop them on the box above.</div>
+    <div class="mono" id="watchState" style="font-size:11.5px;margin:0 0 4px;color:var(--ink-2)"></div>
     <div class="mono" id="tryNewMsg" style="font-size:11.5px;margin:0 0 8px;color:var(--ink-2);min-height:15px"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
       <button class="btn" id="watchBtn" style="background:#1E4E8C;color:#fff;border-color:#14396A">Turn auto-deploy ON</button>
@@ -1318,12 +1320,12 @@ const APP_REV = 161;
       <button class="btn" id="syPushApp">Push app code</button>
       <button class="btn" id="syPullApp">Pull newest app code</button>
       <button class="btn" id="syAuto">Enable plan autosave</button>
-      <span class="status bad" id="syStatus">GitHub returned 409. app/latest.html does not match e813a34f8f4660959d4fbc03b6508d97f77a2556</span>
+      <span class="status" id="syStatus"></span>
     </div>
-    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 6 / 500 · autosave backs off at 400.</div>
+    <div class="status" id="ghBudget" style="margin-bottom:8px"></div>
     <input type="file" id="syAppFile" accept=".html" hidden="">
     <input type="file" id="syRevFile" accept=".html,.htm" hidden="">
-    <div id="syList2"><p>No plans/ folder yet — push one to create it.</p></div>
+    <div id="syList2"></div>
   </div>
 </section>
 
@@ -1470,14 +1472,6 @@ const APP_REV = 161;
 <section class="screen doc" id="screen-rules">
   <div class="doc-in" id="rulesBody">
 <h1>Ruleset — Project Instructions Rev 97</h1>
-<h2>Industry practice text — what "MEET INDUSTRY PRACTICE?" checks against</h2>
-<p>CAMCO's own paraphrase of general process-FMEA practice. It is <b>not</b> a copy of AIAG FMEA 4th Ed., the AIAG-VDA handbook, or any other published manual — those are copyrighted and are not carried in this app. Edit it to match whatever standard you hold and the button checks against your text. Reset restores the built-in paraphrase.</p>
-<textarea id="indRules" spellcheck="false" style="width:100%;min-height:190px;border:1px solid var(--rule-hard);padding:9px;font-size:12.5px;font-family:inherit"></textarea>
-<div style="display:flex;gap:8px;margin:8px 0 20px;align-items:center">
-  <button class="btn go" id="indSave">Save industry text</button>
-  <button class="btn" id="indReset">Reset to built-in</button>
-  <span class="mono" id="indMsg" style="font-size:11.5px;color:var(--ink-2)"></span>
-</div>
 <p class="lede">What this app enforces on every row, and what it deliberately leaves to you.
 Where a rule and a rating disagree, the audit rail names the SC or Convention and the fix.</p>
 
@@ -1754,6 +1748,31 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 163 · 2026-08-01
+     · PASTE IS NOW A BUTTON, per operator: "so I don't have to click
+       the ctrl and v buttons." A dark PASTE THE COPIED REV button sits
+       inside the deploy box. Press it and the app reads the clipboard
+       itself - the press is the permission the browser requires - finds
+       the copied app file (checked for the APP_REV line and the app's
+       own title before anything is pushed), and deploys it. Loop:
+       download card -> right-click Copy -> press the button.
+     · Honest limit stated on-screen when it applies: some browsers
+       refuse to hand file clipboard contents to a page at all; the
+       button then says so and Ctrl+V remains the fallback that always
+       works. Rev checks and the older/same-rev confirms still apply.
+
+   Rev 162 · 2026-08-01
+     · PASTE DEPLOYS, per operator: "that's too many clicks." A copied
+       app file pasted with Ctrl+V anywhere in the app (any screen)
+       jumps to the GitHub screen and deploys it - so the loop can be:
+       download card -> right-click the item on Chrome's download shelf
+       -> Copy -> click the app -> Ctrl+V. No Explorer, no folder
+       navigation. Only .html files are accepted; all the same rev
+       checks apply.
+     · The auto-deploy folder picker remembers its spot (id "pfdl") and
+       asks to open directly in Downloads, so if the browser honors it
+       the grant is Select Folder and nothing else.
+
    Rev 161 · 2026-08-01
      · DEPLOY CONFIRMATION FORM REMOVED, per operator. Dropping a NEWER
        rev on the box no longer raises the full checkbox form - the
@@ -8100,6 +8119,49 @@ $("revDrop").addEventListener("drop", e => {
   if(f) deployRevFile(f); else toast("Drop the PF-RevNNN.html file itself.");
 });
 $("syRevFile").onchange = e => { const f = e.target.files[0]; if(f) deployRevFile(f); e.target.value = ""; };
+/* Rev 162: paste deploys. Right-click the downloaded file (in the browser's
+   download shelf or Explorer) -> Copy, then Ctrl+V anywhere in the app.
+   Works from any screen; only .html files are accepted. */
+/* Rev 163: one on-screen button does the Ctrl+V. Clipboard reading needs a
+   click to be allowed by the browser - this button IS that click. It reads
+   the clipboard, takes the first .html file on it, and deploys it. */
+$("pasteRev").onclick = async (e) => {
+  e.stopPropagation();                                       /* the box behind it opens a picker on click */
+  const say = m => { const el = $("dropStatus"); if(el) el.textContent = m; };
+  try{
+    if(!navigator.clipboard || !navigator.clipboard.read){
+      say("This browser will not hand the clipboard to a page — use Ctrl+V instead."); return;
+    }
+    const items = await navigator.clipboard.read();
+    for(const it of items){
+      for(const t of it.types){
+        try{
+          const b = await it.getType(t);
+          if(b && b.size > 100000){
+            const head = await b.slice(0, 400000).text();
+            if(/const APP_REV = \d+;/.test(head) && head.indexOf("CAMCO PFMEA BUILDER") >= 0){
+              deployRevFile(new File([b], "clipboard-rev.html", {type:"text/html"}));
+              return;
+            }
+          }
+        }catch(err){ /* this type would not read as text - try the next */ }
+      }
+    }
+    say("Nothing on the clipboard looks like an app rev — right-click the downloaded file, choose Copy, then press this button.");
+  }catch(err){
+    if(err && err.name === "NotAllowedError")
+      say("The browser asked permission to read the clipboard and it was not granted — allow it, or use Ctrl+V.");
+    else
+      say("Could not read the clipboard (" + ((err && err.name) || "?") + ") — use Ctrl+V instead; that path always works.");
+  }
+};
+
+document.addEventListener("paste", e => {
+  const items = (e.clipboardData && e.clipboardData.files) || [];
+  for(const f of items){
+    if(/\.html?$/i.test(f.name || "")){ e.preventDefault(); go("sync"); deployRevFile(f); return; }
+  }
+});
 
 $("ghSave").onclick = () => {
   ["ghOwner","ghRepo","ghRepoCode","ghBranch","ghToken"].forEach(k => settings[k] = $(k).value.trim());
@@ -8335,7 +8397,7 @@ async function watchToggle(){
     if(!FOLDER_OK){ tnSay("This browser cannot watch a folder."); return; }
     if(!_dlDirCache){
       let h = null, err1 = null;
-      try{ h = await window.showDirectoryPicker({mode:"read", startIn:"downloads"}); }
+      try{ h = await window.showDirectoryPicker({id:"pfdl", mode:"read", startIn:"downloads"}); }
       catch(e){ err1 = e; }
       /* Some Chrome builds reject the options object outright. Ask again
          plainly before giving up, and never report a refusal as a cancel. */
