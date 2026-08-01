@@ -1007,14 +1007,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 155;
+const APP_REV = 156;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 155 · LOADED AUG 1, 10:52 AM</span>
+      <span class="sub" id="navSub">APP REV 156 · LOADED AUG 1, 12:25 PM</span>
     </span>
   </div>
   <script>
@@ -1044,8 +1044,8 @@ const APP_REV = 155;
     <button class="tab" data-go="mtable">Master table</button>
     <button class="tab" data-go="photos">Photo library</button>
     <button class="tab" data-go="rules">Ruleset</button>
-    <button class="tab" data-go="files">Prior PFMEAs</button>
-    <button class="tab on" data-go="sync">GitHub</button>
+    <button class="tab on" data-go="files">Prior PFMEAs</button>
+    <button class="tab" data-go="sync">GitHub</button>
     <button class="tab" data-go="admin">Admin</button>
   </div>
   <button id="saveNow" title="Force a save right now">
@@ -1099,7 +1099,7 @@ const APP_REV = 155;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 155 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 156 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1228,7 +1228,7 @@ const APP_REV = 155;
 </section>
 
 <!-- ======================== PRIOR FILES ========================= -->
-<section class="screen doc" id="screen-files">
+<section class="screen doc on" id="screen-files">
   <div class="doc-in">
     <h1>Prior PFMEAs</h1>
     <p class="lede">Pick a folder once — your Desktop, or a folder on it — and this app saves every change
@@ -1240,13 +1240,15 @@ const APP_REV = 155;
       <button class="btn" id="fdStop" style="display:none">Stop autosaving</button>
       <span class="status bad" id="fdStatus">No folder chosen — nothing is being saved automatically.</span>
     </div>
-    <div id="fdWarn"></div>
-    <div id="fdList"></div>
+    <div id="fdWarn"><div class="banner"><b>Nothing is being saved automatically yet</b>
+        Press Choose save folder and point it at your Desktop, or a folder on it. After that every change
+        is written there on its own, and this list fills up.</div></div>
+    <div id="fdList"><p>No PFMEA files in that folder yet.</p></div>
   </div>
 </section>
 
 <!-- =========================== SYNC ============================= -->
-<section class="screen doc on" id="screen-sync">
+<section class="screen doc" id="screen-sync">
   <div class="doc-in">
     <h1>GitHub</h1>
     <p class="lede">PFMEA files live in <span class="mono">plans/</span>, app versions in
@@ -1705,6 +1707,12 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 156 · 2026-08-01
+     · UPDATE-PATH TEST, per operator. No functional change - the rev
+       number alone is bumped so the operator can watch a delivered
+       file travel the whole loop on the repaired Rev 155 check:
+       download card -> drag on the box -> website -> pinned icon.
+
    Rev 155 · 2026-07-30
      · DROP BOX COMPARED AGAINST THE WRONG THING. The same-rev check
        used APP_REV — what THIS WINDOW runs — but the window swaps
