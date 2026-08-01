@@ -1054,14 +1054,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 158;
+const APP_REV = 159;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 158 · LOADED AUG 1, 1:45 PM</span>
+      <span class="sub" id="navSub">APP REV 159 · LOADED AUG 1, 1:49 PM</span>
     </span>
   </div>
   <script>
@@ -1146,7 +1146,7 @@ const APP_REV = 158;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 158 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 159 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1318,7 +1318,7 @@ const APP_REV = 158;
       <button class="btn" id="syAuto">Enable plan autosave</button>
       <span class="status" id="syStatus"></span>
     </div>
-    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 2 / 500 · autosave backs off at 400.</div>
+    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 6 / 500 · autosave backs off at 400.</div>
     <input type="file" id="syAppFile" accept=".html" hidden="">
     <input type="file" id="syRevFile" accept=".html,.htm" hidden="">
     <div id="syList2"><p>No plans/ folder yet — push one to create it.</p></div>
@@ -1752,6 +1752,24 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 159 · 2026-08-01
+     · THE WEEK-LONG HANG, FOUND AND KILLED. Rev 157's watchdog finally
+       printed it: "SyntaxError: identifier 'LOGO_SCMH' has already been
+       declared (line 1)". The self-update rewrote the new revision INTO
+       THE RUNNING PAGE with document.write - but the old copy's
+       top-level names survive that, so the new copy's first const
+       collided, the entire script died, and the page sat on LOADING
+       with dead buttons and no message. Every silent hang this week
+       was this one defect.
+     · IN-PLACE REWRITE REMOVED. Updating is now a plain reload: clear
+       the fast-load helper's stored copy, load fresh from the website.
+       A reload cannot collide with itself. Saved work is untouched -
+       it lives in browser storage, not in the page.
+     · HALF-LANDED GUARD. If the app folder holds a newer rev but the
+       website still serves an older one, reloading would boot the old
+       code and loop - so in that one case the app does not reload; the
+       status line says the deploy needs finishing and how.
+
    Rev 158 · 2026-08-01
      · LOOP TEST, per operator. Rev number only - no functional change.
        Purpose: watch a delivered file travel the repaired two-action
@@ -8192,14 +8210,41 @@ function appMidTask(){
   return false;
 }
 
-function applyRemoteApp(html, rev){
+/* Rev 159: the in-place rewrite (document.write of the new rev into the
+   running page) is GONE. The old page's top-level names survive a
+   document.write, so the new copy's first const collided with them -
+   "identifier 'LOGO_SCMH' has already been declared" - the script died on
+   line 1, and the page sat mute on LOADING. Every hang this week was this.
+   Updating is now a plain reload: clear the fast-load helper's stored
+   copy, then load fresh from the website. If the website itself is still
+   on an older rev (a half-landed deploy), reloading would boot old code
+   and try again forever - so in that one case the app does not reload; it
+   says what is staged and waits for the deploy to be finished. Saved work
+   is untouched either way - it lives in browser storage, not the page. */
+async function applyRemoteApp(html, rev){
+  let siteRev = null;
   try{
-    document.open(); document.write(html); document.close();   /* same origin: storage survives */
-  }catch(e){
-    try{ location.replace(location.pathname + "?v=" + Date.now()); }
-    catch(e2){ download("PF-Rev" + String(revNum(rev)).padStart(3,"0") + ".html",
-      new Blob([html], {type:"text/html"})); toast("In-place update was blocked — saved the new version instead; open it to update."); }
+    const sr = await fetch("https://raw.githubusercontent.com/" + settings.ghOwner + "/" + codeRepo() + "/main/index.html",
+      {cache:"no-store"});
+    if(sr.ok){ const sm = /const APP_REV = (\d+);/.exec(await sr.text()); if(sm) siteRev = parseInt(sm[1],10); }
+  }catch(e){}
+  if(siteRev !== null && siteRev < revNum(rev) && /^https:/.test(location.protocol)){
+    tnSay("Rev " + revNum(rev) + " is staged in the app folder, but the website still serves Rev " + siteRev +
+      " — finish the deploy (drop the file on the box, or PUSH APP CODE) and the app will reload itself.");
+    return;
   }
+  const done = () => { try{ location.replace(location.pathname + "?v=" + Date.now()); }
+                       catch(e){ location.reload(); } };
+  try{
+    if("serviceWorker" in navigator){
+      navigator.serviceWorker.getRegistrations()
+        .then(rs => Promise.all(rs.map(r => r.unregister())))
+        .then(() => (window.caches && caches.keys)
+          ? caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k)))) : null)
+        .then(done, done);
+      setTimeout(done, 4000);
+    } else done();
+  }catch(e){ done(); }
 }
 
 /* ======================================================================
