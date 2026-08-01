@@ -566,6 +566,8 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
         <button data-q="Does this row comply with the CAMCO PROJECT INSTRUCTIONS - the conventions, the L3Harris action trigger, House Rule 5A, the SC rules, the Class field and the Section 3 current-state process facts? List anything that conflicts, naming the rule." data-src="camco">MEET MY INSTRUCTIONS?</button>
         <button data-q="Judge this row against GENERAL INDUSTRY FMEA PRACTICE ONLY - ignore CAMCO house rules entirely. Is it structured and rated the way a process FMEA is normally expected to be? Comment on failure mode / effect / cause separation, whether the ratings are defensible against a standard scale, whether detection is credited only for controls that exist, and whether the action logic is sound." data-src="industry">MEET INDUSTRY PRACTICE?</button>
         <button data-q="Is the action chain on this row correct - Recommended Action, Responsibility and Target Date - given its RPN and the L3Harris trigger plus House Rule 5A?">IS THE ACTION CHAIN RIGHT?</button>
+        <button data-q="Suggest concrete ways to reduce this row's RPN, in priority order. Respect the conventions: Severity moves ONLY with a design change, process change, or redefined effect scope - never with added inspection. Occurrence moves only with real prevention that exists or is committed as an action. Detection is capped by Convention 3 and 4 (manual 100% attribute = 5, manual 100% variable = 4, better needs a documented Gauge R&amp;R on the specific gauge; probe without auto-offset is detection only). For each suggestion state which factor it moves, the defensible new rating, what evidence or committed action is required first, and the resulting RPN. Never propose crediting a control that does not exist.">GIVE SUGGESTIONS ON HOW TO REDUCE RPN SCORE</button>
+        <button data-q="Evaluate whether each rating matches the wording actually in this row: does the Effect text justify the SEV, does the Prevention text justify the OCC, and does the Detection text justify the DET under the Convention 3 and 4 caps? Flag any rating the text does not support (either direction - a rating better than the described controls earn, or worse than they earn), and quote the specific words that conflict.">EVALUATE IF RPN SCORE MATCHES TEXT</button>
       </div>
       <textarea id="aiqQ" spellcheck="false" placeholder="Ask anything about this row - or press one of the buttons above."></textarea>
       <div class="busy" id="aiqBusy"><span class="ring"></span><span>CLAUDE IS READING THE ROW…</span></div>
@@ -681,15 +683,15 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
   </div>
 </div>
 
-<div class="gate-bg" id="gateBg">
+<div class="gate-bg on" id="gateBg">
   <div class="gate" role="dialog" aria-modal="true" aria-labelledby="gateHead">
-    <div class="gh" id="gateHead">Export control — release confirmation required</div>
+    <div class="gh" id="gateHead">Deploy confirmation required</div>
     <div class="gb">
-      <h3 id="gateTitle">This will send data off this device</h3>
-      <p id="gateLede"></p>
-      <div class="manifest" id="gateManifest"></div>
-      <p id="gateKeep"></p>
-      <div id="gateAcks"></div>
+      <h3 id="gateTitle">This deploys app Rev 160 to every machine</h3>
+      <p id="gateLede">The file is pushed to GitHub and published to the website. Every pinned copy of the app, on every machine, updates itself to this code within a minute. It is program code, not part data — but it is code your machines will run, so check it came from Claude's message and nowhere else.</p>
+      <div class="manifest" id="gateManifest">SOURCE FILE  ·  PF-Rev160.html  (789 KB)<br>REV IN FILE  ·  160   (this machine runs 160)<br>CODE REPO  ·  RICHARNOLDCAMCO/PFMEA-GENERATOR-APP  →  app/latest.html, app/PF-Rev160.html<br>WEBSITE  ·  index.html  →  https://richarnoldcamco.github.io/PFMEA-GENERATOR-APP/</div>
+      <p id="gateKeep"><b>Not sent:</b> PFMEA plans, images, your API key and GitHub token.</p>
+      <div id="gateAcks"><label class="ack" data-ai="0"><input type="checkbox" data-ac="0"><span>I confirm this file came from Claude's delivery in our chat and I want every machine to run it.</span></label></div>
       <div class="gf">
         <button class="btn" id="gateCancel">Cancel</button>
         <button class="btn key send" id="gateSend" disabled="">Send</button>
@@ -1054,14 +1056,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 159;
+const APP_REV = 160;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 159 · LOADING…</span>
+      <span class="sub" id="navSub">APP REV 160 · LOADED AUG 1, 4:53 PM</span>
     </span>
   </div>
   <script>
@@ -1083,8 +1085,8 @@ const APP_REV = 159;
   }, true);
   </script>
   <div class="tabs">
-    <button class="tab" id="navBack" style="display:none" title="Back one screen">←</button>
-    <button class="tab on" data-go="menu">Menu</button>
+    <button class="tab" id="navBack" style="" title="Back one screen">←</button>
+    <button class="tab" data-go="menu">Menu</button>
     <button class="tab" data-go="build">Build</button>
     <button class="tab" data-go="trav">Traveller</button>
     <button class="tab" data-go="sets">Standard sets</button>
@@ -1092,7 +1094,7 @@ const APP_REV = 159;
     <button class="tab" data-go="photos">Photo library</button>
     <button class="tab" data-go="rules">Ruleset</button>
     <button class="tab" data-go="files">Prior PFMEAs</button>
-    <button class="tab" data-go="sync">GitHub</button>
+    <button class="tab on" data-go="sync">GitHub</button>
     <button class="tab" data-go="admin">Admin</button>
   </div>
   <button id="saveNow" title="Force a save right now">
@@ -1115,7 +1117,7 @@ const APP_REV = 159;
 </div>
 
 <!-- ============================ MENU ============================ -->
-<section class="screen menu-screen on" id="screen-menu">
+<section class="screen menu-screen" id="screen-menu">
   <div class="card">
     <span class="badge">PF</span>
     <h1>CAMCO PFMEA Builder</h1>
@@ -1146,7 +1148,7 @@ const APP_REV = 159;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 159 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 160 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1293,7 +1295,7 @@ const APP_REV = 159;
 </section>
 
 <!-- =========================== SYNC ============================= -->
-<section class="screen doc" id="screen-sync">
+<section class="screen doc on" id="screen-sync">
   <div class="doc-in">
     <h1>GitHub</h1>
     <p class="lede">PFMEA files live in <span class="mono">plans/</span>, app versions in
@@ -1304,9 +1306,9 @@ const APP_REV = 159;
       <span>Drop the PF-RevNNN.html from Claude's message (or click to browse).
         This machine pushes it everywhere: GitHub, the website, and every pinned copy — within a minute.
         The whole loop is two actions: click the download card in the chat, drag the file onto this box.</span>
-      <span class="mono" id="dropStatus" style="display:block;margin-top:10px;font-size:12px;color:var(--stamp);font-weight:700"></span>
+      <span class="mono" id="dropStatus" style="display: block; margin-top: 10px; font-size: 12px; font-weight: 700;">Website is on Rev 159 but should be on Rev 160 — finishing the half-landed deploy…</span>
     </div>
-    <div class="mono" id="watchState" style="font-size:11.5px;margin:0 0 4px;color:var(--ink-2)"></div>
+    <div class="mono" id="watchState" style="font-size:11.5px;margin:0 0 4px;color:var(--ink-2)">OFF — delivered revs are published only when you drop them on the box above.</div>
     <div class="mono" id="tryNewMsg" style="font-size:11.5px;margin:0 0 8px;color:var(--ink-2);min-height:15px"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
       <button class="btn" id="watchBtn" style="background:#1E4E8C;color:#fff;border-color:#14396A">Turn auto-deploy ON</button>
@@ -1316,12 +1318,12 @@ const APP_REV = 159;
       <button class="btn" id="syPushApp">Push app code</button>
       <button class="btn" id="syPullApp">Pull newest app code</button>
       <button class="btn" id="syAuto">Enable plan autosave</button>
-      <span class="status" id="syStatus"></span>
+      <span class="status" id="syStatus">Website is on Rev 159 but should be on Rev 160 — finishing the half-landed deploy…</span>
     </div>
-    <div class="status" id="ghBudget" style="margin-bottom:8px"></div>
+    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 2 / 500 · autosave backs off at 400.</div>
     <input type="file" id="syAppFile" accept=".html" hidden="">
     <input type="file" id="syRevFile" accept=".html,.htm" hidden="">
-    <div id="syList2"></div>
+    <div id="syList2"><p>No plans/ folder yet — push one to create it.</p></div>
   </div>
 </section>
 
@@ -1468,6 +1470,14 @@ const APP_REV = 159;
 <section class="screen doc" id="screen-rules">
   <div class="doc-in" id="rulesBody">
 <h1>Ruleset — Project Instructions Rev 97</h1>
+<h2>Industry practice text — what "MEET INDUSTRY PRACTICE?" checks against</h2>
+<p>CAMCO's own paraphrase of general process-FMEA practice. It is <b>not</b> a copy of AIAG FMEA 4th Ed., the AIAG-VDA handbook, or any other published manual — those are copyrighted and are not carried in this app. Edit it to match whatever standard you hold and the button checks against your text. Reset restores the built-in paraphrase.</p>
+<textarea id="indRules" spellcheck="false" style="width:100%;min-height:190px;border:1px solid var(--rule-hard);padding:9px;font-size:12.5px;font-family:inherit"></textarea>
+<div style="display:flex;gap:8px;margin:8px 0 20px;align-items:center">
+  <button class="btn go" id="indSave">Save industry text</button>
+  <button class="btn" id="indReset">Reset to built-in</button>
+  <span class="mono" id="indMsg" style="font-size:11.5px;color:var(--ink-2)"></span>
+</div>
 <p class="lede">What this app enforces on every row, and what it deliberately leaves to you.
 Where a rule and a rating disagree, the audit rail names the SC or Convention and the fix.</p>
 
@@ -1693,7 +1703,7 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
   .mst-bg{position:fixed;inset:0;background:rgba(20,12,12,.72);z-index:230;display:none;align-items:center;justify-content:center;padding:18px}
   .mst-bg.on{display:flex}
   .mst{background:var(--panel);width:97vw;height:94vh;display:flex;flex-direction:column;overflow:hidden;border:1px solid #000;box-shadow:0 18px 50px rgba(0,0,0,.45)}
-  .mst .mtable-wrap{overflow:auto;border:1px solid var(--rule-hard);flex:1 1 auto;min-height:0}
+  .mst .mtable-wrap{overflow-y:auto;overflow-x:hidden;border:1px solid var(--rule-hard);flex:1 1 auto;min-height:0}
   .mst .fview td[data-mf]{min-height:90px;height:auto;font-size:12.5px;line-height:1.5}
   .mst .fview td[data-mf]:focus{outline:3px solid var(--stamp);background:#FFF9F2}
   .mst .mh{background:var(--stamp);color:#fff;padding:11px 18px;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.16em;display:flex;justify-content:space-between}
@@ -1744,6 +1754,23 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 160 · 2026-08-01
+     · MASTER TABLE FITS THE WINDOW, per operator: "eliminate the
+       scroll bar." The master-row table was 2220px of fixed column
+       widths, so the last columns fell off the right edge behind a
+       horizontal scroll bar. The same width RATIOS are now percentages
+       on a 100%-wide table, so it scales to the popup; long text wraps
+       taller instead of running off the side. Horizontal scrolling is
+       disabled on the wrap; vertical stays.
+     · TWO NEW AI QUESTIONS in the ask popup, per operator: GIVE
+       SUGGESTIONS ON HOW TO REDUCE RPN SCORE - suggestions in priority
+       order, each naming the factor moved, the defensible new rating
+       under the conventions, the evidence or committed action required
+       first, and the resulting RPN; and EVALUATE IF RPN SCORE MATCHES
+       TEXT - checks Sev against the Effect wording, Occ against the
+       Prevention wording, Det against the Detection wording and the
+       Convention 3/4 caps, and quotes the words that conflict.
+
    Rev 159 · 2026-08-01
      · THE WEEK-LONG HANG, FOUND AND KILLED. Rev 157's watchdog finally
        printed it: "SyntaxError: identifier 'LOGO_SCMH' has already been
@@ -9230,8 +9257,9 @@ function mstFill(src, hit){
     ["detR","DET",40,"rate"],["cls","Classification",70,"mid"],["action","Recommended Action(s)",220],
   ];
   const rateStyle = (f,v) => /^(sev|occ|detR)$/.test(f) ? fvTier(v) : "";
+  const MTOT = MCOLS.reduce((a,c)=>a+c[2],0);
   $("mstFields").innerHTML =
-    `<table class="fview"><colgroup>${MCOLS.map(c=>`<col style="width:${c[2]}px">`).join("")}</colgroup>` +
+    `<table class="fview" style="width:100%"><colgroup>${MCOLS.map(c=>`<col style="width:${(c[2]/MTOT*100).toFixed(2)}%">`).join("")}</colgroup>` +
     `<thead><tr>${MCOLS.map(c=>`<th class="${/^(SEV|OCC|DET)$/.test(c[1])?"rate":""}">${c[1]}</th>`).join("")}</tr></thead>` +
     `<tbody><tr>${MCOLS.map(c => {
       const v = src[c[0]] == null ? "" : String(src[c[0]]);
