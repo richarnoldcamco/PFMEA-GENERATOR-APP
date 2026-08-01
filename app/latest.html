@@ -987,6 +987,53 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
   };
   var ovEl = document.getElementById("bootOverlay");
   if(ovEl) ovEl.addEventListener("click", function(){ window._pfNextScene(); });
+  /* Rev 157: the app hung on LOADING for minutes with no error anywhere.
+     The strip only turns LOADED at the END of the main script, so any
+     failure inside it - a script error, a corrupted cached copy from the
+     fast-load helper - left a dead page that said nothing. Two guards,
+     living OUTSIDE the main script so they survive its death:
+     (1) the first script error is caught and printed on the strip;
+     (2) if boot has not finished after 12 seconds, the strip says so and
+         a RELOAD FRESH button appears that bypasses the local cache. */
+  window.addEventListener("error", function(ev){
+    if(window._pfBooted || window._pfFirstErr) return;
+    window._pfFirstErr = true;
+    var n = document.getElementById("navSub");
+    if(n){ n.textContent = "STARTUP ERROR — " + (ev.message || "script failed") +
+      " (line " + (ev.lineno || "?") + "). Press the RELOAD FRESH button."; n.style.color = "#FFD54D"; }
+    pfShowReload();
+  });
+  window.pfShowReload = function(){
+    if(document.getElementById("pfReloadBtn")) return;
+    var b = document.createElement("button");
+    b.id = "pfReloadBtn";
+    b.textContent = "RELOAD FRESH — SKIP THE LOCAL CACHE";
+    b.style.cssText = "position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:9999;" +
+      "background:#B00020;color:#fff;border:0;border-radius:6px;padding:12px 22px;font-weight:800;" +
+      "font-size:14px;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.4)";
+    b.onclick = function(){
+      b.textContent = "RELOADING…"; b.disabled = true;
+      var done = function(){ location.reload(); };
+      try{
+        if("serviceWorker" in navigator){
+          navigator.serviceWorker.getRegistrations().then(function(rs){
+            return Promise.all(rs.map(function(r){ return r.unregister(); }));
+          }).then(function(){
+            if(window.caches && caches.keys) return caches.keys().then(function(ks){
+              return Promise.all(ks.map(function(k){ return caches.delete(k); })); });
+          }).then(done, done);
+          setTimeout(done, 4000);
+        } else done();
+      }catch(e){ done(); }
+    };
+    document.body.appendChild(b);
+  };
+  setTimeout(function(){
+    if(window._pfBooted || window._pfFirstErr) return;
+    var n = document.getElementById("navSub");
+    if(n){ n.textContent = "STARTUP IS STUCK — a startup step never finished. Press RELOAD FRESH; it clears the local cache and starts over."; n.style.color = "#FFD54D"; }
+    pfShowReload();
+  }, 12000);
   var t0 = Date.now();
   var iv = setInterval(function(){
     if(window._pfBooted){ clearInterval(iv); return; }
@@ -1007,14 +1054,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 156;
+const APP_REV = 157;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 156 · LOADED AUG 1, 12:25 PM</span>
+      <span class="sub" id="navSub">APP REV 157 · LOADED AUG 1, 1:35 PM</span>
     </span>
   </div>
   <script>
@@ -1099,7 +1146,7 @@ const APP_REV = 156;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 156 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 157 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1705,6 +1752,19 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 157 · 2026-08-01
+     · STARTUP CAN NO LONGER HANG SILENTLY. The pinned app sat on
+       "LOADING…" for minutes with dead buttons and no error - the
+       LOADED stamp only happens at the END of the main script, so a
+       script failure or a corrupted copy from the fast-load helper
+       left a mute page. Two guards now live OUTSIDE the main script:
+       the first script error is printed on the header strip with its
+       line number, and if startup has not finished after 12 seconds
+       the strip says STARTUP IS STUCK and a red RELOAD FRESH button
+       appears. The button clears the fast-load helper's stored copy
+       and the page starts over from the website - the by-hand recovery
+       that has been working, made one press.
+
    Rev 156 · 2026-08-01
      · UPDATE-PATH TEST, per operator. No functional change - the rev
        number alone is bumped so the operator can watch a delivered
