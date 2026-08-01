@@ -1061,7 +1061,7 @@ const APP_REV = 158;
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 158 · LOADED AUG 1, 1:45 PM</span>
+      <span class="sub" id="navSub">APP REV 158 · LOADING…</span>
     </span>
   </div>
   <script>
@@ -1083,8 +1083,8 @@ const APP_REV = 158;
   }, true);
   </script>
   <div class="tabs">
-    <button class="tab" id="navBack" style="" title="Back one screen">←</button>
-    <button class="tab" data-go="menu">Menu</button>
+    <button class="tab" id="navBack" style="display:none" title="Back one screen">←</button>
+    <button class="tab on" data-go="menu">Menu</button>
     <button class="tab" data-go="build">Build</button>
     <button class="tab" data-go="trav">Traveller</button>
     <button class="tab" data-go="sets">Standard sets</button>
@@ -1092,7 +1092,7 @@ const APP_REV = 158;
     <button class="tab" data-go="photos">Photo library</button>
     <button class="tab" data-go="rules">Ruleset</button>
     <button class="tab" data-go="files">Prior PFMEAs</button>
-    <button class="tab on" data-go="sync">GitHub</button>
+    <button class="tab" data-go="sync">GitHub</button>
     <button class="tab" data-go="admin">Admin</button>
   </div>
   <button id="saveNow" title="Force a save right now">
@@ -1115,7 +1115,7 @@ const APP_REV = 158;
 </div>
 
 <!-- ============================ MENU ============================ -->
-<section class="screen menu-screen" id="screen-menu">
+<section class="screen menu-screen on" id="screen-menu">
   <div class="card">
     <span class="badge">PF</span>
     <h1>CAMCO PFMEA Builder</h1>
@@ -1293,7 +1293,7 @@ const APP_REV = 158;
 </section>
 
 <!-- =========================== SYNC ============================= -->
-<section class="screen doc on" id="screen-sync">
+<section class="screen doc" id="screen-sync">
   <div class="doc-in">
     <h1>GitHub</h1>
     <p class="lede">PFMEA files live in <span class="mono">plans/</span>, app versions in
@@ -1306,7 +1306,7 @@ const APP_REV = 158;
         The whole loop is two actions: click the download card in the chat, drag the file onto this box.</span>
       <span class="mono" id="dropStatus" style="display:block;margin-top:10px;font-size:12px;color:var(--stamp);font-weight:700"></span>
     </div>
-    <div class="mono" id="watchState" style="font-size:11.5px;margin:0 0 4px;color:var(--ink-2)">OFF — delivered revs are published only when you drop them on the box above.</div>
+    <div class="mono" id="watchState" style="font-size:11.5px;margin:0 0 4px;color:var(--ink-2)"></div>
     <div class="mono" id="tryNewMsg" style="font-size:11.5px;margin:0 0 8px;color:var(--ink-2);min-height:15px"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
       <button class="btn" id="watchBtn" style="background:#1E4E8C;color:#fff;border-color:#14396A">Turn auto-deploy ON</button>
@@ -1318,10 +1318,10 @@ const APP_REV = 158;
       <button class="btn" id="syAuto">Enable plan autosave</button>
       <span class="status" id="syStatus"></span>
     </div>
-    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 2 / 500 · autosave backs off at 400.</div>
+    <div class="status" id="ghBudget" style="margin-bottom:8px"></div>
     <input type="file" id="syAppFile" accept=".html" hidden="">
     <input type="file" id="syRevFile" accept=".html,.htm" hidden="">
-    <div id="syList2"><p>No plans/ folder yet — push one to create it.</p></div>
+    <div id="syList2"></div>
   </div>
 </section>
 
@@ -1468,14 +1468,6 @@ const APP_REV = 158;
 <section class="screen doc" id="screen-rules">
   <div class="doc-in" id="rulesBody">
 <h1>Ruleset — Project Instructions Rev 97</h1>
-<h2>Industry practice text — what "MEET INDUSTRY PRACTICE?" checks against</h2>
-<p>CAMCO's own paraphrase of general process-FMEA practice. It is <b>not</b> a copy of AIAG FMEA 4th Ed., the AIAG-VDA handbook, or any other published manual — those are copyrighted and are not carried in this app. Edit it to match whatever standard you hold and the button checks against your text. Reset restores the built-in paraphrase.</p>
-<textarea id="indRules" spellcheck="false" style="width:100%;min-height:190px;border:1px solid var(--rule-hard);padding:9px;font-size:12.5px;font-family:inherit"></textarea>
-<div style="display:flex;gap:8px;margin:8px 0 20px;align-items:center">
-  <button class="btn go" id="indSave">Save industry text</button>
-  <button class="btn" id="indReset">Reset to built-in</button>
-  <span class="mono" id="indMsg" style="font-size:11.5px;color:var(--ink-2)"></span>
-</div>
 <p class="lede">What this app enforces on every row, and what it deliberately leaves to you.
 Where a rule and a rating disagree, the audit rail names the SC or Convention and the fix.</p>
 
