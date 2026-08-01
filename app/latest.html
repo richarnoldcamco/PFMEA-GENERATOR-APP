@@ -1007,14 +1007,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 155;
+const APP_REV = 156;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 155 · LOADED AUG 1, 10:52 AM</span>
+      <span class="sub" id="navSub">APP REV 156 · LOADED AUG 1, 12:25 PM</span>
     </span>
   </div>
   <script>
@@ -1099,7 +1099,7 @@ const APP_REV = 155;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 155 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 156 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1705,6 +1705,12 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 156 · 2026-08-01
+     · UPDATE-PATH TEST, per operator. No functional change - the rev
+       number alone is bumped so the operator can watch a delivered
+       file travel the whole loop on the repaired Rev 155 check:
+       download card -> drag on the box -> website -> pinned icon.
+
    Rev 155 · 2026-07-30
      · DROP BOX COMPARED AGAINST THE WRONG THING. The same-rev check
        used APP_REV — what THIS WINDOW runs — but the window swaps
