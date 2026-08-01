@@ -1056,14 +1056,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 163;
+const APP_REV = 165;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 163 · LOADING…</span>
+      <span class="sub" id="navSub">APP REV 165 · LOADING…</span>
     </span>
   </div>
   <script>
@@ -1148,7 +1148,7 @@ const APP_REV = 163;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 163 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 165 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1748,6 +1748,23 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 165 · 2026-08-01
+     · LOOP TEST, per operator - rev number only, no other change.
+       Purpose: first end-to-end run of the copy -> PASTE THE COPIED
+       REV button (Rev 163) together with the patient 409-proof
+       deployer (Rev 164).
+
+   Rev 164 · 2026-08-01
+     · THE 409 THAT KEPT HALF-LANDING DEPLOYS IS FIXED AT THE CAUSE.
+       After GitHub accepts a write, its answer about the file's current
+       state lags several seconds; the old retry waited ~1 second and
+       asked three times inside that lag, so every try saw the same
+       stale answer and the deploy died between files - website and app
+       folder left on different revs, twice this week. Retries now wait
+       4 / 8 / 15 / 25 seconds, and from the second try the file's
+       state is read through the folder listing, which does not lag.
+       The status line says exactly what it is waiting for.
+
    Rev 163 · 2026-08-01
      · PASTE IS NOW A BUTTON, per operator: "so I don't have to click
        the ctrl and v buttons." A dark PASTE THE COPIED REV button sits
@@ -8003,13 +8020,36 @@ async function deployRevFile(file, auto){
      just-opened copy's auto-check collided). GitHub then answers 409 on the
      stale file hash. Retry: re-read the file's current state and push again,
      up to twice, before surfacing the error. */
+  /* Rev 164: after GitHub accepts a write, its answer to "what does this
+     file currently hold" lags several seconds. The old retry waited ~1s
+     and asked 3 times inside that lag, so every try got the same stale
+     answer and the deploy died with a 409 even though nothing was wrong.
+     Now: waits grow (4s, 8s, 15s, 25s), and from the second try onward
+     the file's current state is read through the folder listing, which
+     does not lag the way the direct file read does. */
+  const freshSha = async (path) => {
+    try{
+      const dir = path.indexOf("/") >= 0 ? path.slice(0, path.lastIndexOf("/")) : "";
+      const ls = await ghFetch("/contents/" + dir + "?ref=" + encodeURIComponent(settings.ghBranch || "main"), null, codeRepo());
+      const hit = (ls || []).find(f => f.path === path || f.name === path.split("/").pop());
+      return hit && hit.sha;
+    }catch(e){ return null; }
+  };
   const putR = async (path, msg) => {
+    const waits = [4000, 8000, 15000, 25000];
     for(let a = 0; ; a++){
-      try{ await ghPut(path, text, msg, codeRepo()); return; }
-      catch(e){
-        if(a >= 2 || !/409/.test(String(e && e.message || e))) throw e;
-        say("GitHub was busy on " + path + " — retrying (" + (a+1) + "/2)…");
-        await new Promise(r => setTimeout(r, 1200 + Math.random()*800));
+      try{
+        if(a === 0){ await ghPut(path, text, msg, codeRepo()); return; }
+        const sha = await freshSha(path);
+        const body = {message: msg, content: b64enc(text), branch: settings.ghBranch || "main"};
+        if(sha) body.sha = sha;
+        await ghFetch("/contents/" + path, {method:"PUT", body: JSON.stringify(body)}, codeRepo());
+        ghWriteNote();
+        return;
+      }catch(e){
+        if(a >= waits.length || !/409/.test(String(e && e.message || e))) throw e;
+        say("GitHub's answer is a few seconds behind on " + path + " — waiting " + (waits[a]/1000) + "s and retrying (" + (a+1) + "/" + waits.length + ")…");
+        await new Promise(r => setTimeout(r, waits[a]));
       }
     }
   };
