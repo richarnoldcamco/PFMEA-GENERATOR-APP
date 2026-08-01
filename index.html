@@ -683,16 +683,16 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 
 <div class="gate-bg" id="gateBg">
   <div class="gate" role="dialog" aria-modal="true" aria-labelledby="gateHead">
-    <div class="gh" id="gateHead">Deploy confirmation required</div>
+    <div class="gh" id="gateHead">Export control — release confirmation required</div>
     <div class="gb">
-      <h3 id="gateTitle">This deploys app Rev 158 to every machine</h3>
-      <p id="gateLede">The file is pushed to GitHub and published to the website. Every pinned copy of the app, on every machine, updates itself to this code within a minute. It is program code, not part data — but it is code your machines will run, so check it came from Claude's message and nowhere else.</p>
-      <div class="manifest" id="gateManifest">SOURCE FILE  ·  PF-Rev158.html  (784 KB)<br>REV IN FILE  ·  158   (this machine runs 158)<br>CODE REPO  ·  RICHARNOLDCAMCO/PFMEA-GENERATOR-APP  →  app/latest.html, app/PF-Rev158.html<br>WEBSITE  ·  index.html  →  https://richarnoldcamco.github.io/PFMEA-GENERATOR-APP/</div>
-      <p id="gateKeep"><b>Not sent:</b> PFMEA plans, images, your API key and GitHub token.</p>
-      <div id="gateAcks"><label class="ack" data-ai="0"><input type="checkbox" data-ac="0"><span>I confirm this file came from Claude's delivery in our chat and I want every machine to run it.</span></label></div>
+      <h3 id="gateTitle">This will send data off this device</h3>
+      <p id="gateLede"></p>
+      <div class="manifest" id="gateManifest"></div>
+      <p id="gateKeep"></p>
+      <div id="gateAcks"></div>
       <div class="gf">
         <button class="btn" id="gateCancel">Cancel</button>
-        <button class="btn key send" id="gateSend">Send</button>
+        <button class="btn key send" id="gateSend" disabled="">Send</button>
       </div>
     </div>
   </div>
@@ -1054,14 +1054,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 158;
+const APP_REV = 159;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 158 · LOADED AUG 1, 1:45 PM</span>
+      <span class="sub" id="navSub">APP REV 159 · LOADING…</span>
     </span>
   </div>
   <script>
@@ -1083,15 +1083,15 @@ const APP_REV = 158;
   }, true);
   </script>
   <div class="tabs">
-    <button class="tab" id="navBack" style="" title="Back one screen">←</button>
-    <button class="tab" data-go="menu">Menu</button>
+    <button class="tab" id="navBack" style="display:none" title="Back one screen">←</button>
+    <button class="tab on" data-go="menu">Menu</button>
     <button class="tab" data-go="build">Build</button>
     <button class="tab" data-go="trav">Traveller</button>
     <button class="tab" data-go="sets">Standard sets</button>
     <button class="tab" data-go="mtable">Master table</button>
     <button class="tab" data-go="photos">Photo library</button>
     <button class="tab" data-go="rules">Ruleset</button>
-    <button class="tab on" data-go="files">Prior PFMEAs</button>
+    <button class="tab" data-go="files">Prior PFMEAs</button>
     <button class="tab" data-go="sync">GitHub</button>
     <button class="tab" data-go="admin">Admin</button>
   </div>
@@ -1115,7 +1115,7 @@ const APP_REV = 158;
 </div>
 
 <!-- ============================ MENU ============================ -->
-<section class="screen menu-screen" id="screen-menu">
+<section class="screen menu-screen on" id="screen-menu">
   <div class="card">
     <span class="badge">PF</span>
     <h1>CAMCO PFMEA Builder</h1>
@@ -1146,7 +1146,7 @@ const APP_REV = 158;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 158 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 159 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1275,7 +1275,7 @@ const APP_REV = 158;
 </section>
 
 <!-- ======================== PRIOR FILES ========================= -->
-<section class="screen doc on" id="screen-files">
+<section class="screen doc" id="screen-files">
   <div class="doc-in">
     <h1>Prior PFMEAs</h1>
     <p class="lede">Pick a folder once — your Desktop, or a folder on it — and this app saves every change
@@ -1287,10 +1287,8 @@ const APP_REV = 158;
       <button class="btn" id="fdStop" style="display:none">Stop autosaving</button>
       <span class="status bad" id="fdStatus">No folder chosen — nothing is being saved automatically.</span>
     </div>
-    <div id="fdWarn"><div class="banner"><b>Nothing is being saved automatically yet</b>
-        Press Choose save folder and point it at your Desktop, or a folder on it. After that every change
-        is written there on its own, and this list fills up.</div></div>
-    <div id="fdList"><p>No PFMEA files in that folder yet.</p></div>
+    <div id="fdWarn"></div>
+    <div id="fdList"></div>
   </div>
 </section>
 
@@ -1306,9 +1304,9 @@ const APP_REV = 158;
       <span>Drop the PF-RevNNN.html from Claude's message (or click to browse).
         This machine pushes it everywhere: GitHub, the website, and every pinned copy — within a minute.
         The whole loop is two actions: click the download card in the chat, drag the file onto this box.</span>
-      <span class="mono" id="dropStatus" style="display: block; margin-top: 10px; font-size: 12px; font-weight: 700; color: rgb(176, 0, 32);">GitHub returned 409. app/latest.html does not match 04c8e564ec2f4f02cc63fba5adce26c975d30e83</span>
+      <span class="mono" id="dropStatus" style="display:block;margin-top:10px;font-size:12px;color:var(--stamp);font-weight:700"></span>
     </div>
-    <div class="mono" id="watchState" style="font-size:11.5px;margin:0 0 4px;color:var(--ink-2)">OFF — delivered revs are published only when you drop them on the box above.</div>
+    <div class="mono" id="watchState" style="font-size:11.5px;margin:0 0 4px;color:var(--ink-2)"></div>
     <div class="mono" id="tryNewMsg" style="font-size:11.5px;margin:0 0 8px;color:var(--ink-2);min-height:15px"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
       <button class="btn" id="watchBtn" style="background:#1E4E8C;color:#fff;border-color:#14396A">Turn auto-deploy ON</button>
@@ -1318,12 +1316,12 @@ const APP_REV = 158;
       <button class="btn" id="syPushApp">Push app code</button>
       <button class="btn" id="syPullApp">Pull newest app code</button>
       <button class="btn" id="syAuto">Enable plan autosave</button>
-      <span class="status bad" id="syStatus">GitHub returned 409. app/latest.html does not match 04c8e564ec2f4f02cc63fba5adce26c975d30e83</span>
+      <span class="status" id="syStatus"></span>
     </div>
-    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 5 / 500 · autosave backs off at 400.</div>
+    <div class="status" id="ghBudget" style="margin-bottom:8px"></div>
     <input type="file" id="syAppFile" accept=".html" hidden="">
     <input type="file" id="syRevFile" accept=".html,.htm" hidden="">
-    <div id="syList2"><p>No plans/ folder yet — push one to create it.</p></div>
+    <div id="syList2"></div>
   </div>
 </section>
 
@@ -1470,14 +1468,6 @@ const APP_REV = 158;
 <section class="screen doc" id="screen-rules">
   <div class="doc-in" id="rulesBody">
 <h1>Ruleset — Project Instructions Rev 97</h1>
-<h2>Industry practice text — what "MEET INDUSTRY PRACTICE?" checks against</h2>
-<p>CAMCO's own paraphrase of general process-FMEA practice. It is <b>not</b> a copy of AIAG FMEA 4th Ed., the AIAG-VDA handbook, or any other published manual — those are copyrighted and are not carried in this app. Edit it to match whatever standard you hold and the button checks against your text. Reset restores the built-in paraphrase.</p>
-<textarea id="indRules" spellcheck="false" style="width:100%;min-height:190px;border:1px solid var(--rule-hard);padding:9px;font-size:12.5px;font-family:inherit"></textarea>
-<div style="display:flex;gap:8px;margin:8px 0 20px;align-items:center">
-  <button class="btn go" id="indSave">Save industry text</button>
-  <button class="btn" id="indReset">Reset to built-in</button>
-  <span class="mono" id="indMsg" style="font-size:11.5px;color:var(--ink-2)"></span>
-</div>
 <p class="lede">What this app enforces on every row, and what it deliberately leaves to you.
 Where a rule and a rating disagree, the audit rail names the SC or Convention and the fix.</p>
 
@@ -1754,6 +1744,24 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 159 · 2026-08-01
+     · THE WEEK-LONG HANG, FOUND AND KILLED. Rev 157's watchdog finally
+       printed it: "SyntaxError: identifier 'LOGO_SCMH' has already been
+       declared (line 1)". The self-update rewrote the new revision INTO
+       THE RUNNING PAGE with document.write - but the old copy's
+       top-level names survive that, so the new copy's first const
+       collided, the entire script died, and the page sat on LOADING
+       with dead buttons and no message. Every silent hang this week
+       was this one defect.
+     · IN-PLACE REWRITE REMOVED. Updating is now a plain reload: clear
+       the fast-load helper's stored copy, load fresh from the website.
+       A reload cannot collide with itself. Saved work is untouched -
+       it lives in browser storage, not in the page.
+     · HALF-LANDED GUARD. If the app folder holds a newer rev but the
+       website still serves an older one, reloading would boot the old
+       code and loop - so in that one case the app does not reload; the
+       status line says the deploy needs finishing and how.
+
    Rev 158 · 2026-08-01
      · LOOP TEST, per operator. Rev number only - no functional change.
        Purpose: watch a delivered file travel the repaired two-action
@@ -8194,14 +8202,41 @@ function appMidTask(){
   return false;
 }
 
-function applyRemoteApp(html, rev){
+/* Rev 159: the in-place rewrite (document.write of the new rev into the
+   running page) is GONE. The old page's top-level names survive a
+   document.write, so the new copy's first const collided with them -
+   "identifier 'LOGO_SCMH' has already been declared" - the script died on
+   line 1, and the page sat mute on LOADING. Every hang this week was this.
+   Updating is now a plain reload: clear the fast-load helper's stored
+   copy, then load fresh from the website. If the website itself is still
+   on an older rev (a half-landed deploy), reloading would boot old code
+   and try again forever - so in that one case the app does not reload; it
+   says what is staged and waits for the deploy to be finished. Saved work
+   is untouched either way - it lives in browser storage, not the page. */
+async function applyRemoteApp(html, rev){
+  let siteRev = null;
   try{
-    document.open(); document.write(html); document.close();   /* same origin: storage survives */
-  }catch(e){
-    try{ location.replace(location.pathname + "?v=" + Date.now()); }
-    catch(e2){ download("PF-Rev" + String(revNum(rev)).padStart(3,"0") + ".html",
-      new Blob([html], {type:"text/html"})); toast("In-place update was blocked — saved the new version instead; open it to update."); }
+    const sr = await fetch("https://raw.githubusercontent.com/" + settings.ghOwner + "/" + codeRepo() + "/main/index.html",
+      {cache:"no-store"});
+    if(sr.ok){ const sm = /const APP_REV = (\d+);/.exec(await sr.text()); if(sm) siteRev = parseInt(sm[1],10); }
+  }catch(e){}
+  if(siteRev !== null && siteRev < revNum(rev) && /^https:/.test(location.protocol)){
+    tnSay("Rev " + revNum(rev) + " is staged in the app folder, but the website still serves Rev " + siteRev +
+      " — finish the deploy (drop the file on the box, or PUSH APP CODE) and the app will reload itself.");
+    return;
   }
+  const done = () => { try{ location.replace(location.pathname + "?v=" + Date.now()); }
+                       catch(e){ location.reload(); } };
+  try{
+    if("serviceWorker" in navigator){
+      navigator.serviceWorker.getRegistrations()
+        .then(rs => Promise.all(rs.map(r => r.unregister())))
+        .then(() => (window.caches && caches.keys)
+          ? caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k)))) : null)
+        .then(done, done);
+      setTimeout(done, 4000);
+    } else done();
+  }catch(e){ done(); }
 }
 
 /* ======================================================================
