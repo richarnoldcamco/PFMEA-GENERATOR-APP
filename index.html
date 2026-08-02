@@ -610,7 +610,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 </div>
 <div class="mst-bg" id="mstBg">
   <div class="mst" role="dialog">
-    <div class="mh"><span><button id="mstBack" style="background:#fff;color:var(--stamp);border:0;border-radius:4px;padding:6px 16px;font-family:var(--mono);font-weight:800;font-size:12px;letter-spacing:.1em;cursor:pointer;margin-right:14px">&#8592; BACK</button><button id="mstAiReduce" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:10px">AI &#183; REDUCE RPN SCORE</button><button id="mstAiMatch" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:14px">AI &#183; DOES RPN MATCH TEXT?</button><span id="mstTitle">MASTER ROW</span></span><span id="mstSrc"></span></div>
+    <div class="mh"><span><button id="mstBack" style="background:#fff;color:var(--stamp);border:0;border-radius:4px;padding:6px 16px;font-family:var(--mono);font-weight:800;font-size:12px;letter-spacing:.1em;cursor:pointer;margin-right:14px">&#8592; BACK</button><button id="mstAiReduce" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:10px">AI &#183; REDUCE RPN SCORE</button><button id="mstAiMatch" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:10px">AI &#183; DOES RPN MATCH TEXT?</button><button id="mstAiAsk" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:14px">AI &#183; ASK A QUESTION&#8230;</button><span id="mstTitle">MASTER ROW</span></span><span id="mstSrc"></span></div>
     <div class="mb">
       <div class="mtop">
         <div id="mstPhoto" style="flex:0 0 auto;max-width:330px"></div>
@@ -1057,14 +1057,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 168;
+const APP_REV = 169;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 168 · LOADING…</span>
+      <span class="sub" id="navSub">APP REV 169 · LOADING…</span>
     </span>
   </div>
   <script>
@@ -1149,7 +1149,7 @@ const APP_REV = 168;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 168 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 169 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1749,6 +1749,13 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 169 · 2026-08-02
+     · AI · ASK A QUESTION… button added to the master screen header
+       bar, per operator - beside the two fixed RPN questions. One
+       press opens the ask window on this master row with the cursor
+       already in the typing box, for any free-form question. The
+       quick-question buttons remain available inside the window.
+
    Rev 168 · 2026-08-02
      · THE TWO AI QUESTION BUTTONS MOVED INTO THE MASTER SCREEN HEADER
        BAR, per operator. Rev 166 put them in the footer - below the
@@ -6965,6 +6972,12 @@ document.addEventListener("click", e => {
   /* Rev 166: the two RPN questions fire straight from the master screen -
      one press opens the ask popup on this master row AND sends the
      question, instead of requiring Ask Claude first. */
+  /* Rev 169: free-form question from the header - opens the ask window on
+     this master row with the cursor already in the typing box. */
+  if(t.id === "mstAiAsk"){
+    aiqOpenMaster();
+    setTimeout(() => { const q = $("aiqQ"); if(q){ q.value = ""; q.focus(); } }, 60);
+    return; }
   if(t.id === "mstAiReduce" || t.id === "mstAiMatch"){
     aiqOpenMaster();
     const want = t.id === "mstAiReduce" ? "REDUCE RPN SCORE" : "RPN SCORE MATCHES TEXT";
