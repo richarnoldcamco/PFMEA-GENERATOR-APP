@@ -1085,14 +1085,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 179;
+const APP_REV = 180;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub" title="Load time: 0.2s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 179 · LOADED AUG 2, 2:44 PM · 0.2s</span>
+      <span class="sub" id="navSub" title="Load time: 0.2s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 180 · LOADED AUG 2, 3:12 PM · 0.2s</span>
     </span>
   </div>
   <script>
@@ -1177,7 +1177,7 @@ const APP_REV = 179;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 179 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 180 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1784,6 +1784,13 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 180 · 2026-08-02
+     · ONE-CLICK LOOP TEST, ROUND TWO - rev number only. Chrome's
+       download location now points at Downloads\PFMEA DROP (round one
+       landed in the root before the setting took). Expected: card
+       click -> file lands in PFMEA DROP -> watcher publishes all three
+       files within 10 seconds -> every window self-updates within 30.
+
    Rev 179 · 2026-08-02
      · THE LAST INDEX-SKIPPING PUSHER, FOUND VIA THE REV 178 TEST. The
        auto-mirror (a window running ahead of GitHub "mirrors up" its
