@@ -566,7 +566,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
         <button data-q="Does this row comply with the CAMCO PROJECT INSTRUCTIONS - the conventions, the L3Harris action trigger, House Rule 5A, the SC rules, the Class field and the Section 3 current-state process facts? List anything that conflicts, naming the rule." data-src="camco">MEET MY INSTRUCTIONS?</button>
         <button data-q="Judge this row against GENERAL INDUSTRY FMEA PRACTICE ONLY - ignore CAMCO house rules entirely. Is it structured and rated the way a process FMEA is normally expected to be? Comment on failure mode / effect / cause separation, whether the ratings are defensible against a standard scale, whether detection is credited only for controls that exist, and whether the action logic is sound." data-src="industry">MEET INDUSTRY PRACTICE?</button>
         <button data-q="Is the action chain on this row correct - Recommended Action, Responsibility and Target Date - given its RPN and the L3Harris trigger plus House Rule 5A?">IS THE ACTION CHAIN RIGHT?</button>
-        <button data-q="Suggest concrete ways to reduce this row's RPN, in priority order. Respect the conventions: Severity moves ONLY with a design change, process change, or redefined effect scope - never with added inspection. Occurrence moves only with real prevention that exists or is committed as an action. Detection is capped by Convention 3 and 4 (manual 100% attribute = 5, manual 100% variable = 4, better needs a documented Gauge R&amp;R on the specific gauge; probe without auto-offset is detection only). For each suggestion state which factor it moves, the defensible new rating, what evidence or committed action is required first, and the resulting RPN. Never propose crediting a control that does not exist.">GIVE SUGGESTIONS ON HOW TO REDUCE RPN SCORE</button>
+        <button data-q="Suggest concrete ways to reduce this row's RPN, in priority order. Respect the conventions: Severity moves ONLY with a design change, process change, or redefined effect scope - never with added inspection. Occurrence moves only with real prevention that exists or is committed as an action. Detection is capped by Convention 3 and 4 (manual 100% attribute = 5, manual 100% variable = 4, better needs a documented Gauge R&R on the specific gauge; probe without auto-offset is detection only). For each suggestion state which factor it moves, the defensible new rating, what evidence or committed action is required first, and the resulting RPN. Never propose crediting a control that does not exist.">GIVE SUGGESTIONS ON HOW TO REDUCE RPN SCORE</button>
         <button data-q="Evaluate whether each rating matches the wording actually in this row: does the Effect text justify the SEV, does the Prevention text justify the OCC, and does the Detection text justify the DET under the Convention 3 and 4 caps? Flag any rating the text does not support (either direction - a rating better than the described controls earn, or worse than they earn), and quote the specific words that conflict.">EVALUATE IF RPN SCORE MATCHES TEXT</button>
       </div>
       <textarea id="aiqQ" spellcheck="false" placeholder="Ask anything about this row - or press one of the buttons above."></textarea>
@@ -610,7 +610,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 </div>
 <div class="mst-bg" id="mstBg">
   <div class="mst" role="dialog">
-    <div class="mh"><span><button id="mstBack" style="background:#fff;color:var(--stamp);border:0;border-radius:4px;padding:6px 16px;font-family:var(--mono);font-weight:800;font-size:12px;letter-spacing:.1em;cursor:pointer;margin-right:14px">← BACK</button><button id="mstAiReduce" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:10px">AI · REDUCE RPN SCORE</button><button id="mstAiMatch" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:14px">AI · DOES RPN MATCH TEXT?</button><span id="mstTitle">MASTER ROW</span></span><span id="mstSrc"></span></div>
+    <div class="mh"><span><button id="mstBack" style="background:#fff;color:var(--stamp);border:0;border-radius:4px;padding:6px 16px;font-family:var(--mono);font-weight:800;font-size:12px;letter-spacing:.1em;cursor:pointer;margin-right:14px">&#8592; BACK</button><button id="mstAiReduce" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:10px">AI &#183; REDUCE RPN SCORE</button><button id="mstAiMatch" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:14px">AI &#183; DOES RPN MATCH TEXT?</button><span id="mstTitle">MASTER ROW</span></span><span id="mstSrc"></span></div>
     <div class="mb">
       <div class="mtop">
         <div id="mstPhoto" style="flex:0 0 auto;max-width:330px"></div>
@@ -1064,7 +1064,7 @@ const APP_REV = 168;
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 168 · LOADED AUG 2, 6:07 AM</span>
+      <span class="sub" id="navSub">APP REV 168 · LOADING…</span>
     </span>
   </div>
   <script>
@@ -1086,8 +1086,8 @@ const APP_REV = 168;
   }, true);
   </script>
   <div class="tabs">
-    <button class="tab" id="navBack" style="" title="Back one screen">←</button>
-    <button class="tab" data-go="menu">Menu</button>
+    <button class="tab" id="navBack" style="display:none" title="Back one screen">←</button>
+    <button class="tab on" data-go="menu">Menu</button>
     <button class="tab" data-go="build">Build</button>
     <button class="tab" data-go="trav">Traveller</button>
     <button class="tab" data-go="sets">Standard sets</button>
@@ -1095,7 +1095,7 @@ const APP_REV = 168;
     <button class="tab" data-go="photos">Photo library</button>
     <button class="tab" data-go="rules">Ruleset</button>
     <button class="tab" data-go="files">Prior PFMEAs</button>
-    <button class="tab on" data-go="sync">GitHub</button>
+    <button class="tab" data-go="sync">GitHub</button>
     <button class="tab" data-go="admin">Admin</button>
   </div>
   <button id="saveNow" title="Force a save right now">
@@ -1118,7 +1118,7 @@ const APP_REV = 168;
 </div>
 
 <!-- ============================ MENU ============================ -->
-<section class="screen menu-screen" id="screen-menu">
+<section class="screen menu-screen on" id="screen-menu">
   <div class="card">
     <span class="badge">PF</span>
     <h1>CAMCO PFMEA Builder</h1>
@@ -1296,7 +1296,7 @@ const APP_REV = 168;
 </section>
 
 <!-- =========================== SYNC ============================= -->
-<section class="screen doc on" id="screen-sync">
+<section class="screen doc" id="screen-sync">
   <div class="doc-in">
     <h1>GitHub</h1>
     <p class="lede">PFMEA files live in <span class="mono">plans/</span>, app versions in
@@ -1308,9 +1308,10 @@ const APP_REV = 168;
         This machine pushes it everywhere: GitHub, the website, and every pinned copy — within a minute.
         The whole loop is two actions: click the download card in the chat, drag the file onto this box.</span>
       <span class="mono" id="dropStatus" style="display:block;margin-top:10px;font-size:12px;color:var(--stamp);font-weight:700"></span>
-      <button class="btn key" id="pasteRev" style="margin-top:12px;font-size:13px;padding:10px 22px" title="Deploys the app file currently on the clipboard — right-click the download, Copy, then press this">PASTE THE COPIED REV</button>
+      <button class="btn key" id="pasteRev" style="margin-top:12px;font-size:13px;padding:10px 22px"
+        title="Deploys the app file currently on the clipboard — right-click the download, Copy, then press this">PASTE THE COPIED REV</button>
     </div>
-    <div class="mono" id="watchState" style="font-size:11.5px;margin:0 0 4px;color:var(--ink-2)">OFF — delivered revs are published only when you drop them on the box above.</div>
+    <div class="mono" id="watchState" style="font-size:11.5px;margin:0 0 4px;color:var(--ink-2)"></div>
     <div class="mono" id="tryNewMsg" style="font-size:11.5px;margin:0 0 8px;color:var(--ink-2);min-height:15px"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
       <button class="btn" id="watchBtn" style="background:#1E4E8C;color:#fff;border-color:#14396A">Turn auto-deploy ON</button>
@@ -1322,10 +1323,10 @@ const APP_REV = 168;
       <button class="btn" id="syAuto">Enable plan autosave</button>
       <span class="status" id="syStatus"></span>
     </div>
-    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 4 / 500 · autosave backs off at 400.</div>
+    <div class="status" id="ghBudget" style="margin-bottom:8px"></div>
     <input type="file" id="syAppFile" accept=".html" hidden="">
     <input type="file" id="syRevFile" accept=".html,.htm" hidden="">
-    <div id="syList2"><p>No plans/ folder yet — push one to create it.</p></div>
+    <div id="syList2"></div>
   </div>
 </section>
 
@@ -1472,14 +1473,6 @@ const APP_REV = 168;
 <section class="screen doc" id="screen-rules">
   <div class="doc-in" id="rulesBody">
 <h1>Ruleset — Project Instructions Rev 97</h1>
-<h2>Industry practice text — what "MEET INDUSTRY PRACTICE?" checks against</h2>
-<p>CAMCO's own paraphrase of general process-FMEA practice. It is <b>not</b> a copy of AIAG FMEA 4th Ed., the AIAG-VDA handbook, or any other published manual — those are copyrighted and are not carried in this app. Edit it to match whatever standard you hold and the button checks against your text. Reset restores the built-in paraphrase.</p>
-<textarea id="indRules" spellcheck="false" style="width:100%;min-height:190px;border:1px solid var(--rule-hard);padding:9px;font-size:12.5px;font-family:inherit"></textarea>
-<div style="display:flex;gap:8px;margin:8px 0 20px;align-items:center">
-  <button class="btn go" id="indSave">Save industry text</button>
-  <button class="btn" id="indReset">Reset to built-in</button>
-  <span class="mono" id="indMsg" style="font-size:11.5px;color:var(--ink-2)"></span>
-</div>
 <p class="lede">What this app enforces on every row, and what it deliberately leaves to you.
 Where a rule and a rating disagree, the audit rail names the SC or Convention and the fix.</p>
 
