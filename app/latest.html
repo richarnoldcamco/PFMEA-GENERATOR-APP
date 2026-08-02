@@ -1085,14 +1085,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 178;
+const APP_REV = 179;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub" title="Load time: 0.3s total (0.1s network) — history kept in pfLoadTimes, last 100 launches">APP REV 178 · LOADED AUG 2, 2:27 PM · 0.3s</span>
+      <span class="sub" id="navSub" title="Load time: 0.2s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 179 · LOADED AUG 2, 2:44 PM · 0.2s</span>
     </span>
   </div>
   <script>
@@ -1177,7 +1177,7 @@ const APP_REV = 178;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 178 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 179 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1350,7 +1350,7 @@ const APP_REV = 178;
       <button class="btn" id="syAuto">Enable plan autosave</button>
       <span class="status" id="syStatus"></span>
     </div>
-    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 7 / 500 · autosave backs off at 400.</div>
+    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 10 / 500 · autosave backs off at 400.</div>
     <input type="file" id="syAppFile" accept=".html" hidden="">
     <input type="file" id="syRevFile" accept=".html,.htm" hidden="">
     <div id="syList2"><p>No plans/ folder yet — push one to create it.</p></div>
@@ -1784,6 +1784,14 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 179 · 2026-08-02
+     · THE LAST INDEX-SKIPPING PUSHER, FOUND VIA THE REV 178 TEST. The
+       auto-mirror (a window running ahead of GitHub "mirrors up" its
+       own copy) pushed only the app-folder pair - the same two-file
+       half-landing Rev 175 removed from PUSH APP CODE. It now pushes
+       index.html too. Every pusher in the app - box, paste button,
+       PUSH APP CODE, watcher, auto-mirror - writes all three files.
+
    Rev 178 · 2026-08-02
      · ONE-CLICK LOOP TEST - rev number only. First live run of the
        auto-deploy watcher on Downloads\PFMEA DROP: Chrome refused to
@@ -8756,6 +8764,7 @@ async function ghAutoPushVerified(){
   try{
     const html = currentAppHtml();
     await ghPut(GH_APP_FILE, html, "App auto-push Rev " + APP_REV, codeRepo());
+    await ghPut("index.html", html, "Website auto-push Rev " + APP_REV, codeRepo());
     await ghPut("app/PF-Rev" + String(APP_REV).padStart(3,"0") + ".html", html,
       "App Rev " + APP_REV, codeRepo());
     const back = await ghGetAppFile();                     /* verify it landed */
