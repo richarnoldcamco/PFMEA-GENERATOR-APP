@@ -610,7 +610,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 </div>
 <div class="mst-bg" id="mstBg">
   <div class="mst" role="dialog">
-    <div class="mh"><span><button id="mstBack" style="background:#fff;color:var(--stamp);border:0;border-radius:4px;padding:6px 16px;font-family:var(--mono);font-weight:800;font-size:12px;letter-spacing:.1em;cursor:pointer;margin-right:14px">&#8592; BACK</button><span id="mstTitle">MASTER ROW</span></span><span id="mstSrc"></span></div>
+    <div class="mh"><span><button id="mstBack" style="background:#fff;color:var(--stamp);border:0;border-radius:4px;padding:6px 16px;font-family:var(--mono);font-weight:800;font-size:12px;letter-spacing:.1em;cursor:pointer;margin-right:14px">&#8592; BACK</button><button id="mstAiReduce" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:10px">AI &#183; REDUCE RPN SCORE</button><button id="mstAiMatch" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:14px">AI &#183; DOES RPN MATCH TEXT?</button><span id="mstTitle">MASTER ROW</span></span><span id="mstSrc"></span></div>
     <div class="mb">
       <div class="mtop">
         <div id="mstPhoto" style="flex:0 0 auto;max-width:330px"></div>
@@ -630,8 +630,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
       <button class="btn" id="mstReset">Reset to Rev 97</button>
       <button class="btn" id="mstClose">Close</button>
       <button class="btn" id="mstAsk" style="background:#1E4E8C;color:#fff;border-color:#14396A">Ask Claude about this row</button>
-      <button class="btn" id="mstAiReduce" style="background:#1E4E8C;color:#fff;border-color:#14396A">AI · REDUCE RPN SCORE</button>
-      <button class="btn" id="mstAiMatch" style="background:#1E4E8C;color:#fff;border-color:#14396A">AI · DOES RPN MATCH TEXT?</button>
+
       <button class="btn" id="mstAiRate" style="background:#1E7A34;color:#fff;border-color:#124A1F">AI ⟳ propose ratings from this wording</button>
       <button class="btn" id="mstApply">Apply to this row</button>
       <button class="btn go" id="mstSave">Save master</button>
@@ -1058,14 +1057,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 167;
+const APP_REV = 168;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 167 · LOADING…</span>
+      <span class="sub" id="navSub">APP REV 168 · LOADING…</span>
     </span>
   </div>
   <script>
@@ -1150,7 +1149,7 @@ const APP_REV = 167;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 167 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 168 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1750,6 +1749,14 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 168 · 2026-08-02
+     · THE TWO AI QUESTION BUTTONS MOVED INTO THE MASTER SCREEN HEADER
+       BAR, per operator. Rev 166 put them in the footer - below the
+       fold on tall rows, the same trap the BACK button just escaped.
+       AI · REDUCE RPN SCORE and AI · DOES RPN MATCH TEXT? now sit in
+       the red header bar beside BACK, always visible. One press opens
+       the ask window on this master row and sends the question.
+
    Rev 167 · 2026-08-02
      · BACK BUTTON ON THE MASTER SCREEN, per operator. The only exits
        (Close, in the footer) sat below the fold when the popup filled
