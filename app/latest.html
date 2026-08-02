@@ -534,7 +534,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 .ptbl tr.now td:first-child{box-shadow:inset 5px 0 0 var(--stamp)}
 </style>
 </head>
-<body><div style="background: rgb(192, 39, 45); color: rgb(255, 255, 255); padding: 14px 20px; font-family: Consolas, monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; line-height: 1.6; position: sticky; top: 0px; z-index: 9998;">THIS IS THE DOWNLOADED FILE — NOT YOUR APP. IT HAS NO DATA AND NEVER WILL: YOUR PFMEAS, SAVE FOLDER AND SETTINGS LIVE IN THE INSTALLED APP (THE PINNED PF ICON). THIS FILE IS CARGO — CLOSE THIS TAB, OPEN THE PINNED ICON, AND DEPLOY THIS FILE BY DRAG OR THE PASTE BUTTON ON ITS GITHUB SCREEN.</div>
+<body><div id="pfCargoBanner" style="background: rgb(192, 39, 45); color: rgb(255, 255, 255); padding: 14px 20px; font-family: Consolas, monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; line-height: 1.6; position: sticky; top: 0px; z-index: 9998;">THIS IS THE DOWNLOADED FILE — NOT YOUR APP. IT HAS NO DATA AND NEVER WILL: YOUR PFMEAS, SAVE FOLDER AND SETTINGS LIVE IN THE INSTALLED APP (THE PINNED PF ICON). THIS FILE IS CARGO — CLOSE THIS TAB, OPEN THE PINNED ICON, AND DEPLOY THIS FILE BY DRAG OR THE PASTE BUTTON ON ITS GITHUB SCREEN.</div>
 
 <div id="updBanner" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:190;
   background:#7C1518;color:#fff;padding:11px 16px;text-align:center;font-size:14px;font-weight:700">
@@ -1008,7 +1008,10 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
   });
   if(location.protocol === "file:"){
     document.addEventListener("DOMContentLoaded", function(){
+      if(location.protocol !== "file:") return;
+      if(document.getElementById("pfCargoBanner")) return;
       var b = document.createElement("div");
+      b.id = "pfCargoBanner";
       b.style.cssText = "background:#C0272D;color:#fff;padding:14px 20px;font-family:Consolas,monospace;" +
         "font-size:13px;font-weight:700;letter-spacing:.04em;line-height:1.6;position:sticky;top:0;z-index:9998";
       b.innerHTML = "THIS IS THE DOWNLOADED FILE — NOT YOUR APP. IT HAS NO DATA AND NEVER WILL: " +
@@ -1018,6 +1021,19 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
       document.body.insertBefore(b, document.body.firstChild);
     });
   }
+  /* belt and braces: a banner must never survive onto the real website -
+     if this page is https and a cargo banner exists (restored state,
+     cached markup, any path), remove it. */
+  document.addEventListener("DOMContentLoaded", function(){
+    if(/^https?:/.test(location.protocol)){
+      var stale = document.getElementById("pfCargoBanner");
+      if(stale) stale.remove();
+      var all = document.querySelectorAll("div");
+      for(var i = 0; i < all.length; i++){
+        if(all[i].textContent && all[i].textContent.indexOf("THIS IS THE DOWNLOADED FILE") === 0){ all[i].remove(); }
+      }
+    }
+  });
   window.pfShowReload = function(){
     if(document.getElementById("pfReloadBtn")) return;
     var b = document.createElement("button");
@@ -1069,14 +1085,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 176;
+const APP_REV = 177;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub" title="Load time: 0.3s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 176 · LOADED AUG 2, 2:03 PM · 0.3s</span>
+      <span class="sub" id="navSub" title="Load time: 0.4s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 177 · LOADED AUG 2, 2:16 PM · 0.4s</span>
     </span>
   </div>
   <script>
@@ -1161,7 +1177,7 @@ const APP_REV = 176;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 176 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 177 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1768,6 +1784,18 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 177 · 2026-08-02
+     · CARGO BANNER CONFINED TO FILE COPIES. The red "this is the
+       downloaded file" banner appeared on the real website tab, which
+       is exactly the confusion it exists to prevent. The banner now
+       carries an id, double-checks the page is a C:/ file copy before
+       inserting, and any banner found on an https page is removed at
+       load. Also recorded: auto-deploy folder access is blocked by the
+       organization's Chrome policy on this machine (picker reports as
+       cancelled) - in the pinned app AND in a normal tab - so the
+       deploy floor is: download card, click the box, pick the file
+       (or the paste button). The app stops offering less.
+
    Rev 176 · 2026-08-02
      · UPDATE CHECK EVERY 30 SECONDS AGAINST WHAT GITHUB SERVES, per
        operator. The app now reads the website's own index.html rev
