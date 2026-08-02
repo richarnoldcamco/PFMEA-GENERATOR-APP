@@ -1057,14 +1057,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 169;
+const APP_REV = 170;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 169 · LOADING…</span>
+      <span class="sub" id="navSub">APP REV 170 · LOADING…</span>
     </span>
   </div>
   <script>
@@ -1149,7 +1149,7 @@ const APP_REV = 169;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 169 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 170 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1749,6 +1749,17 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 170 · 2026-08-02
+     · AI PROPOSALS ARE NOW CELL-BY-CELL WITH FULL BEFORE / AFTER, per
+       operator. The proposal list used to truncate the text and offer
+       only one all-or-nothing button (and on the master path it filled
+       every cell at once). Each proposal is now its own card: the full
+       BEFORE text, the full PROPOSED text side by side, the reason,
+       and its own ✓ APPLY THIS CELL / ✗ REJECT buttons. Applied cells
+       go where they always went - master cells tinted yellow until
+       SAVE MASTER, or the grid's BEFORE / PROPOSED pairs. APPLY ALL
+       REMAINING stays for convenience.
+
    Rev 169 · 2026-08-02
      · AI · ASK A QUESTION… button added to the master screen header
        bar, per operator - beside the two fixed RPN questions. One
@@ -6878,12 +6889,28 @@ Omit that line entirely when nothing should change. Valid fields: ${AI_ALL_FIELD
     _aiqProposals = clean;
     const keys = Object.keys(clean);
     if(keys.length){
+      /* Rev 170: every proposal is its own card - FULL before text, FULL
+         proposed text, its reason, and its own APPLY / REJECT buttons.
+         Nothing is written until the APPLY on that specific cell is
+         pressed. APPLY ALL REMAINING stays for convenience. */
       const label = f => (FIELDS.find(x => x[0] === f) || [,, f])[2] || f;
-      $("aiqProp").innerHTML = `<b>${keys.length} PROPOSED CHANGE(S)</b> — nothing is written until you approve each one.<ul>` +
-        keys.map(f => `<li><b>${esc(label(f))}</b>: ${esc(String(r[f]||"(blank)").slice(0,60))} → <b>${esc(clean[f].slice(0,90))}</b>` +
-          ((obj.why && obj.why[f]) ? `<br><span class="mut">${esc(String(obj.why[f]).slice(0,160))}</span>` : "") + `</li>`).join("") + "</ul>";
+      $("aiqProp").innerHTML = `<b>${keys.length} PROPOSED CHANGE(S)</b> — nothing is written until you approve each one, cell by cell.` +
+        keys.map(f => `<div class="aiqCard" data-pfld="${esc(f)}" style="border:1px solid #B9C7DA;border-radius:6px;background:#fff;margin:10px 0;padding:10px 12px">
+          <div style="font-weight:800;letter-spacing:.04em;margin-bottom:6px">${esc(label(f))}</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <div style="flex:1 1 240px;min-width:200px"><div class="mut" style="font-size:10px;font-weight:800;letter-spacing:.1em">BEFORE</div>
+              <div style="white-space:pre-wrap;font-size:12px;background:#F5F2EC;border-radius:4px;padding:6px 8px">${esc(String(r[f]||"(blank)"))}</div></div>
+            <div style="flex:1 1 240px;min-width:200px"><div class="mut" style="font-size:10px;font-weight:800;letter-spacing:.1em">PROPOSED</div>
+              <div style="white-space:pre-wrap;font-size:12px;background:#EAF3E6;border-radius:4px;padding:6px 8px">${esc(clean[f])}</div></div>
+          </div>` +
+          ((obj.why && obj.why[f]) ? `<div class="mut" style="margin-top:6px;font-size:11.5px">WHY: ${esc(String(obj.why[f]))}</div>` : "") +
+          `<div style="margin-top:8px;display:flex;gap:8px">
+            <button data-pacc="${esc(f)}" style="background:#1E7A34;color:#fff;border:0;border-radius:4px;padding:7px 18px;font-family:var(--mono);font-weight:800;font-size:11px;cursor:pointer">&#10003; APPLY THIS CELL</button>
+            <button data-prej="${esc(f)}" style="background:#C0272D;color:#fff;border:0;border-radius:4px;padding:7px 18px;font-family:var(--mono);font-weight:800;font-size:11px;cursor:pointer">&#10007; REJECT</button>
+          </div></div>`).join("");
       $("aiqProp").classList.add("on");
       $("aiqStage").style.display = "";
+      $("aiqStage").textContent = _aiqMaster ? "APPLY ALL REMAINING TO THE MASTER CELLS" : "SEND ALL REMAINING TO REVIEW";
     } else {
       $("aiqProp").innerHTML = obj.answer
         ? "<b>NO CHANGES PROPOSED</b> — the row stands as written."
@@ -6938,6 +6965,33 @@ function aiqShowRaw(){
   if(box.dataset.raw === "1"){ box.textContent = aiqParse(_aiqRaw).answer || "(nothing readable)"; box.dataset.raw = "0"; $("aiqRawBtn").textContent = "SHOW REPLY"; }
   else{ box.textContent = _aiqRaw || "(nothing came back)"; box.dataset.raw = "1"; $("aiqRawBtn").textContent = "SHOW ANSWER"; }
 }
+function aiqApplyOne(f){
+  if(!_aiqProposals || _aiqProposals[f] === undefined) return;
+  if(_aiqMaster){
+    const el = $("mstFields").querySelector(`[data-mf="${f}"]`);
+    if(el){ el.textContent = _aiqProposals[f]; el.style.background = "#FFF3C4"; _mstDirty = true; }
+  } else if(_aiqIdx >= 0){
+    aiPending[_aiqIdx] = Object.assign({}, aiPending[_aiqIdx] || {}, {[f]: _aiqProposals[f]});
+    renderGridForm(); renderRail();
+  }
+  aiqDropCard(f);
+}
+function aiqRejectOne(f){ if(_aiqProposals) aiqDropCard(f); }
+function aiqDropCard(f){
+  delete _aiqProposals[f];
+  const card = $("aiqProp").querySelector(`[data-pfld="${f}"]`);
+  if(card) card.remove();
+  if(!Object.keys(_aiqProposals).length){
+    $("aiqStage").style.display = "none";
+    const b = $("aiqProp").querySelector("b");
+    if(b) b.textContent = "ALL PROPOSALS HANDLED" + (_aiqMaster ? " — press SAVE MASTER to store applied cells." : " — approved cells are on the BEFORE / PROPOSED pairs.");
+  }
+}
+document.addEventListener("click", e => {
+  const t = e.target; if(!t || !t.dataset) return;
+  if(t.dataset.pacc !== undefined){ e.stopPropagation(); aiqApplyOne(t.dataset.pacc); return; }
+  if(t.dataset.prej !== undefined){ e.stopPropagation(); aiqRejectOne(t.dataset.prej); return; }
+});
 function aiqStage(){
   const i = _aiqIdx;
   if(!_aiqProposals || !Object.keys(_aiqProposals).length) return;
