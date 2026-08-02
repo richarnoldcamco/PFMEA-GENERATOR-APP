@@ -534,7 +534,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 .ptbl tr.now td:first-child{box-shadow:inset 5px 0 0 var(--stamp)}
 </style>
 </head>
-<body>
+<body><div style="background: rgb(192, 39, 45); color: rgb(255, 255, 255); padding: 14px 20px; font-family: Consolas, monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; line-height: 1.6; position: sticky; top: 0px; z-index: 9998;">THIS IS THE DOWNLOADED FILE — NOT YOUR APP. IT HAS NO DATA AND NEVER WILL: YOUR PFMEAS, SAVE FOLDER AND SETTINGS LIVE IN THE INSTALLED APP (THE PINNED PF ICON). THIS FILE IS CARGO — CLOSE THIS TAB, OPEN THE PINNED ICON, AND DEPLOY THIS FILE BY DRAG OR THE PASTE BUTTON ON ITS GITHUB SCREEN.</div>
 
 <div id="updBanner" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:190;
   background:#7C1518;color:#fff;padding:11px 16px;text-align:center;font-size:14px;font-weight:700">
@@ -566,7 +566,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
         <button data-q="Does this row comply with the CAMCO PROJECT INSTRUCTIONS - the conventions, the L3Harris action trigger, House Rule 5A, the SC rules, the Class field and the Section 3 current-state process facts? List anything that conflicts, naming the rule." data-src="camco">MEET MY INSTRUCTIONS?</button>
         <button data-q="Judge this row against GENERAL INDUSTRY FMEA PRACTICE ONLY - ignore CAMCO house rules entirely. Is it structured and rated the way a process FMEA is normally expected to be? Comment on failure mode / effect / cause separation, whether the ratings are defensible against a standard scale, whether detection is credited only for controls that exist, and whether the action logic is sound." data-src="industry">MEET INDUSTRY PRACTICE?</button>
         <button data-q="Is the action chain on this row correct - Recommended Action, Responsibility and Target Date - given its RPN and the L3Harris trigger plus House Rule 5A?">IS THE ACTION CHAIN RIGHT?</button>
-        <button data-q="Suggest concrete ways to reduce this row's RPN, in priority order. Respect the conventions: Severity moves ONLY with a design change, process change, or redefined effect scope - never with added inspection. Occurrence moves only with real prevention that exists or is committed as an action. Detection is capped by Convention 3 and 4 (manual 100% attribute = 5, manual 100% variable = 4, better needs a documented Gauge R&R on the specific gauge; probe without auto-offset is detection only). For each suggestion state which factor it moves, the defensible new rating, what evidence or committed action is required first, and the resulting RPN. Never propose crediting a control that does not exist.">GIVE SUGGESTIONS ON HOW TO REDUCE RPN SCORE</button>
+        <button data-q="Suggest concrete ways to reduce this row's RPN, in priority order. Respect the conventions: Severity moves ONLY with a design change, process change, or redefined effect scope - never with added inspection. Occurrence moves only with real prevention that exists or is committed as an action. Detection is capped by Convention 3 and 4 (manual 100% attribute = 5, manual 100% variable = 4, better needs a documented Gauge R&amp;R on the specific gauge; probe without auto-offset is detection only). For each suggestion state which factor it moves, the defensible new rating, what evidence or committed action is required first, and the resulting RPN. Never propose crediting a control that does not exist.">GIVE SUGGESTIONS ON HOW TO REDUCE RPN SCORE</button>
         <button data-q="Evaluate whether each rating matches the wording actually in this row: does the Effect text justify the SEV, does the Prevention text justify the OCC, and does the Detection text justify the DET under the Convention 3 and 4 caps? Flag any rating the text does not support (either direction - a rating better than the described controls earn, or worse than they earn), and quote the specific words that conflict.">EVALUATE IF RPN SCORE MATCHES TEXT</button>
       </div>
       <textarea id="aiqQ" spellcheck="false" placeholder="Ask anything about this row - or press one of the buttons above."></textarea>
@@ -610,7 +610,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 </div>
 <div class="mst-bg" id="mstBg">
   <div class="mst" role="dialog">
-    <div class="mh"><span><button id="mstBack" style="background:#fff;color:var(--stamp);border:0;border-radius:4px;padding:6px 16px;font-family:var(--mono);font-weight:800;font-size:12px;letter-spacing:.1em;cursor:pointer;margin-right:14px">&#8592; BACK</button><button id="mstAiReduce" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:10px">AI &#183; REDUCE RPN SCORE</button><button id="mstAiMatch" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:10px">AI &#183; DOES RPN MATCH TEXT?</button><button id="mstAiAsk" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:14px">AI &#183; ASK A QUESTION&#8230;</button><span id="mstTitle">MASTER ROW</span></span><span id="mstSrc"></span></div>
+    <div class="mh"><span><button id="mstBack" style="background:#fff;color:var(--stamp);border:0;border-radius:4px;padding:6px 16px;font-family:var(--mono);font-weight:800;font-size:12px;letter-spacing:.1em;cursor:pointer;margin-right:14px">← BACK</button><button id="mstAiReduce" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:10px">AI · REDUCE RPN SCORE</button><button id="mstAiMatch" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:10px">AI · DOES RPN MATCH TEXT?</button><button id="mstAiAsk" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:10px">AI · ASK A QUESTION…</button><button id="mstSaveTop" style="display:none;background:#1E7A34;color:#fff;border:1px solid #9ED3A8;border-radius:4px;padding:6px 18px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:14px">💾 SAVE CHANGES</button><span id="mstTitle">MASTER ROW</span></span><span id="mstSrc"></span></div>
     <div class="mb">
       <div class="mtop">
         <div id="mstPhoto" style="flex:0 0 auto;max-width:330px"></div>
@@ -1069,14 +1069,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 171;
+const APP_REV = 174;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 171 · LOADING…</span>
+      <span class="sub" id="navSub" title="Load time: 0.2s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 174 · LOADED AUG 2, 1:08 PM · 0.2s</span>
     </span>
   </div>
   <script>
@@ -1098,8 +1098,8 @@ const APP_REV = 171;
   }, true);
   </script>
   <div class="tabs">
-    <button class="tab" id="navBack" style="display:none" title="Back one screen">←</button>
-    <button class="tab on" data-go="menu">Menu</button>
+    <button class="tab" id="navBack" style="" title="Back one screen">←</button>
+    <button class="tab" data-go="menu">Menu</button>
     <button class="tab" data-go="build">Build</button>
     <button class="tab" data-go="trav">Traveller</button>
     <button class="tab" data-go="sets">Standard sets</button>
@@ -1107,7 +1107,7 @@ const APP_REV = 171;
     <button class="tab" data-go="photos">Photo library</button>
     <button class="tab" data-go="rules">Ruleset</button>
     <button class="tab" data-go="files">Prior PFMEAs</button>
-    <button class="tab" data-go="sync">GitHub</button>
+    <button class="tab on" data-go="sync">GitHub</button>
     <button class="tab" data-go="admin">Admin</button>
   </div>
   <button id="saveNow" title="Force a save right now">
@@ -1130,7 +1130,7 @@ const APP_REV = 171;
 </div>
 
 <!-- ============================ MENU ============================ -->
-<section class="screen menu-screen on" id="screen-menu">
+<section class="screen menu-screen" id="screen-menu">
   <div class="card">
     <span class="badge">PF</span>
     <h1>CAMCO PFMEA Builder</h1>
@@ -1161,7 +1161,7 @@ const APP_REV = 171;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 171 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 174 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1308,7 +1308,7 @@ const APP_REV = 171;
 </section>
 
 <!-- =========================== SYNC ============================= -->
-<section class="screen doc" id="screen-sync">
+<section class="screen doc on" id="screen-sync">
   <div class="doc-in">
     <h1>GitHub</h1>
     <p class="lede">PFMEA files live in <span class="mono">plans/</span>, app versions in
@@ -1320,10 +1320,9 @@ const APP_REV = 171;
         This machine pushes it everywhere: GitHub, the website, and every pinned copy — within a minute.
         The whole loop is two actions: click the download card in the chat, drag the file onto this box.</span>
       <span class="mono" id="dropStatus" style="display:block;margin-top:10px;font-size:12px;color:var(--stamp);font-weight:700"></span>
-      <button class="btn key" id="pasteRev" style="margin-top:12px;font-size:13px;padding:10px 22px"
-        title="Deploys the app file currently on the clipboard — right-click the download, Copy, then press this">PASTE THE COPIED REV</button>
+      <button class="btn key" id="pasteRev" style="margin-top:12px;font-size:13px;padding:10px 22px" title="Deploys the app file currently on the clipboard — right-click the download, Copy, then press this">PASTE THE COPIED REV</button>
     </div>
-    <div class="mono" id="watchState" style="font-size:11.5px;margin:0 0 4px;color:var(--ink-2)"></div>
+    <div class="mono" id="watchState" style="font-size:11.5px;margin:0 0 4px;color:var(--ink-2)">OFF — delivered revs are published only when you drop them on the box above.</div>
     <div class="mono" id="tryNewMsg" style="font-size:11.5px;margin:0 0 8px;color:var(--ink-2);min-height:15px"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
       <button class="btn" id="watchBtn" style="background:#1E4E8C;color:#fff;border-color:#14396A">Turn auto-deploy ON</button>
@@ -1335,10 +1334,10 @@ const APP_REV = 171;
       <button class="btn" id="syAuto">Enable plan autosave</button>
       <span class="status" id="syStatus"></span>
     </div>
-    <div class="status" id="ghBudget" style="margin-bottom:8px"></div>
+    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 2 / 500 · autosave backs off at 400.</div>
     <input type="file" id="syAppFile" accept=".html" hidden="">
     <input type="file" id="syRevFile" accept=".html,.htm" hidden="">
-    <div id="syList2"></div>
+    <div id="syList2"><p>No plans/ folder yet — push one to create it.</p></div>
   </div>
 </section>
 
@@ -1485,6 +1484,14 @@ const APP_REV = 171;
 <section class="screen doc" id="screen-rules">
   <div class="doc-in" id="rulesBody">
 <h1>Ruleset — Project Instructions Rev 97</h1>
+<h2>Industry practice text — what "MEET INDUSTRY PRACTICE?" checks against</h2>
+<p>CAMCO's own paraphrase of general process-FMEA practice. It is <b>not</b> a copy of AIAG FMEA 4th Ed., the AIAG-VDA handbook, or any other published manual — those are copyrighted and are not carried in this app. Edit it to match whatever standard you hold and the button checks against your text. Reset restores the built-in paraphrase.</p>
+<textarea id="indRules" spellcheck="false" style="width:100%;min-height:190px;border:1px solid var(--rule-hard);padding:9px;font-size:12.5px;font-family:inherit"></textarea>
+<div style="display:flex;gap:8px;margin:8px 0 20px;align-items:center">
+  <button class="btn go" id="indSave">Save industry text</button>
+  <button class="btn" id="indReset">Reset to built-in</button>
+  <span class="mono" id="indMsg" style="font-size:11.5px;color:var(--ink-2)"></span>
+</div>
 <p class="lede">What this app enforces on every row, and what it deliberately leaves to you.
 Where a rule and a rating disagree, the audit rail names the SC or Convention and the fix.</p>
 
@@ -1634,8 +1641,8 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
   .fview .dlink{cursor:pointer;text-decoration:underline;padding:0 5px;border-radius:3px}
   .fview .dlink:hover{background:#F3E3E1}
   .fview td.idcell{position:relative;padding-right:16px}
-  .fview .qmark{position:absolute;top:2px;right:2px;width:13px;height:13px;line-height:13px;border-radius:50%;
-    background:var(--stamp);color:#fff;font-size:9px;font-weight:800;text-align:center;cursor:pointer;user-select:none}
+  .fview .qmark{position:absolute;bottom:2px;right:32px;padding:0 5px;height:14px;line-height:14px;border-radius:7px;
+    background:var(--stamp);color:#fff;font-size:8px;font-weight:800;letter-spacing:.08em;text-align:center;cursor:pointer;user-select:none}
   .fview .qmark:hover{background:#5C0F11}
   .fview td.idcell{padding-bottom:16px}
   .fview .aiq{position:absolute;bottom:2px;right:2px;padding:0 5px;height:14px;line-height:14px;border-radius:7px;
@@ -1761,6 +1768,31 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 174 · 2026-08-02
+     · THE ? BADGE IS NOW A SMALL "EDIT" PILL, per operator, and it
+       moved from the top corner of the Failure Type ID cell down to
+       the bottom edge, sitting beside the AI pill - EDIT then AI,
+       side by side. Same action as before: opens the master row for
+       that failure type. Same size and shape as the AI pill.
+
+   Rev 173 · 2026-08-02
+     · VISIBLE SAVE ON THE MASTER SCREEN, per operator. A green
+       💾 SAVE CHANGES button appears in the header bar the moment any
+       cell is edited - by typing or by an applied AI proposal - and
+       disappears when there is nothing to save. One press runs the
+       same SAVE MASTER as the footer button. The leave-guard stays:
+       BACK / Close / Esc with unsaved changes still ask "SAVE CHANGES
+       TO THE MASTER FILE?" before letting the screen close.
+
+   Rev 172 · 2026-08-02
+     · LOAD TIME IS NOW MEASURED AND RECORDED ON EVERY LAUNCH, per
+       operator. The header strip shows it after LOADED (e.g. "· 2.4s")
+       - that number is the real wait from clicking the icon to a
+       working app. Every launch is stored (rev, time, total seconds,
+       network seconds; last 100) so the load-time work over the coming
+       days is judged against recorded numbers. The action log gets a
+       "boot N.Ns" line each launch - READ LOG shows the history.
+
    Rev 171 · 2026-08-02
      · THE DOWNLOADED-FILE TRAP NOW ANNOUNCES ITSELF. Three times the
        operator opened a delivered PF-RevNNN.html straight from
@@ -4869,7 +4901,7 @@ function renderGridForm(){
       return;
     }
     h += `<tr data-i="${i}" class="${i===selIdx?"sel":""}${r.approved?" apr":""}">
-      <td class="mid idcell" contenteditable="true" spellcheck="false" data-i="${i}" data-f="id">${esc(r.id||"")}<span class="qmark" contenteditable="false" data-mst="${i}" title="Master row for this failure type">?</span><span class="aiq" contenteditable="false" data-aiq="${i}" title="Ask Claude about this row — ratings, wording, rule compliance">AI</span></td>
+      <td class="mid idcell" contenteditable="true" spellcheck="false" data-i="${i}" data-f="id">${esc(r.id||"")}<span class="qmark" contenteditable="false" data-mst="${i}" title="Open the master row for this failure type — the library definition, editable">EDIT</span><span class="aiq" contenteditable="false" data-aiq="${i}" title="Ask Claude about this row — ratings, wording, rule compliance">AI</span></td>
       <td class="mid docbtn"><div class="aprw"><span class="dlink" data-open="${i}" title="Open the full row editor — Operation type, Detection basis, Machine, dressing credit">${i+1}</span><span class="apsw${r.approved?" on":""}" data-apr="${i}" role="switch" aria-checked="${r.approved?"true":"false"}" title="Row approved — QE sign-off. Column A ships green on export (SC-31)."><i></i></span></div></td>
       ${E("op",r,i,r.op,"mid")}${E("wc",r,i,r.wc,"mid")}${E("opName",r,i,r.opName)}
       ${E("step",r,i,r.step)}${E("req",r,i,r.req)}${E("mode",r,i,r.mode)}${E("effect",r,i,r.effect)}
@@ -6991,7 +7023,7 @@ function aiqApplyOne(f){
   if(!_aiqProposals || _aiqProposals[f] === undefined) return;
   if(_aiqMaster){
     const el = $("mstFields").querySelector(`[data-mf="${f}"]`);
-    if(el){ el.textContent = _aiqProposals[f]; el.style.background = "#FFF3C4"; _mstDirty = true; }
+    if(el){ el.textContent = _aiqProposals[f]; el.style.background = "#FFF3C4"; mstDirtySet(); }
   } else if(_aiqIdx >= 0){
     aiPending[_aiqIdx] = Object.assign({}, aiPending[_aiqIdx] || {}, {[f]: _aiqProposals[f]});
     renderGridForm(); renderRail();
@@ -7026,7 +7058,7 @@ function aiqStage(){
       el.style.background = "#FFF3C4";                 /* touched, not saved */
       n++;
     });
-    _mstDirty = true;
+    mstDirtySet();
     aiqClose();
     toast(n + " cell(s) filled in the master — nothing is stored until you press SAVE MASTER.");
     return;
@@ -9510,6 +9542,7 @@ function mstFill(src, hit){
   }
   $("mstApply").style.display = _mstCtx.rowIdx < 0 ? "none" : "";
   $("mstApply").textContent = "Compare & apply to this row";
+  mstDirtyClear();
   const ao = $("mstAiOut"); if(ao){ ao.style.display = "none"; ao.innerHTML = ""; }
   $("mstAiRate").onclick = mstAiRate;
   mstAiLogPaint();
@@ -9735,12 +9768,21 @@ function mstAskSave(){
     $("mstSave").onclick();
     return false;   /* Save Master takes over and closes */
   }
-  _mstDirty = false;
+  mstDirtyClear();
   return true;
 }
+function mstDirtySet(){
+  _mstDirty = true;
+  const b = $("mstSaveTop"); if(b) b.style.display = "";
+}
+function mstDirtyClear(){
+  _mstDirty = false;
+  const b = $("mstSaveTop"); if(b) b.style.display = "none";
+}
 document.addEventListener("input", e => {
-  if(e.target && e.target.closest && e.target.closest("#mstFields [data-mf]")) _mstDirty = true;
+  if(e.target && e.target.closest && e.target.closest("#mstFields [data-mf]")) mstDirtySet();
 }, true);
+$("mstSaveTop").onclick = () => { $("mstSave").onclick(); mstDirtyClear(); };
 /* House #5A applied at the source: when the master's own ratings sit below
    trigger (and the row is not dressing / lockdown exempt), its stored
    action / responsibility / target are stale library content and are
@@ -10129,8 +10171,28 @@ if($("indRules")) $("indRules").value = settings.industryRules || INDUSTRY_RULES
   const now = new Date();
   const stamp = now.toLocaleDateString("en-US",{month:"short",day:"numeric"}).toUpperCase() +
     ", " + now.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"});
-  $("navSub").textContent = "APP REV " + APP_REV + " · LOADED " + stamp;
+  /* Rev 172: load time measured on every launch and kept as a record.
+     total = navigation start to this line (what the operator actually
+     waits); net = the network fetch portion. Stored rolling-100 in
+     pfLoadTimes so improvement over the coming days is measurable
+     against real numbers, not impressions. Shown on the strip. */
+  let _ms = Math.round(performance.now()), _net = null;
+  try{
+    const nav = performance.getEntriesByType("navigation")[0];
+    if(nav && nav.responseEnd) _net = Math.round(nav.responseEnd);
+  }catch(e){}
+  try{
+    const L = JSON.parse(localStorage.getItem("pfLoadTimes") || "[]");
+    L.push({rev: APP_REV, t: Date.now(), ms: _ms, net: _net});
+    while(L.length > 100) L.shift();
+    localStorage.setItem("pfLoadTimes", JSON.stringify(L));
+  }catch(e){}
+  const _sec = (_ms/1000).toFixed(_ms < 10000 ? 1 : 0);
+  $("navSub").textContent = "APP REV " + APP_REV + " · LOADED " + stamp + " · " + _sec + "s";
+  $("navSub").title = "Load time: " + _sec + "s total" + (_net !== null ? " (" + (_net/1000).toFixed(1) + "s network)" : "") +
+    " — history kept in pfLoadTimes, last 100 launches";
   $("navSub").style.color = ""; window._pfBooted = true;
+  try{ if(typeof actLog === "function") actLog("boot " + _sec + "s (rev " + APP_REV + (_net !== null ? ", net " + (_net/1000).toFixed(1) + "s" : "") + ")"); }catch(e){}
   if("serviceWorker" in navigator && /^https:/.test(location.protocol)){
     navigator.serviceWorker.register("sw.js").then(() => {
       const mark = () => {
