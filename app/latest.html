@@ -534,7 +534,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 .ptbl tr.now td:first-child{box-shadow:inset 5px 0 0 var(--stamp)}
 </style>
 </head>
-<body><div id="pfCargoBanner" style="background: rgb(192, 39, 45); color: rgb(255, 255, 255); padding: 14px 20px; font-family: Consolas, monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; line-height: 1.6; position: sticky; top: 0px; z-index: 9998;">THIS IS THE DOWNLOADED FILE — NOT YOUR APP. IT HAS NO DATA AND NEVER WILL: YOUR PFMEAS, SAVE FOLDER AND SETTINGS LIVE IN THE INSTALLED APP (THE PINNED PF ICON). THIS FILE IS CARGO — CLOSE THIS TAB, OPEN THE PINNED ICON, AND DEPLOY THIS FILE BY DRAG OR THE PASTE BUTTON ON ITS GITHUB SCREEN.</div>
+<body><div id="pfCargoBanner" style="background: rgb(192, 39, 45); color: rgb(255, 255, 255); padding: 14px 20px; font-family: Consolas, monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; line-height: 1.6; position: sticky; top: 0px; z-index: 9998;">THIS IS THE DOWNLOADED FILE — NOT YOUR APP. THIS FILE IS CARGO: IT PUBLISHES ITSELF AND CAN BE CLOSED. DATA CHECK — 0 PFMEAS IN THIS COPY. THAT IS NORMAL HERE: A DOWNLOADED FILE HAS ITS OWN EMPTY STORAGE. YOUR REAL PFMEAS ARE UNTOUCHED IN THE PINNED APP.</div>
 
 <div id="updBanner" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:190;
   background:#7C1518;color:#fff;padding:11px 16px;text-align:center;font-size:14px;font-weight:700">
@@ -1014,10 +1014,12 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
       b.id = "pfCargoBanner";
       b.style.cssText = "background:#C0272D;color:#fff;padding:14px 20px;font-family:Consolas,monospace;" +
         "font-size:13px;font-weight:700;letter-spacing:.04em;line-height:1.6;position:sticky;top:0;z-index:9998";
-      b.innerHTML = "THIS IS THE DOWNLOADED FILE — NOT YOUR APP. IT HAS NO DATA AND NEVER WILL: " +
-        "YOUR PFMEAS, SAVE FOLDER AND SETTINGS LIVE IN THE INSTALLED APP (THE PINNED PF ICON). " +
-        "THIS FILE IS CARGO — CLOSE THIS TAB, OPEN THE PINNED ICON, AND DEPLOY THIS FILE BY DRAG " +
-        "OR THE PASTE BUTTON ON ITS GITHUB SCREEN.";
+      var wk = null;
+      try{ wk = JSON.parse(localStorage.getItem("pfWorkingCopy") || "null"); }catch(e){}
+      var dLine = wk && wk.rows && wk.rows.length
+        ? "DATA CHECK — THIS COPY SEES A SESSION: " + (wk.meta && wk.meta.part || "untitled") + ", " + wk.rows.length + " ROWS."
+        : "DATA CHECK — 0 PFMEAS IN THIS COPY. THAT IS NORMAL HERE: A DOWNLOADED FILE HAS ITS OWN EMPTY STORAGE. YOUR REAL PFMEAS ARE UNTOUCHED IN THE PINNED APP.";
+      b.innerHTML = "THIS IS THE DOWNLOADED FILE — NOT YOUR APP. THIS FILE IS CARGO: IT PUBLISHES ITSELF AND CAN BE CLOSED. " + dLine;
       document.body.insertBefore(b, document.body.firstChild);
     });
   }
@@ -1085,14 +1087,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 180;
+const APP_REV = 181;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub" title="Load time: 0.2s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 180 · LOADED AUG 2, 3:12 PM · 0.2s</span>
+      <span class="sub" id="navSub" title="Load time: 0.2s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 181 · LOADED AUG 2, 3:19 PM · 0.2s · DATA: none loaded</span>
     </span>
   </div>
   <script>
@@ -1177,7 +1179,7 @@ const APP_REV = 180;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 180 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 181 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1350,7 +1352,7 @@ const APP_REV = 180;
       <button class="btn" id="syAuto">Enable plan autosave</button>
       <span class="status" id="syStatus"></span>
     </div>
-    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 10 / 500 · autosave backs off at 400.</div>
+    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 9 / 500 · autosave backs off at 400.</div>
     <input type="file" id="syAppFile" accept=".html" hidden="">
     <input type="file" id="syRevFile" accept=".html,.htm" hidden="">
     <div id="syList2"><p>No plans/ folder yet — push one to create it.</p></div>
@@ -1784,6 +1786,16 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 181 · 2026-08-02
+     · DATA PRESENCE SHOWN AT A GLANCE, per operator. (a) The header
+       strip now ends with the data state: "DATA: 1000237620 (35 rows)"
+       or "DATA: none loaded" - one look answers whether this window
+       holds the work. (b) The cargo banner on downloaded copies now
+       runs its own DATA CHECK and says it plainly: 0 PFMEAs in this
+       copy is NORMAL - a downloaded file has its own empty storage;
+       the real PFMEAs are untouched in the pinned app. No more
+       wondering whether slow loading means missing data.
+
    Rev 180 · 2026-08-02
      · ONE-CLICK LOOP TEST, ROUND TWO - rev number only. Chrome's
        download location now points at Downloads\PFMEA DROP (round one
@@ -10259,7 +10271,14 @@ if($("indRules")) $("indRules").value = settings.industryRules || INDUSTRY_RULES
     localStorage.setItem("pfLoadTimes", JSON.stringify(L));
   }catch(e){}
   const _sec = (_ms/1000).toFixed(_ms < 10000 ? 1 : 0);
-  $("navSub").textContent = "APP REV " + APP_REV + " · LOADED " + stamp + " · " + _sec + "s";
+  let _dat = "";
+  try{
+    const wk = JSON.parse(localStorage.getItem("pfWorkingCopy") || "null");
+    _dat = (wk && wk.rows && wk.rows.length)
+      ? " · DATA: " + (wk.meta && wk.meta.part || "untitled") + " (" + wk.rows.length + " rows)"
+      : " · DATA: none loaded";
+  }catch(e){}
+  $("navSub").textContent = "APP REV " + APP_REV + " · LOADED " + stamp + " · " + _sec + "s" + _dat;
   $("navSub").title = "Load time: " + _sec + "s total" + (_net !== null ? " (" + (_net/1000).toFixed(1) + "s network)" : "") +
     " — history kept in pfLoadTimes, last 100 launches";
   $("navSub").style.color = ""; window._pfBooted = true;
