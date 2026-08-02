@@ -1085,14 +1085,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 177;
+const APP_REV = 178;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub" title="Load time: 0.4s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 177 · LOADED AUG 2, 2:16 PM · 0.4s</span>
+      <span class="sub" id="navSub" title="Load time: 0.3s total (0.1s network) — history kept in pfLoadTimes, last 100 launches">APP REV 178 · LOADED AUG 2, 2:27 PM · 0.3s</span>
     </span>
   </div>
   <script>
@@ -1177,7 +1177,7 @@ const APP_REV = 177;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 177 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 178 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1350,7 +1350,7 @@ const APP_REV = 177;
       <button class="btn" id="syAuto">Enable plan autosave</button>
       <span class="status" id="syStatus"></span>
     </div>
-    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 3 / 500 · autosave backs off at 400.</div>
+    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 7 / 500 · autosave backs off at 400.</div>
     <input type="file" id="syAppFile" accept=".html" hidden="">
     <input type="file" id="syRevFile" accept=".html,.htm" hidden="">
     <div id="syList2"><p>No plans/ folder yet — push one to create it.</p></div>
@@ -1784,6 +1784,15 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 178 · 2026-08-02
+     · ONE-CLICK LOOP TEST - rev number only. First live run of the
+       auto-deploy watcher on Downloads\PFMEA DROP: Chrome refused to
+       grant the Downloads root all week (built-in system-folder
+       blocklist, reported as a silent cancel); the PFMEA DROP
+       subfolder was grantable, Chrome's download location now points
+       there, and the watcher publishes anything newer that lands.
+       Expected: this file deploys with zero clicks after the card.
+
    Rev 177 · 2026-08-02
      · CARGO BANNER CONFINED TO FILE COPIES. The red "this is the
        downloaded file" banner appeared on the real website tab, which
