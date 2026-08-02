@@ -566,7 +566,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
         <button data-q="Does this row comply with the CAMCO PROJECT INSTRUCTIONS - the conventions, the L3Harris action trigger, House Rule 5A, the SC rules, the Class field and the Section 3 current-state process facts? List anything that conflicts, naming the rule." data-src="camco">MEET MY INSTRUCTIONS?</button>
         <button data-q="Judge this row against GENERAL INDUSTRY FMEA PRACTICE ONLY - ignore CAMCO house rules entirely. Is it structured and rated the way a process FMEA is normally expected to be? Comment on failure mode / effect / cause separation, whether the ratings are defensible against a standard scale, whether detection is credited only for controls that exist, and whether the action logic is sound." data-src="industry">MEET INDUSTRY PRACTICE?</button>
         <button data-q="Is the action chain on this row correct - Recommended Action, Responsibility and Target Date - given its RPN and the L3Harris trigger plus House Rule 5A?">IS THE ACTION CHAIN RIGHT?</button>
-        <button data-q="Suggest concrete ways to reduce this row's RPN, in priority order. Respect the conventions: Severity moves ONLY with a design change, process change, or redefined effect scope - never with added inspection. Occurrence moves only with real prevention that exists or is committed as an action. Detection is capped by Convention 3 and 4 (manual 100% attribute = 5, manual 100% variable = 4, better needs a documented Gauge R&R on the specific gauge; probe without auto-offset is detection only). For each suggestion state which factor it moves, the defensible new rating, what evidence or committed action is required first, and the resulting RPN. Never propose crediting a control that does not exist.">GIVE SUGGESTIONS ON HOW TO REDUCE RPN SCORE</button>
+        <button data-q="Suggest concrete ways to reduce this row's RPN, in priority order. Respect the conventions: Severity moves ONLY with a design change, process change, or redefined effect scope - never with added inspection. Occurrence moves only with real prevention that exists or is committed as an action. Detection is capped by Convention 3 and 4 (manual 100% attribute = 5, manual 100% variable = 4, better needs a documented Gauge R&amp;R on the specific gauge; probe without auto-offset is detection only). For each suggestion state which factor it moves, the defensible new rating, what evidence or committed action is required first, and the resulting RPN. Never propose crediting a control that does not exist.">GIVE SUGGESTIONS ON HOW TO REDUCE RPN SCORE</button>
         <button data-q="Evaluate whether each rating matches the wording actually in this row: does the Effect text justify the SEV, does the Prevention text justify the OCC, and does the Detection text justify the DET under the Convention 3 and 4 caps? Flag any rating the text does not support (either direction - a rating better than the described controls earn, or worse than they earn), and quote the specific words that conflict.">EVALUATE IF RPN SCORE MATCHES TEXT</button>
       </div>
       <textarea id="aiqQ" spellcheck="false" placeholder="Ask anything about this row - or press one of the buttons above."></textarea>
@@ -610,7 +610,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 </div>
 <div class="mst-bg" id="mstBg">
   <div class="mst" role="dialog">
-    <div class="mh"><span><button id="mstBack" style="background:#fff;color:var(--stamp);border:0;border-radius:4px;padding:6px 16px;font-family:var(--mono);font-weight:800;font-size:12px;letter-spacing:.1em;cursor:pointer;margin-right:14px">&#8592; BACK</button><button id="mstAiReduce" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:10px">AI &#183; REDUCE RPN SCORE</button><button id="mstAiMatch" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:10px">AI &#183; DOES RPN MATCH TEXT?</button><button id="mstAiAsk" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:14px">AI &#183; ASK A QUESTION&#8230;</button><span id="mstTitle">MASTER ROW</span></span><span id="mstSrc"></span></div>
+    <div class="mh"><span><button id="mstBack" style="background:#fff;color:var(--stamp);border:0;border-radius:4px;padding:6px 16px;font-family:var(--mono);font-weight:800;font-size:12px;letter-spacing:.1em;cursor:pointer;margin-right:14px">← BACK</button><button id="mstAiReduce" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:10px">AI · REDUCE RPN SCORE</button><button id="mstAiMatch" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:10px">AI · DOES RPN MATCH TEXT?</button><button id="mstAiAsk" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:14px">AI · ASK A QUESTION…</button><span id="mstTitle">MASTER ROW</span></span><span id="mstSrc"></span></div>
     <div class="mb">
       <div class="mtop">
         <div id="mstPhoto" style="flex:0 0 auto;max-width:330px"></div>
@@ -1057,14 +1057,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 169;
+const APP_REV = 170;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 169 · LOADING…</span>
+      <span class="sub" id="navSub">APP REV 170 · LOADED AUG 2, 11:51 AM</span>
     </span>
   </div>
   <script>
@@ -1086,8 +1086,8 @@ const APP_REV = 169;
   }, true);
   </script>
   <div class="tabs">
-    <button class="tab" id="navBack" style="display:none" title="Back one screen">←</button>
-    <button class="tab on" data-go="menu">Menu</button>
+    <button class="tab" id="navBack" style="" title="Back one screen">←</button>
+    <button class="tab" data-go="menu">Menu</button>
     <button class="tab" data-go="build">Build</button>
     <button class="tab" data-go="trav">Traveller</button>
     <button class="tab" data-go="sets">Standard sets</button>
@@ -1095,7 +1095,7 @@ const APP_REV = 169;
     <button class="tab" data-go="photos">Photo library</button>
     <button class="tab" data-go="rules">Ruleset</button>
     <button class="tab" data-go="files">Prior PFMEAs</button>
-    <button class="tab" data-go="sync">GitHub</button>
+    <button class="tab on" data-go="sync">GitHub</button>
     <button class="tab" data-go="admin">Admin</button>
   </div>
   <button id="saveNow" title="Force a save right now">
@@ -1118,7 +1118,7 @@ const APP_REV = 169;
 </div>
 
 <!-- ============================ MENU ============================ -->
-<section class="screen menu-screen on" id="screen-menu">
+<section class="screen menu-screen" id="screen-menu">
   <div class="card">
     <span class="badge">PF</span>
     <h1>CAMCO PFMEA Builder</h1>
@@ -1149,7 +1149,7 @@ const APP_REV = 169;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 169 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 170 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1296,7 +1296,7 @@ const APP_REV = 169;
 </section>
 
 <!-- =========================== SYNC ============================= -->
-<section class="screen doc" id="screen-sync">
+<section class="screen doc on" id="screen-sync">
   <div class="doc-in">
     <h1>GitHub</h1>
     <p class="lede">PFMEA files live in <span class="mono">plans/</span>, app versions in
@@ -1308,10 +1308,9 @@ const APP_REV = 169;
         This machine pushes it everywhere: GitHub, the website, and every pinned copy — within a minute.
         The whole loop is two actions: click the download card in the chat, drag the file onto this box.</span>
       <span class="mono" id="dropStatus" style="display:block;margin-top:10px;font-size:12px;color:var(--stamp);font-weight:700"></span>
-      <button class="btn key" id="pasteRev" style="margin-top:12px;font-size:13px;padding:10px 22px"
-        title="Deploys the app file currently on the clipboard — right-click the download, Copy, then press this">PASTE THE COPIED REV</button>
+      <button class="btn key" id="pasteRev" style="margin-top:12px;font-size:13px;padding:10px 22px" title="Deploys the app file currently on the clipboard — right-click the download, Copy, then press this">PASTE THE COPIED REV</button>
     </div>
-    <div class="mono" id="watchState" style="font-size:11.5px;margin:0 0 4px;color:var(--ink-2)"></div>
+    <div class="mono" id="watchState" style="font-size:11.5px;margin:0 0 4px;color:var(--ink-2)">OFF — delivered revs are published only when you drop them on the box above.</div>
     <div class="mono" id="tryNewMsg" style="font-size:11.5px;margin:0 0 8px;color:var(--ink-2);min-height:15px"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
       <button class="btn" id="watchBtn" style="background:#1E4E8C;color:#fff;border-color:#14396A">Turn auto-deploy ON</button>
@@ -1323,10 +1322,10 @@ const APP_REV = 169;
       <button class="btn" id="syAuto">Enable plan autosave</button>
       <span class="status" id="syStatus"></span>
     </div>
-    <div class="status" id="ghBudget" style="margin-bottom:8px"></div>
+    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 0 / 500 · autosave backs off at 400.</div>
     <input type="file" id="syAppFile" accept=".html" hidden="">
     <input type="file" id="syRevFile" accept=".html,.htm" hidden="">
-    <div id="syList2"></div>
+    <div id="syList2"><p>No plans/ folder yet — push one to create it.</p></div>
   </div>
 </section>
 
@@ -1473,6 +1472,14 @@ const APP_REV = 169;
 <section class="screen doc" id="screen-rules">
   <div class="doc-in" id="rulesBody">
 <h1>Ruleset — Project Instructions Rev 97</h1>
+<h2>Industry practice text — what "MEET INDUSTRY PRACTICE?" checks against</h2>
+<p>CAMCO's own paraphrase of general process-FMEA practice. It is <b>not</b> a copy of AIAG FMEA 4th Ed., the AIAG-VDA handbook, or any other published manual — those are copyrighted and are not carried in this app. Edit it to match whatever standard you hold and the button checks against your text. Reset restores the built-in paraphrase.</p>
+<textarea id="indRules" spellcheck="false" style="width:100%;min-height:190px;border:1px solid var(--rule-hard);padding:9px;font-size:12.5px;font-family:inherit"></textarea>
+<div style="display:flex;gap:8px;margin:8px 0 20px;align-items:center">
+  <button class="btn go" id="indSave">Save industry text</button>
+  <button class="btn" id="indReset">Reset to built-in</button>
+  <span class="mono" id="indMsg" style="font-size:11.5px;color:var(--ink-2)"></span>
+</div>
 <p class="lede">What this app enforces on every row, and what it deliberately leaves to you.
 Where a rule and a rating disagree, the audit rail names the SC or Convention and the fix.</p>
 
@@ -1749,6 +1756,17 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 170 · 2026-08-02
+     · AI PROPOSALS ARE NOW CELL-BY-CELL WITH FULL BEFORE / AFTER, per
+       operator. The proposal list used to truncate the text and offer
+       only one all-or-nothing button (and on the master path it filled
+       every cell at once). Each proposal is now its own card: the full
+       BEFORE text, the full PROPOSED text side by side, the reason,
+       and its own ✓ APPLY THIS CELL / ✗ REJECT buttons. Applied cells
+       go where they always went - master cells tinted yellow until
+       SAVE MASTER, or the grid's BEFORE / PROPOSED pairs. APPLY ALL
+       REMAINING stays for convenience.
+
    Rev 169 · 2026-08-02
      · AI · ASK A QUESTION… button added to the master screen header
        bar, per operator - beside the two fixed RPN questions. One
@@ -6878,12 +6896,28 @@ Omit that line entirely when nothing should change. Valid fields: ${AI_ALL_FIELD
     _aiqProposals = clean;
     const keys = Object.keys(clean);
     if(keys.length){
+      /* Rev 170: every proposal is its own card - FULL before text, FULL
+         proposed text, its reason, and its own APPLY / REJECT buttons.
+         Nothing is written until the APPLY on that specific cell is
+         pressed. APPLY ALL REMAINING stays for convenience. */
       const label = f => (FIELDS.find(x => x[0] === f) || [,, f])[2] || f;
-      $("aiqProp").innerHTML = `<b>${keys.length} PROPOSED CHANGE(S)</b> — nothing is written until you approve each one.<ul>` +
-        keys.map(f => `<li><b>${esc(label(f))}</b>: ${esc(String(r[f]||"(blank)").slice(0,60))} → <b>${esc(clean[f].slice(0,90))}</b>` +
-          ((obj.why && obj.why[f]) ? `<br><span class="mut">${esc(String(obj.why[f]).slice(0,160))}</span>` : "") + `</li>`).join("") + "</ul>";
+      $("aiqProp").innerHTML = `<b>${keys.length} PROPOSED CHANGE(S)</b> — nothing is written until you approve each one, cell by cell.` +
+        keys.map(f => `<div class="aiqCard" data-pfld="${esc(f)}" style="border:1px solid #B9C7DA;border-radius:6px;background:#fff;margin:10px 0;padding:10px 12px">
+          <div style="font-weight:800;letter-spacing:.04em;margin-bottom:6px">${esc(label(f))}</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <div style="flex:1 1 240px;min-width:200px"><div class="mut" style="font-size:10px;font-weight:800;letter-spacing:.1em">BEFORE</div>
+              <div style="white-space:pre-wrap;font-size:12px;background:#F5F2EC;border-radius:4px;padding:6px 8px">${esc(String(r[f]||"(blank)"))}</div></div>
+            <div style="flex:1 1 240px;min-width:200px"><div class="mut" style="font-size:10px;font-weight:800;letter-spacing:.1em">PROPOSED</div>
+              <div style="white-space:pre-wrap;font-size:12px;background:#EAF3E6;border-radius:4px;padding:6px 8px">${esc(clean[f])}</div></div>
+          </div>` +
+          ((obj.why && obj.why[f]) ? `<div class="mut" style="margin-top:6px;font-size:11.5px">WHY: ${esc(String(obj.why[f]))}</div>` : "") +
+          `<div style="margin-top:8px;display:flex;gap:8px">
+            <button data-pacc="${esc(f)}" style="background:#1E7A34;color:#fff;border:0;border-radius:4px;padding:7px 18px;font-family:var(--mono);font-weight:800;font-size:11px;cursor:pointer">&#10003; APPLY THIS CELL</button>
+            <button data-prej="${esc(f)}" style="background:#C0272D;color:#fff;border:0;border-radius:4px;padding:7px 18px;font-family:var(--mono);font-weight:800;font-size:11px;cursor:pointer">&#10007; REJECT</button>
+          </div></div>`).join("");
       $("aiqProp").classList.add("on");
       $("aiqStage").style.display = "";
+      $("aiqStage").textContent = _aiqMaster ? "APPLY ALL REMAINING TO THE MASTER CELLS" : "SEND ALL REMAINING TO REVIEW";
     } else {
       $("aiqProp").innerHTML = obj.answer
         ? "<b>NO CHANGES PROPOSED</b> — the row stands as written."
@@ -6938,6 +6972,33 @@ function aiqShowRaw(){
   if(box.dataset.raw === "1"){ box.textContent = aiqParse(_aiqRaw).answer || "(nothing readable)"; box.dataset.raw = "0"; $("aiqRawBtn").textContent = "SHOW REPLY"; }
   else{ box.textContent = _aiqRaw || "(nothing came back)"; box.dataset.raw = "1"; $("aiqRawBtn").textContent = "SHOW ANSWER"; }
 }
+function aiqApplyOne(f){
+  if(!_aiqProposals || _aiqProposals[f] === undefined) return;
+  if(_aiqMaster){
+    const el = $("mstFields").querySelector(`[data-mf="${f}"]`);
+    if(el){ el.textContent = _aiqProposals[f]; el.style.background = "#FFF3C4"; _mstDirty = true; }
+  } else if(_aiqIdx >= 0){
+    aiPending[_aiqIdx] = Object.assign({}, aiPending[_aiqIdx] || {}, {[f]: _aiqProposals[f]});
+    renderGridForm(); renderRail();
+  }
+  aiqDropCard(f);
+}
+function aiqRejectOne(f){ if(_aiqProposals) aiqDropCard(f); }
+function aiqDropCard(f){
+  delete _aiqProposals[f];
+  const card = $("aiqProp").querySelector(`[data-pfld="${f}"]`);
+  if(card) card.remove();
+  if(!Object.keys(_aiqProposals).length){
+    $("aiqStage").style.display = "none";
+    const b = $("aiqProp").querySelector("b");
+    if(b) b.textContent = "ALL PROPOSALS HANDLED" + (_aiqMaster ? " — press SAVE MASTER to store applied cells." : " — approved cells are on the BEFORE / PROPOSED pairs.");
+  }
+}
+document.addEventListener("click", e => {
+  const t = e.target; if(!t || !t.dataset) return;
+  if(t.dataset.pacc !== undefined){ e.stopPropagation(); aiqApplyOne(t.dataset.pacc); return; }
+  if(t.dataset.prej !== undefined){ e.stopPropagation(); aiqRejectOne(t.dataset.prej); return; }
+});
 function aiqStage(){
   const i = _aiqIdx;
   if(!_aiqProposals || !Object.keys(_aiqProposals).length) return;
