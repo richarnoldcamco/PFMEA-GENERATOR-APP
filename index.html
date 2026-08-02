@@ -610,7 +610,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 </div>
 <div class="mst-bg" id="mstBg">
   <div class="mst" role="dialog">
-    <div class="mh"><span id="mstTitle">MASTER ROW</span><span id="mstSrc"></span></div>
+    <div class="mh"><span><button id="mstBack" style="background:#fff;color:var(--stamp);border:0;border-radius:4px;padding:6px 16px;font-family:var(--mono);font-weight:800;font-size:12px;letter-spacing:.1em;cursor:pointer;margin-right:14px">&#8592; BACK</button><span id="mstTitle">MASTER ROW</span></span><span id="mstSrc"></span></div>
     <div class="mb">
       <div class="mtop">
         <div id="mstPhoto" style="flex:0 0 auto;max-width:330px"></div>
@@ -1058,14 +1058,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 166;
+const APP_REV = 167;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 166 · LOADING…</span>
+      <span class="sub" id="navSub">APP REV 167 · LOADING…</span>
     </span>
   </div>
   <script>
@@ -1150,7 +1150,7 @@ const APP_REV = 166;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 166 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 167 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1750,6 +1750,13 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 167 · 2026-08-02
+     · BACK BUTTON ON THE MASTER SCREEN, per operator. The only exits
+       (Close, in the footer) sat below the fold when the popup filled
+       the screen. A white ← BACK button now sits top-left in the red
+       header bar, always visible, and the Esc key exits too. Both run
+       the same path as Close, including the unsaved-typing check.
+
    Rev 166 · 2026-08-01
      · TWO AI BUTTONS ON THE MASTER SCREEN ITSELF, per operator: the
        RPN questions from Rev 160 were only reachable through Ask
@@ -9658,6 +9665,16 @@ function mstRead(){
   }
   return v;
 }
+/* Rev 167: always-visible exit. The footer Close sits below the fold when
+   the popup fills the screen, so a BACK button lives in the header bar,
+   top-left, and the Esc key does the same. Both run the exact same path
+   as Close - unsaved-typing checks included. */
+$("mstBack").onclick = () => $("mstClose").onclick();
+document.addEventListener("keydown", e => {
+  if(e.key === "Escape" && $("mstBg").classList.contains("on") && !$("aiqBg").classList.contains("on")){
+    e.preventDefault(); $("mstClose").onclick();
+  }
+});
 $("mstClose").onclick = () => {
   if(!mstAskSave()) return;
   $("mstBg").classList.remove("on");
