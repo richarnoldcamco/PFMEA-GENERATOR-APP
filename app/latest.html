@@ -534,7 +534,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 .ptbl tr.now td:first-child{box-shadow:inset 5px 0 0 var(--stamp)}
 </style>
 </head>
-<body><div id="pfCargoBanner" style="background: rgb(192, 39, 45); color: rgb(255, 255, 255); padding: 14px 20px; font-family: Consolas, monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; line-height: 1.6; position: sticky; top: 0px; z-index: 9998;">THIS IS THE DOWNLOADED FILE — NOT YOUR APP. THIS FILE IS CARGO: IT PUBLISHES ITSELF AND CAN BE CLOSED. DATA CHECK — 0 PFMEAS IN THIS COPY. THAT IS NORMAL HERE: A DOWNLOADED FILE HAS ITS OWN EMPTY STORAGE. YOUR REAL PFMEAS ARE UNTOUCHED IN THE PINNED APP.</div>
+<body><div id="pfCargoBanner" style="background: rgb(192, 39, 45); color: rgb(255, 255, 255); padding: 14px 20px; font-family: Consolas, monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; line-height: 1.6; position: sticky; top: 0px; z-index: 9998;">THIS IS THE DOWNLOADED FILE — NOT YOUR APP. IT IS PUBLISHING ITSELF NOW AND WILL SWITCH TO YOUR REAL APP — WITH YOUR DATA — IN ABOUT 20 SECONDS. DATA CHECK — 0 PFMEAS IN THIS COPY. THAT IS NORMAL HERE: A DOWNLOADED FILE HAS ITS OWN EMPTY STORAGE. YOUR REAL PFMEAS ARE UNTOUCHED IN THE PINNED APP.</div>
 
 <div id="updBanner" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:190;
   background:#7C1518;color:#fff;padding:11px 16px;text-align:center;font-size:14px;font-weight:700">
@@ -1019,7 +1019,18 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
       var dLine = wk && wk.rows && wk.rows.length
         ? "DATA CHECK — THIS COPY SEES A SESSION: " + (wk.meta && wk.meta.part || "untitled") + ", " + wk.rows.length + " ROWS."
         : "DATA CHECK — 0 PFMEAS IN THIS COPY. THAT IS NORMAL HERE: A DOWNLOADED FILE HAS ITS OWN EMPTY STORAGE. YOUR REAL PFMEAS ARE UNTOUCHED IN THE PINNED APP.";
-      b.innerHTML = "THIS IS THE DOWNLOADED FILE — NOT YOUR APP. THIS FILE IS CARGO: IT PUBLISHES ITSELF AND CAN BE CLOSED. " + dLine;
+      b.innerHTML = "THIS IS THE DOWNLOADED FILE — NOT YOUR APP. IT IS PUBLISHING ITSELF NOW AND WILL SWITCH TO YOUR REAL APP — WITH YOUR DATA — IN ABOUT 20 SECONDS. " + dLine;
+      /* Rev 182: the cargo window does not sit around looking like a broken
+         app. Once its publishing window has passed, it navigates itself to
+         the real site - same tab, real storage, real data. */
+      setTimeout(function(){
+        try{
+          var st = {}; try{ st = JSON.parse(localStorage.getItem("pfSettings") || "{}"); }catch(e){}
+          var owner = (st.ghOwner || "richarnoldcamco").toLowerCase();
+          var repo = st.ghCodeRepo || "PFMEA-GENERATOR-APP";
+          location.replace("https://" + owner + ".github.io/" + repo + "/");
+        }catch(e){}
+      }, 20000);
       document.body.insertBefore(b, document.body.firstChild);
     });
   }
@@ -1087,14 +1098,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 181;
+const APP_REV = 182;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub" title="Load time: 0.2s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 181 · LOADED AUG 2, 3:19 PM · 0.2s · DATA: none loaded</span>
+      <span class="sub" id="navSub" title="Load time: 0.2s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 182 · LOADED AUG 2, 3:24 PM · 0.2s · DATA: none loaded</span>
     </span>
   </div>
   <script>
@@ -1179,7 +1190,7 @@ const APP_REV = 181;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 181 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 182 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1352,7 +1363,7 @@ const APP_REV = 181;
       <button class="btn" id="syAuto">Enable plan autosave</button>
       <span class="status" id="syStatus"></span>
     </div>
-    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 9 / 500 · autosave backs off at 400.</div>
+    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 12 / 500 · autosave backs off at 400.</div>
     <input type="file" id="syAppFile" accept=".html" hidden="">
     <input type="file" id="syRevFile" accept=".html,.htm" hidden="">
     <div id="syList2"><p>No plans/ folder yet — push one to create it.</p></div>
@@ -1786,6 +1797,15 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 182 · 2026-08-02
+     · CARGO WINDOWS HAND THEMSELVES OFF, per operator waiting a full
+       minute for data in a downloaded copy. A file-opened copy now
+       states it is publishing and will switch to the real app, then
+       after 20 seconds (its mirror-up window) navigates this same tab
+       to the website - real origin, real storage, real data on screen.
+       The operator ends up in a working app with their PFMEA instead
+       of an empty shell.
+
    Rev 181 · 2026-08-02
      · DATA PRESENCE SHOWN AT A GLANCE, per operator. (a) The header
        strip now ends with the data state: "DATA: 1000237620 (35 rows)"
