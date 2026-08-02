@@ -1006,6 +1006,18 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
       " (line " + (ev.lineno || "?") + "). Press the RELOAD FRESH button."; n.style.color = "#FFD54D"; }
     pfShowReload();
   });
+  if(location.protocol === "file:"){
+    document.addEventListener("DOMContentLoaded", function(){
+      var b = document.createElement("div");
+      b.style.cssText = "background:#C0272D;color:#fff;padding:14px 20px;font-family:Consolas,monospace;" +
+        "font-size:13px;font-weight:700;letter-spacing:.04em;line-height:1.6;position:sticky;top:0;z-index:9998";
+      b.innerHTML = "THIS IS THE DOWNLOADED FILE — NOT YOUR APP. IT HAS NO DATA AND NEVER WILL: " +
+        "YOUR PFMEAS, SAVE FOLDER AND SETTINGS LIVE IN THE INSTALLED APP (THE PINNED PF ICON). " +
+        "THIS FILE IS CARGO — CLOSE THIS TAB, OPEN THE PINNED ICON, AND DEPLOY THIS FILE BY DRAG " +
+        "OR THE PASTE BUTTON ON ITS GITHUB SCREEN.";
+      document.body.insertBefore(b, document.body.firstChild);
+    });
+  }
   window.pfShowReload = function(){
     if(document.getElementById("pfReloadBtn")) return;
     var b = document.createElement("button");
@@ -1057,14 +1069,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 170;
+const APP_REV = 171;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub">APP REV 170 · LOADING…</span>
+      <span class="sub" id="navSub">APP REV 171 · LOADING…</span>
     </span>
   </div>
   <script>
@@ -1149,7 +1161,7 @@ const APP_REV = 170;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 170 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 171 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1749,6 +1761,16 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 171 · 2026-08-02
+     · THE DOWNLOADED-FILE TRAP NOW ANNOUNCES ITSELF. Three times the
+       operator opened a delivered PF-RevNNN.html straight from
+       Downloads and found an app with no PFMEAs, no save folder and
+       nothing loading - because a file opened from disk is a separate
+       page with empty storage; the data is not slow, it is absent.
+       Any copy running from a C:/ file path now shows a red banner
+       across the top: this is the cargo copy, your data lives in the
+       pinned app, close this and deploy the file there.
+
    Rev 170 · 2026-08-02
      · AI PROPOSALS ARE NOW CELL-BY-CELL WITH FULL BEFORE / AFTER, per
        operator. The proposal list used to truncate the text and offer
