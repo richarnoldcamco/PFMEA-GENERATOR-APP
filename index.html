@@ -1098,14 +1098,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 182;
+const APP_REV = 183;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub" title="Load time: 0.2s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 182 · LOADED AUG 2, 3:24 PM · 0.2s · DATA: none loaded</span>
+      <span class="sub" id="navSub" title="Load time: 0.3s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 183 · LOADED AUG 2, 3:34 PM · 0.3s · DATA: none loaded</span>
     </span>
   </div>
   <script>
@@ -1190,7 +1190,7 @@ const APP_REV = 182;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 182 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 183 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1797,6 +1797,16 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 183 · 2026-08-02
+     · EDIT SCOPE CHOICE ON THE MASTER SCREEN, per operator: "1. edit
+       just this row for this PFMEA or 2. edit both." When the screen
+       was opened from a PFMEA row and edits are saved, the app now
+       asks first: THIS ROW ONLY (edits land on that one open-PFMEA
+       row, library untouched) or ROW + MASTER (library saved, then
+       the existing matching-rows offer). Row-only writes go through
+       the House 5A sweep like any other row change. Entered from the
+       MASTER TABLE (no row), behavior is unchanged - library save.
+
    Rev 182 · 2026-08-02
      · CARGO WINDOWS HAND THEMSELVES OFF, per operator waiting a full
        minute for data in a downloaded copy. A file-opened copy now
@@ -9920,7 +9930,33 @@ $("mstClose").onclick = () => {
   if(!mstAskSave()) return;
   $("mstBg").classList.remove("on");
 };
+/* Rev 183: SCOPE CHOICE, per operator. Edits made on this screen can go to
+   (1) JUST the open-PFMEA row that was clicked - library untouched - or
+   (2) the MASTER library, with the existing offer to update matching rows.
+   The question is asked up front when the screen was entered from a row. */
 $("mstSave").onclick = async () => {
+  if(_mstCtx.rowIdx >= 0 && !_mstSkipProp){
+    const rowOnly = !(await appConfirm({
+      icon:"✎", title:"Where should these edits go?",
+      html:"You edited this screen after opening it from row <b>" + esc(state.rows[_mstCtx.rowIdx] && state.rows[_mstCtx.rowIdx].id || "") + "</b> of the open PFMEA.<br><br>" +
+        "<b>ROW + MASTER</b> — save the shared library (every future insert starts from this wording), then choose whether matching open-PFMEA rows update too.<br><br>" +
+        "<b>THIS ROW ONLY</b> — write the edits onto that one open-PFMEA row and leave the library exactly as it was.",
+      okText:"ROW + MASTER", cancelText:"THIS ROW ONLY",
+    }));
+    if(rowOnly){
+      const v0 = mstRead(), r = state.rows[_mstCtx.rowIdx];
+      const RF = ["opName","step","req","mode","effect","cause","prev","addPrev","det","addDet","action","cls","sev","occ","detR"];
+      RF.forEach(f => { if(v0[f] !== undefined) r[f] = v0[f]; });
+      houseSweep();
+      saveWorking(); renderRail();
+      if($("screen-build").classList.contains("on")) renderAll();
+      mstDirtyClear();
+      $("mstBg").classList.remove("on");
+      toast(r.id + " updated — this row only; the master library is unchanged.");
+      logAct("master", "row-only edit applied to " + r.id + " (library untouched)");
+      return;
+    }
+  }
   _mstDirty = false;
   const v = mstReadRaw(), all = mstOverrides(), base = _mstCtx.base;
   const merged = Object.assign({}, all[base], v);   /* merge — keeps aiLog and future extras */
