@@ -1098,14 +1098,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 189;
+const APP_REV = 190;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub" title="Load time: 0.3s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 189 · LOADED AUG 3, 8:33 PM · 0.3s · DATA: none loaded</span>
+      <span class="sub" id="navSub" title="Load time: 0.2s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 190 · LOADED AUG 3, 8:36 PM · 0.2s · DATA: none loaded</span>
     </span>
   </div>
   <script>
@@ -1190,7 +1190,7 @@ const APP_REV = 189;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 189 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 190 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1797,6 +1797,14 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 190 · 2026-08-03
+     · LAST TOKEN-ERA RELICS SCRUBBED from the handoff check: the
+       stored-token line told the operator to regenerate before every
+       new chat because "the old one dies with this chat" - true only
+       when tokens were pasted into chats, which ended at Rev 159. The
+       token stays in the app and no chat sees it. The wizard and quiz
+       copy no longer mention pasting a token into the new chat.
+
    Rev 189 · 2026-08-03
      · HANDOFF CHECK CORRECTED IN THREE PLACES. (a) SW.JS falsely
        failed: the site serves worker v3 (better than v2 - network-
@@ -9009,8 +9017,7 @@ async function handoffRun(){
     if(!settings.ghToken) add("warn", "GITHUB TOKEN", "none stored on this machine — the app cannot push until it is entered on Admin. (The new CHAT never needs it: Claude does not take tokens; the app does every push.)");
     else{
       const r = await fetch("https://api.github.com/rate_limit", {headers:{Authorization:"Bearer " + settings.ghToken}});
-      add(r.ok, "GITHUB TOKEN", (r.ok ? "stored token is VALID" : "stored token REJECTED (" + r.status + ")") +
-        " — REGENERATE it before the new chat regardless; the old one dies with this chat");
+      add(r.ok, "GITHUB TOKEN", (r.ok ? "stored token is VALID — it stays in the app; no chat ever sees it" : "stored token REJECTED (" + r.status + ") — generate a new one and enter it on Admin"));
     }
   }catch(e){ add("warn", "GITHUB TOKEN", String(e.message || e)); }
   /* 8 · AI key */
@@ -9037,12 +9044,12 @@ async function handoffCheck(){
   $("hcOut").textContent =
     R.map(x => " " + mark(x) + "  " + x.name.padEnd(15) + " " + x.note).join("\n") +
     "\n\n VERDICT · " + verdict +
-    "\n\n MACHINE SIDE IS ONLY HALF — after pasting the NEW CHAT PROMPT + a fresh token" +
+    "\n\n MACHINE SIDE IS ONLY HALF — after pasting the NEW CHAT PROMPT" +
     "\n into the new chat, paste the QUIZ (button below). Expected answers:" +
     "\n   1) " + APP_REV + " or higher   2) RPN<100 = no action/resp/target, except dressing +" +
     "\n   lockdown rows   3) local save folder, full plan file   4) a cat.";
   $("hcCopy").onclick = async () => { try{ await navigator.clipboard.writeText($("hcOut").textContent); toast("Report copied."); }catch(e){ toast("Copy blocked."); } };
-  $("hcQuiz").onclick = async () => { try{ await navigator.clipboard.writeText(HC_QUIZ); toast("Quiz copied — paste it into the NEW chat after the prompt + fresh token."); }catch(e){ toast("Copy blocked."); } };
+  $("hcQuiz").onclick = async () => { try{ await navigator.clipboard.writeText(HC_QUIZ); toast("Quiz copied — paste it into the NEW chat after the prompt."); }catch(e){ toast("Copy blocked."); } };
   $("hcClose").onclick = () => { $("hcBg").style.display = "none"; };
 }
 let _ncwI = 0, _ncwHC = null;
