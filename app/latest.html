@@ -610,7 +610,7 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 </div>
 <div class="mst-bg" id="mstBg">
   <div class="mst" role="dialog">
-    <div class="mh"><span><button id="mstBack" style="background:#fff;color:var(--stamp);border:0;border-radius:4px;padding:6px 16px;font-family:var(--mono);font-weight:800;font-size:12px;letter-spacing:.1em;cursor:pointer;margin-right:14px">← BACK</button><button id="mstAiReduce" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:10px">AI · REDUCE RPN SCORE</button><button id="mstAiMatch" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:10px">AI · DOES RPN MATCH TEXT?</button><button id="mstAiAsk" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:10px">AI · ASK A QUESTION…</button><button id="mstSaveTop" style="display:none;background:#1E7A34;color:#fff;border:1px solid #9ED3A8;border-radius:4px;padding:6px 18px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:14px">💾 SAVE CHANGES</button><span id="mstTitle">MASTER ROW</span></span><span id="mstSrc"></span></div>
+    <div class="mh"><span><button id="mstBack" style="background:#fff;color:var(--stamp);border:0;border-radius:4px;padding:6px 16px;font-family:var(--mono);font-weight:800;font-size:12px;letter-spacing:.1em;cursor:pointer;margin-right:14px">← BACK</button><button id="mstAiReduce" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:10px">AI · REDUCE RPN SCORE</button><button id="mstAiMatch" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:10px">AI · DOES RPN MATCH TEXT?</button><button id="mstAiAsk" style="background:#1E4E8C;color:#fff;border:1px solid #A9C4E8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:10px">AI · ASK A QUESTION…</button><button id="mstAiDraft" style="background:#1E7A34;color:#fff;border:1px solid #9ED3A8;border-radius:4px;padding:6px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:10px">AI · HELP CREATE THIS ROW</button><button id="mstSaveTop" style="display:none;background:#1E7A34;color:#fff;border:1px solid #9ED3A8;border-radius:4px;padding:6px 18px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer;margin-right:14px">💾 SAVE CHANGES</button><span id="mstTitle">MASTER ROW</span></span><span id="mstSrc"></span></div>
     <div class="mb">
       <div class="mtop">
         <div id="mstPhoto" style="flex:0 0 auto;max-width:330px"></div>
@@ -1098,14 +1098,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 190;
+const APP_REV = 193;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub" title="Load time: 0.2s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 190 · LOADED AUG 3, 8:36 PM · 0.2s · DATA: none loaded</span>
+      <span class="sub" id="navSub" title="Load time: 0.3s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 193 · LOADED AUG 3, 10:15 PM · 0.3s · DATA: none loaded</span>
     </span>
   </div>
   <script>
@@ -1190,7 +1190,7 @@ const APP_REV = 190;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 190 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 193 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1490,10 +1490,12 @@ const APP_REV = 190;
     <div style="margin:0 0 12px">
       <button class="btn" id="mstAdoptAll" style="background:#7C1518;border-color:#4A0C0E;color:#fff">
         MAKE THIS MY CAMCO MASTER LIST</button>
+      <button class="btn" id="mstNewType" style="background:#1E7A34;border-color:#124A1F;color:#fff;margin-left:8px">
+        + NEW FAILURE TYPE</button>
       <span class="mono" style="font-size:11px;letter-spacing:.05em;margin-left:10px;opacity:.8">
         copies every shipped row into your own list · your existing edits are kept</span>
     </div>
-    <div id="mstSyncNote" class="mono" style="font-size: 11.5px; letter-spacing: 0.05em; margin: 0px 0px 12px; padding: 8px 10px; border-left-width: ; border-left-style: ; border-left-color: rgb(30, 122, 52); background: rgb(243, 239, 233); color: rgb(58, 50, 46);">SYNCED from PFMEA-GENERATOR-DATA — 25 overrides, updated 2026-08-03 23:58 by rea</div>
+    <div id="mstSyncNote" class="mono" style="font-size: 11.5px; letter-spacing: 0.05em; margin: 0px 0px 12px; padding: 8px 10px; border-left-width: ; border-left-style: ; border-left-color: rgb(30, 122, 52); background: rgb(243, 239, 233); color: rgb(58, 50, 46);">SYNCED from PFMEA-GENERATOR-DATA — 25 overrides, updated 2026-08-04 00:36</div>
     <div id="mstTableWrap" style="overflow-x:auto;border:1px solid var(--rule-hard)"></div>
   </div>
 </section>
@@ -1793,10 +1795,69 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
 
 /* =====================================================================
    CAMCO PFMEA BUILDER
-   APP_REV 115
+   APP_REV 193
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 193 · 2026-08-03
+     · NEW-FAILURE-TYPE DIALOG REPLACES prompt(), per operator: "needs a
+       better pop-up; needs to make some suggestions on failure type
+       name." Both create paths - TRAVELLER "+ master" and Master Table
+       "+ NEW FAILURE TYPE" - now run one shared ftNewType() dialog in
+       the app's own chrome instead of the grey Chrome prompt.
+     · IT SUGGESTS THE ID. ftSuggestIds() reads the operation TYPE
+       (the dropdown that already sets the mandated failure modes) and
+       the operation NAME through a keyword table - surface grinder ->
+       SG / GRD, Hardinge or Twister -> TRN, Haas or UMC -> MILL, saw ->
+       SAW, ship away -> SHP-OUT, XRF -> XRF, and so on - falling back
+       to the initials of the operation name (CHEVLIER SURFACE GRINDER
+       -> CSG) so there is always something to click. Each suggestion is
+       numbered to the FIRST FREE slot against the shipped library plus
+       local overrides, so SAW-1 and SAW-2 existing yields SAW-3 and no
+       collision. Up to four chips; clicking one fills the box.
+     · Typing an ID that already exists says so under the field before
+       the operator commits, and Create still opens that definition to
+       edit rather than duplicating it. From the Master Table, where no
+       operation context exists, the dialog takes an optional Op # and
+       name that seeds both the suggestions (live, as you type) and the
+       row's Op Name / Process Step cells.
+
+   Rev 192 · 2026-08-03
+     · "+ NEW FAILURE TYPE" ON THE MASTER TABLE, per operator. Creating
+       a master row only existed as "+ master" on the TRAVELLER
+       operation table, so the operator standing on the Master Table -
+       the screen that lists every master row - had to leave it to add
+       one. Green button now sits beside MAKE THIS MY CAMCO MASTER LIST
+       and runs the same create flow through mstOpenBase. No operation
+       context exists on this screen, so it asks for the op ("050
+       Chevlier Surface Grinder") and seeds Op Name + Process Step from
+       it; blank is allowed and the cells stay editable. An existing ID
+       opens its definition to edit rather than duplicating, same as the
+       TRAVELLER path. The toast points at AI · HELP CREATE THIS ROW
+       (Rev 191) so a brand-new row is not sixteen empty cells.
+
+   Rev 191 · 2026-08-03
+     · AI · HELP CREATE THIS ROW, per operator: building a brand-new
+       failure type meant facing sixteen empty cells with no help. New
+       green button in the master popup header opens a description box
+       in #mstAiOut; the operator types the operation in plain English
+       and Claude drafts the TEXT columns only. Ratings are untouched -
+       AI_FIELDS is the whitelist, so SEV/OCC/DET stay QE judgment and
+       the existing "propose ratings from this wording" runs afterwards
+       on the drafted text. Every column lands as a BEFORE/AFTER pair
+       with Apply / Skip plus Apply-all; nothing enters a cell without a
+       click and nothing reaches the library without SAVE MASTER. The
+       prompt carries the Section 3 current-state facts (no Hardinge
+       probes, no Haas auto-offset, per-part dressing undocumented, no
+       program lockdown, XRF carbon-blind, no cert-vs-tag), the military
+       framing, the SC-22 no-cycle-time rule and the SC-32 auditable-
+       action wording, so the draft starts compliant instead of being
+       audited into compliance afterwards. Goes through itarGate like
+       every other off-device call. Applying a column marks the popup
+       dirty, so the exit guard and SAVE CHANGES behave as normal.
+     · Banner comment said APP_REV 115, stale since Rev 115; it now
+       tracks the real const.
+
    Rev 190 · 2026-08-03
      · LAST TOKEN-ERA RELICS SCRUBBED from the handoff check: the
        stored-token line told the operator to regenerate before every
@@ -6554,19 +6615,8 @@ function renderOps(){
   });
   $("opTable").querySelectorAll("[data-nm]").forEach(b => b.onclick = () => {
     const o = state.ops[parseInt(b.dataset.nm,10)];
-    const id = (prompt("Failure Type ID for the new master failure type (e.g. DEBURR-1):","") || "")
-      .trim().toUpperCase().replace(/\s+/g,"-");
-    if(!id) return;
-    if(mstFind(id) || mstOverrides()[id])
-      toast(id + " already exists in the library — opening the existing definition to edit.");
-    mstOpenBase(id);
-    /* seed the op context into the fresh master so it lands pre-labelled */
-    const seed = (f, v) => {
-      const td = $("mstFields").querySelector('[data-mf="' + f + '"]');
-      if(td && v && !td.textContent.trim()) td.textContent = v;
-    };
-    seed("opName", o.name || "");
-    seed("step", (o.op ? "Op " + o.op + " " : "") + (o.name || ""));
+    /* Rev 193: shared dialog with ID suggestions, replacing prompt(). */
+    ftNewType({op:o.op, wc:o.wc, name:o.name, type:o.type});
   });
   $("opAdd").onclick = () => { state.ops.push({op:"",wc:"",name:"",type:"general",note:"",verified:true}); renderOps(); };
   if($("opAll")) $("opAll").onclick = () => { state.ops.forEach(o => o.verified = true); renderOps(); };
@@ -7263,6 +7313,7 @@ document.addEventListener("click", e => {
     aiqOpenMaster();
     setTimeout(() => { const q = $("aiqQ"); if(q){ q.value = ""; q.focus(); } }, 60);
     return; }
+  if(t.id === "mstAiDraft"){ mstAiDraftOpen(); return; }
   if(t.id === "mstAiReduce" || t.id === "mstAiMatch"){
     aiqOpenMaster();
     const want = t.id === "mstAiReduce" ? "REDUCE RPN SCORE" : "RPN SCORE MATCHES TEXT";
@@ -9426,6 +9477,150 @@ function mstDriftFields(id, ov){
     return a !== b;
   });
 }
+/* ------------------------------------------------------------------
+   Rev 193 - New-failure-type dialog.
+   Replaces the raw browser prompt() on both create paths (TRAVELLER
+   "+ master" and Master Table "+ NEW FAILURE TYPE") with an in-app
+   dialog that SUGGESTS the ID rather than demanding the operator invent
+   one. Suggestions come from the operation type and name, numbered to
+   the next free slot so nothing collides with the library.
+   ------------------------------------------------------------------ */
+const FT_TYPE_PREFIX = {
+  saw:["SAW"], grind:["GRD","SG"], cnc:["TRN","MILL"], receive_raw:["RCV"],
+  vendor_return:["RCV-V","RCV"], material_validation:["XRF"], ship_away:["SHP-OUT"],
+};
+const FT_NAME_RULES = [
+  [/surface\s*grind/i,        ["SG","GRD"]],
+  [/grind/i,                  ["GRD","SG"]],
+  [/\bsaw\b|cut[\s-]*off/i,   ["SAW"]],
+  [/hardinge|quest/i,         ["TRN"]],
+  [/twister|speed\s*lathe|lathe|\bturn/i, ["TRN"]],
+  [/haas|umc|\bmill/i,        ["MILL"]],
+  [/\bcmm\b/i,                ["CMM"]],
+  [/inspect/i,                ["INSP","CMM"]],
+  [/deburr/i,                 ["DEBURR"]],
+  [/hone|honing/i,            ["HONE"]],
+  [/passivat/i,               ["PASS"]],
+  [/heat\s*treat/i,           ["HT"]],
+  [/ship\s*away/i,            ["SHP-OUT"]],
+  [/ship\s*receive/i,         ["RCV"]],
+  [/material\s*validation|xrf/i, ["XRF"]],
+  [/ultrasonic|wash|clean/i,  ["WASH"]],
+  [/vibro|tumbl|deburr\s*media/i, ["VIB"]],
+  [/steel\s*rack|raw\s*material|bar\s*stock/i, ["RCV"]],
+  [/plating|anodiz|\bplate\b/i, ["PLT"]],
+  [/laser|marking|etch|stamp/i, ["MRK"]],
+  [/assembl/i,                ["ASY"]],
+  [/weld|braz/i,              ["WLD"]],
+  [/broach/i,                 ["BRCH"]],
+  [/drill/i,                  ["DRL"]],
+  [/thread|\btap\b/i,         ["THD"]],
+  [/program/i,                ["PRG"]],
+];
+/* Every ID already spoken for - shipped library rows plus local overrides. */
+function ftTakenIds(){
+  const out = {};
+  try{
+    Object.keys(SETS).forEach(k => SETS[k].rows.forEach(r => { out[String(r.id).toUpperCase()] = 1; }));
+  }catch(e){}
+  try{
+    Object.keys(mstOverrides()).forEach(k => { out[String(k).toUpperCase()] = 1; });
+  }catch(e){}
+  return out;
+}
+/* First free number for a prefix: SAW-1 taken and SAW-2 taken -> SAW-3. */
+function ftNextFree(prefix, taken){
+  const P = String(prefix).toUpperCase();
+  let n = 1;
+  while(taken[P + "-" + n] && n < 200) n++;
+  return P + "-" + n;
+}
+function ftSuggestIds(name, type, taken){
+  const pref = [];
+  const add = a => a.forEach(x => { if(pref.indexOf(x) < 0) pref.push(x); });
+  if(type && FT_TYPE_PREFIX[type]) add(FT_TYPE_PREFIX[type]);
+  FT_NAME_RULES.forEach(r => { if(r[0].test(name || "")) add(r[1]); });
+  /* initials of the operation name as a last resort: CHEVLIER SURFACE
+     GRINDER -> CSG. Beats making the operator invent one from nothing. */
+  const ini = String(name || "").replace(/[^A-Za-z\s]/g," ").split(/\s+/)
+    .filter(w => w.length > 2).map(w => w[0].toUpperCase()).join("").slice(0,4);
+  if(ini.length >= 2) add([ini]);
+  if(!pref.length) add(["OP"]);
+  return pref.slice(0,4).map(x => ftNextFree(x, taken));
+}
+async function ftNewType(ctx){
+  ctx = ctx || {};
+  const taken = ftTakenIds();
+  const hasOp = !!(ctx.name || ctx.op);
+  const chips = ids => ids.map(x =>
+    '<button type="button" data-ftsug="' + esc(x) + '" style="background:#F3EFE9;border:1px solid var(--rule-hard);'
+    + 'border-radius:4px;padding:5px 12px;margin:0 6px 6px 0;font-family:var(--mono);font-weight:800;'
+    + 'font-size:12px;letter-spacing:.06em;cursor:pointer">' + esc(x) + '</button>').join("");
+  let sug = ftSuggestIds(ctx.name || "", ctx.type || "", taken);
+  const html =
+    (hasOp
+      ? '<div style="font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-2);margin-bottom:10px">'
+        + 'OPERATION \u00b7 ' + esc([ctx.op ? "OP " + ctx.op : "", ctx.wc ? "WC " + ctx.wc : "", (ctx.name||"").toUpperCase()]
+            .filter(Boolean).join("  \u00b7  ")) + '</div>'
+      : '<div style="margin-bottom:12px">'
+        + '<div style="font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-2);margin-bottom:5px">OPERATION \u2014 OPTIONAL, SEEDS THE ROW AND THE SUGGESTIONS</div>'
+        + '<div style="display:flex;gap:8px">'
+        + '<input id="ftOpNum" placeholder="050" style="flex:0 0 74px;border:1px solid var(--rule-hard);padding:7px 8px;font-size:13px;font-family:var(--mono)">'
+        + '<input id="ftOpName" placeholder="Chevlier Surface Grinder" style="flex:1;border:1px solid var(--rule-hard);padding:7px 8px;font-size:13px">'
+        + '</div></div>')
+    + '<div style="font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-2);margin-bottom:5px">SUGGESTED IDS \u2014 CLICK ONE</div>'
+    + '<div id="ftSug" style="margin-bottom:10px">' + chips(sug) + '</div>'
+    + '<div style="font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-2);margin-bottom:5px">FAILURE TYPE ID</div>'
+    + '<input id="ftIdIn" value="' + esc(sug[0] || "") + '" spellcheck="false" '
+    + 'style="width:100%;border:1px solid var(--rule-hard);padding:8px;font-size:15px;font-family:var(--mono);font-weight:800;letter-spacing:.06em">'
+    + '<div id="ftIdNote" style="font-size:12px;color:#8A7F78;margin-top:6px">'
+    + 'PREFIX-N, one per failure mode \u2014 SAW-1, SAW-2, SAW-3 are three different failure types on the same saw.</div>';
+  const pr = appConfirm({ icon:"\uff0b", title:"New failure type", html, okText:"Create", cancelText:"Cancel" });
+  const note = () => {
+    const el = $("ftIdNote"), v = (($("ftIdIn")||{}).value || "").trim().toUpperCase().replace(/\s+/g,"-");
+    if(!el) return;
+    if(v && taken[v]) el.innerHTML = '<b style="color:#B25A00">' + esc(v) + ' already exists</b> \u2014 Create opens its definition to edit instead of adding a duplicate.';
+    else el.textContent = "PREFIX-N, one per failure mode \u2014 SAW-1, SAW-2, SAW-3 are three different failure types on the same saw.";
+  };
+  const wireChips = () => {
+    document.querySelectorAll("[data-ftsug]").forEach(b => b.onclick = () => {
+      const inp = $("ftIdIn"); if(inp){ inp.value = b.dataset.ftsug; inp.focus(); note(); }
+    });
+  };
+  wireChips();
+  const inp = $("ftIdIn");
+  if(inp) inp.addEventListener("input", note);
+  if(!hasOp){
+    const on = $("ftOpName");
+    if(on) on.addEventListener("input", () => {
+      sug = ftSuggestIds(on.value || "", "", taken);
+      const host = $("ftSug"); if(host){ host.innerHTML = chips(sug); wireChips(); }
+      const i2 = $("ftIdIn");
+      if(i2 && !i2.dataset.touched){ i2.value = sug[0] || ""; note(); }
+    });
+    if(inp) inp.addEventListener("input", () => { inp.dataset.touched = "1"; });
+  }
+  setTimeout(() => { const i = $("ftIdIn"); if(i){ i.focus(); i.select(); } }, 50);
+  const ok = await pr;
+  if(!ok) return;
+  const id = (($("ftIdIn")||{}).value || "").trim().toUpperCase().replace(/\s+/g,"-");
+  if(!id){ toast("No ID entered \u2014 nothing created."); return; }
+  const opNum  = hasOp ? (ctx.op || "")   : ((($("ftOpNum")||{}).value  || "").trim());
+  const opName = hasOp ? (ctx.name || "") : ((($("ftOpName")||{}).value || "").trim());
+  const exists = !!(mstFind(id) || mstOverrides()[id]);
+  if(exists) toast(id + " already exists in the library \u2014 opening the existing definition to edit.");
+  mstOpenBase(id);
+  const seed = (f, v) => {
+    const td = $("mstFields").querySelector('[data-mf="' + f + '"]');
+    if(td && v && !td.textContent.trim()) td.textContent = v;
+  };
+  if(opName || opNum){
+    seed("opName", opName);
+    seed("step", (opNum ? "Op " + opNum + " " : "") + opName);
+    mstDirtySet();
+  }
+  if(!exists) toast("New failure type " + id + " \u2014 fill the cells, or press AI \u00b7 HELP CREATE THIS ROW to draft them. SAVE MASTER adds it to the library.");
+}
 async function mstAdoptAll(){
   const ov = mstOverrides();
   let rows = 0, kept = 0;
@@ -9870,6 +10065,213 @@ Reply ONLY with JSON, no fences: {"sev":{"val":N,"why":"..."},"occ":{"val":N,"wh
         + esc("AI RATING FAILED — " + msg) + '</div>';
     }
   }finally{ aiThinkStop(); _aiAbort = null; }
+}
+/* ------------------------------------------------------------------
+   Rev 191 - AI - HELP CREATE THIS ROW.
+   The operator describes the operation in plain English; Claude drafts
+   the TEXT columns only (AI_FIELDS). Ratings are never written here -
+   that stays with "AI propose ratings from this wording", which the
+   operator runs afterwards on the drafted text. Every column lands as a
+   BEFORE / AFTER pair that applies only on a click.
+   ------------------------------------------------------------------ */
+const MST_DRAFT_LABELS = {
+  req:"Requirements", mode:"Potential Failure Mode", effect:"Potential Effect(s) of Failure",
+  cause:"Potential Cause(s) of Failure", prev:"Current Prevention Controls",
+  addPrev:"Additional Prevention Control Evidence", det:"Current Detection Controls",
+  addDet:"Additional Detection Control Evidence", action:"Recommended Action(s)",
+};
+function mstReadCells(){
+  const cells = {};
+  document.querySelectorAll("#mstFields [data-mf]").forEach(td => {
+    cells[td.dataset.mf] = (td.innerText !== undefined ? td.innerText : td.textContent)
+      .replace(/\u00A0/g," ").trim();
+  });
+  return cells;
+}
+function mstAiDraftOpen(){
+  if(!_mstCtx){ toast("Open a master row first."); return; }
+  const out = $("mstAiOut");
+  if(!out) return;
+  out.style.display = "";
+  out.innerHTML =
+    '<div style="font-family:var(--mono);font-size:11px;font-weight:800;letter-spacing:.1em;margin-bottom:8px">'
+    + 'DESCRIBE THE OPERATION \u2014 CLAUDE DRAFTS THE TEXT COLUMNS</div>'
+    + '<div style="font-size:12.5px;color:#3A322E;margin-bottom:8px">Plain English is fine. The more you give, '
+    + 'the less you rewrite: the machine, the feature and tolerance, how it is checked today and how often, and '
+    + 'what you are worried about. Claude drafts Requirements, Failure Mode, Effect, Cause, Prevention, Detection '
+    + 'and Recommended Action. It never writes SEV / OCC / DET \u2014 run '
+    + '<b>AI \u27f3 propose ratings from this wording</b> after the text is in. Each column arrives as a '
+    + 'BEFORE / AFTER pair and applies only when you click.</div>'
+    + '<textarea id="mstDraftIn" rows="5" placeholder="e.g. Op 050 Chevlier surface grinder, grinding the .750 '
+    + '+/- .001 thickness on the 440C slug. Operator checks every part with a calibrated micrometer. Worried '
+    + 'about thermal growth over the run and the wheel loading up." '
+    + 'style="width:100%;border:1px solid var(--rule-hard);padding:8px;font-size:13px;font-family:inherit"></textarea>'
+    + '<div style="margin-top:8px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">'
+    + '<button class="btn" id="mstDraftGo" style="background:#1E7A34;border-color:#124A1F;color:#fff">Draft the columns</button>'
+    + '<span style="font-size:11px;color:#8A7F78">Sends your description plus this row\'s current wording \u2014 nothing else.</span>'
+    + '</div>';
+  const ta = $("mstDraftIn"); if(ta) ta.focus();
+  const go = $("mstDraftGo");
+  if(go) go.onclick = () => mstAiDraftRun((($("mstDraftIn")||{}).value || "").trim());
+}
+async function mstAiDraftRun(desc){
+  if(!settings.apiKey){ toast("No API key \u2014 add it on Admin first."); return; }
+  if(!desc){ toast("Type a description of the operation first."); return; }
+  const cells = mstReadCells();
+  const base = _mstCtx ? _mstCtx.base : "";
+  const ok = await itarGate({
+    head:"AI request confirmation",
+    title:"This sends your description and this row's text to Anthropic",
+    lede:"Claude drafts the wording for the text columns of this failure type, applying the CAMCO conventions and the military framing. Text only \u2014 ratings are never written by the AI, and nothing lands in a cell until you click Apply.",
+    lines:["ROW  \u00b7  " + base, "MODEL  \u00b7  " + settings.model,
+           "SENT  \u00b7  your description + this row's current cell text",
+           "RETURNS  \u00b7  drafted text for the columns, as before/after pairs"],
+    keep:"Everything else \u2014 other rows, images, files, the traveller.",
+    ackText:"I approve sending this description to the AI.",
+  });
+  if(!ok) return;
+  _aiAbort = new AbortController();
+  aiThinkStart();
+  aiStage("CLAUDE IS DRAFTING " + (base || "THIS ROW") + "\u2026");
+  const wait = $("mstAiOut");
+  let tm = null;
+  if(wait){
+    wait.style.display = "";
+    wait.innerHTML = '<div class="aithink"><div class="ring"></div><div>'
+      + esc("CLAUDE IS DRAFTING THE COLUMNS FOR " + (base || "THIS ROW"))
+      + '<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>'
+      + '<span data-aisec style="color:var(--ink-3);margin-left:12px">0s</span></div></div>'
+      + '<div class="aibar"></div>';
+    const t0 = Date.now();
+    tm = setInterval(() => {
+      const el = wait.querySelector("[data-aisec]");
+      if(!el){ clearInterval(tm); return; }
+      el.textContent = Math.round((Date.now() - t0) / 1000) + "s";
+    }, 500);
+  }
+  try{
+    const prompt = `You are drafting the text columns of ONE PFMEA failure-mode row for CAMCO Manufacturing, a machine shop building MILITARY hardware for L3Harris. Write in the shop's voice: specific, auditable, no marketing language.
+
+BINDING CAMCO RULES for the wording:
+- Military framing only. Write "military hardware" / "military application". NEVER write "flight hardware", "avionics", or any program name.
+- NO cycle time, run time, throughput, production rate or schedule impact in any cell (SC-22). A failure mode is retained for its quality, conformance or safety consequence, never its timing impact.
+- Effect describes the consequence to the part, the assembly and the mission - not the detection of it. Severity is a consequence, so never phrase an effect as "caught at inspection".
+- Prevention (prev) is what stops the cause from happening. Detection (det) is what finds it after it happens. Do not mix them.
+- Prevention text must DISCLOSE a documentation gap where one exists (e.g. "currently operator practice, not in a controlled procedure - action committed to formalize").
+- Detection text states the method and instrument, the acceptance reference, where it is recorded, the sampling scheme (100% or every Nth), and gauge calibration traceability.
+- Do NOT credit a control that does not exist today. If the description says nothing detects a cause, say "No current detection control" plainly.
+- Recommended Action (action) must be concrete and auditable: who performs it, what is checked, what evidence is recorded and signed off. Prefer "independent QE review of X against Y, signed off before release" over "a gate" or "a check". Include a Target where sensible.
+- Additional Prevention / Additional Detection Evidence (addPrev, addDet) record redundant or secondary controls and objective evidence. They earn NO rating credit; leave them empty if there is nothing real to record.
+
+CAMCO CURRENT-STATE FACTS you must honor if they touch the description:
+- Hardinge Quest lathes have NO in-machine probes; no climb milling or helical toolpaths. Main-spindle runout is inherently low - never a cause on a turning row (live-tool spindle runout IS a real driver on cross-hole work).
+- The Haas UMC has probes but the auto-offset option is NOT in use, so probing there is Detection only.
+- The Mitsubishi grinder dresses the wheel before EVERY part - real prevention, but not yet in a controlled procedure.
+- CNC programs are NOT locked down at any controller; operators have full edit access.
+- Handheld XRF cannot measure carbon (Z=6). Certs are not compared against physical bar tags at receipt.
+
+ROW CONTEXT (already captured - do not restate it, write around it): ${JSON.stringify({id: cells.id, opName: cells.opName, step: cells.step})}
+CURRENT CELL TEXT (may be blank - you are filling it in): ${JSON.stringify(cells)}
+
+THE OPERATOR'S DESCRIPTION OF THE OPERATION:
+"""${desc}"""
+
+Draft the text columns. One failure mode per row - if the description contains several distinct concerns, draft the SINGLE strongest one and name the others in a "notes" string so the operator can build them as separate rows. Keep each cell to what fits a PFMEA cell: 1-3 sentences, no bullet characters.
+
+Reply with ONLY a JSON object, no markdown fences:
+{"req":"...","mode":"...","effect":"...","cause":"...","prev":"...","addPrev":"...","det":"...","addDet":"...","action":"...","notes":"..."}
+Omit any field you have nothing real to say for. "notes" is optional and is shown to the operator, never written to a cell.`;
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST", signal:_aiAbort.signal,
+      headers:{ "content-type":"application/json", "x-api-key":settings.apiKey,
+        "anthropic-version":"2023-06-01", "anthropic-dangerous-direct-browser-access":"true" },
+      body: JSON.stringify({ model:settings.model, max_tokens:1800, messages:[{role:"user", content:prompt}] }),
+    });
+    if(!res.ok){ let d=""; try{ const j=await res.json(); d=(j.error&&j.error.message)||""; }catch(e){}
+      throw new Error("API returned " + res.status + ". " + d); }
+    const data = await res.json();
+    const text = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n")
+      .replace(/```json|```/g,"").trim();
+    let dr; try{ dr = JSON.parse(text); }catch(e){ throw new Error("Reply was not valid JSON \u2014 try again."); }
+
+    const picked = [];
+    AI_FIELDS.forEach(f => {
+      const v = dr[f];
+      if(typeof v === "string" && v.trim() && v.trim() !== (cells[f]||"")) picked.push([f, v.trim()]);
+    });
+    const out = $("mstAiOut");
+    if(!picked.length){
+      out.innerHTML = '<div style="font-size:12.5px;color:#3A322E">Claude did not propose anything different from what is already in the row. Add more detail to the description and run it again.</div>';
+      return;
+    }
+    const pair = (f, v) => {
+      const before = cells[f] || "";
+      return `<div style="margin-bottom:12px;border-top:1px solid var(--rule-hard);padding-top:10px" data-drow="${f}">
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="flex:0 0 auto;display:flex;gap:6px" data-dctl="${f}">
+            <button class="btn" style="background:#1E7A34;border-color:#14571F;color:#fff" data-dap="${f}">Apply</button>
+            <button class="btn" style="background:#C00000;border-color:#8F0000;color:#fff" data-drj="${f}">Skip</button>
+          </div>
+          <div style="flex:0 0 180px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.06em">${esc((MST_DRAFT_LABELS[f]||f).toUpperCase())}</div>
+          <div style="flex:1">
+            <div style="font-size:11px;color:#8A7F78;font-family:var(--mono);letter-spacing:.06em">BEFORE</div>
+            <div style="font-size:12.5px;color:#8A7F78;margin-bottom:6px">${before ? esc(before) : "<i>(empty)</i>"}</div>
+            <div style="font-size:11px;color:#1E7A34;font-family:var(--mono);letter-spacing:.06em">AFTER</div>
+            <div style="font-size:13px;color:#1B1616" data-dval="${f}">${esc(v)}</div>
+          </div>
+        </div>
+      </div>`;
+    };
+    out.innerHTML =
+      '<div style="font-family:var(--mono);font-size:11px;font-weight:800;letter-spacing:.1em;margin-bottom:8px">'
+      + 'CLAUDE\'S DRAFT \u2014 APPLY EACH COLUMN OR SKIP IT</div>'
+      + (typeof dr.notes === "string" && dr.notes.trim()
+          ? '<div style="font-size:12.5px;background:#fff;border:1px solid var(--rule-hard);padding:8px;margin-bottom:10px"><b>NOTE \u2014 </b>' + esc(dr.notes.trim()) + '</div>' : "")
+      + '<div style="margin-bottom:6px"><button class="btn" id="mstDraftAll" style="background:#1E7A34;border-color:#124A1F;color:#fff">Apply all ' + picked.length + '</button>'
+      + '<button class="btn" id="mstDraftAgain" style="margin-left:8px">Describe it again</button></div>'
+      + picked.map(x => pair(x[0], x[1])).join("")
+      + '<div style="font-size:11px;color:#8A7F78;border-top:1px solid var(--rule-hard);padding-top:8px">Wording is drafted; the ratings are yours. Nothing is saved to the library until you press SAVE MASTER. Run <b>AI \u27f3 propose ratings from this wording</b> once the text reads right.</div>';
+    out.style.display = "";
+
+    const applyOne = (f) => {
+      const row = out.querySelector('[data-drow="' + f + '"]');
+      if(!row) return;
+      const holder = row.querySelector('[data-dval="' + f + '"]');
+      const td = document.querySelector('#mstFields [data-mf="' + f + '"]');
+      if(td && holder){ td.textContent = holder.textContent; mstDirtySet(); }
+      const ctl = row.querySelector('[data-dctl="' + f + '"]');
+      if(ctl) ctl.innerHTML = '<span style="color:#1E7A34;font-weight:800;font-size:11px;align-self:center">APPLIED</span>';
+    };
+    out.querySelectorAll("[data-dap]").forEach(b => b.onclick = () => {
+      applyOne(b.dataset.dap);
+      toast((MST_DRAFT_LABELS[b.dataset.dap] || b.dataset.dap) + " applied \u2014 Save master to keep it.");
+    });
+    out.querySelectorAll("[data-drj]").forEach(b => b.onclick = () => {
+      const row = out.querySelector('[data-drow="' + b.dataset.drj + '"]');
+      const ctl = row && row.querySelector('[data-dctl="' + b.dataset.drj + '"]');
+      if(ctl) ctl.innerHTML = '<span style="color:#C00000;font-weight:800;font-size:11px;align-self:center">SKIPPED</span>';
+    });
+    const all = $("mstDraftAll");
+    if(all) all.onclick = () => {
+      picked.forEach(x => applyOne(x[0]));
+      toast(picked.length + " columns applied \u2014 check the wording, then Save master.");
+    };
+    const again = $("mstDraftAgain");
+    if(again) again.onclick = () => mstAiDraftOpen();
+  }catch(err){
+    const msg = (err && err.name === "AbortError")
+      ? "Stopped \u2014 nothing was drafted."
+      : String((err && err.message) || err);
+    toast(msg);
+    const bad = $("mstAiOut");
+    if(bad){
+      bad.style.display = "";
+      bad.innerHTML = '<div style="color:#C00000;font-weight:800;font-size:12.5px">'
+        + esc("AI DRAFT FAILED \u2014 " + msg) + '</div>'
+        + '<div style="margin-top:8px"><button class="btn" id="mstDraftAgain">Try again</button></div>';
+      const ag = $("mstDraftAgain"); if(ag) ag.onclick = () => mstAiDraftOpen();
+    }
+  }finally{ if(tm) clearInterval(tm); aiThinkStop(); _aiAbort = null; }
 }
 function mstPaintFieldImgs(){
   const host = $("mstFieldImgs");
@@ -10473,6 +10875,7 @@ if($("indRules")) $("indRules").value = settings.industryRules || INDUSTRY_RULES
   /* shared master list — pull before any building happens */
   mastersPull(true).catch(err => console.error("masters pull failed", err));
   if($("mstAdoptAll")) $("mstAdoptAll").onclick = () => mstAdoptAll().catch(e => toast("Adopt failed: " + (e.message || e)));
+  if($("mstNewType")) $("mstNewType").onclick = () => ftNewType(null);
  } catch(err) {
   try {
     document.getElementById("navSub").textContent =
