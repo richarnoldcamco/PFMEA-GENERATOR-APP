@@ -1098,14 +1098,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 183;
+const APP_REV = 189;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub" title="Load time: 0.3s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 183 · LOADED AUG 2, 3:34 PM · 0.3s · DATA: none loaded</span>
+      <span class="sub" id="navSub" title="Load time: 0.3s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 189 · LOADED AUG 3, 8:33 PM · 0.3s · DATA: none loaded</span>
     </span>
   </div>
   <script>
@@ -1127,8 +1127,8 @@ const APP_REV = 183;
   }, true);
   </script>
   <div class="tabs">
-    <button class="tab" id="navBack" style="" title="Back one screen">←</button>
-    <button class="tab" data-go="menu">Menu</button>
+    <button class="tab" id="navBack" style="display:none" title="Back one screen">←</button>
+    <button class="tab on" data-go="menu">Menu</button>
     <button class="tab" data-go="build">Build</button>
     <button class="tab" data-go="trav">Traveller</button>
     <button class="tab" data-go="sets">Standard sets</button>
@@ -1136,7 +1136,7 @@ const APP_REV = 183;
     <button class="tab" data-go="photos">Photo library</button>
     <button class="tab" data-go="rules">Ruleset</button>
     <button class="tab" data-go="files">Prior PFMEAs</button>
-    <button class="tab on" data-go="sync">GitHub</button>
+    <button class="tab" data-go="sync">GitHub</button>
     <button class="tab" data-go="admin">Admin</button>
   </div>
   <button id="saveNow" title="Force a save right now">
@@ -1159,7 +1159,7 @@ const APP_REV = 183;
 </div>
 
 <!-- ============================ MENU ============================ -->
-<section class="screen menu-screen" id="screen-menu">
+<section class="screen menu-screen on" id="screen-menu">
   <div class="card">
     <span class="badge">PF</span>
     <h1>CAMCO PFMEA Builder</h1>
@@ -1190,7 +1190,7 @@ const APP_REV = 183;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 183 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 189 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1337,7 +1337,7 @@ const APP_REV = 183;
 </section>
 
 <!-- =========================== SYNC ============================= -->
-<section class="screen doc on" id="screen-sync">
+<section class="screen doc" id="screen-sync">
   <div class="doc-in">
     <h1>GitHub</h1>
     <p class="lede">PFMEA files live in <span class="mono">plans/</span>, app versions in
@@ -1363,10 +1363,10 @@ const APP_REV = 183;
       <button class="btn" id="syAuto">Enable plan autosave</button>
       <span class="status" id="syStatus"></span>
     </div>
-    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 12 / 500 · autosave backs off at 400.</div>
+    <div class="status" id="ghBudget" style="margin-bottom:8px"></div>
     <input type="file" id="syAppFile" accept=".html" hidden="">
     <input type="file" id="syRevFile" accept=".html,.htm" hidden="">
-    <div id="syList2"><p>No plans/ folder yet — push one to create it.</p></div>
+    <div id="syList2"></div>
   </div>
 </section>
 
@@ -1493,7 +1493,7 @@ const APP_REV = 183;
       <span class="mono" style="font-size:11px;letter-spacing:.05em;margin-left:10px;opacity:.8">
         copies every shipped row into your own list · your existing edits are kept</span>
     </div>
-    <div id="mstSyncNote" class="mono" style="font-size: 11.5px; letter-spacing: 0.05em; margin: 0px 0px 12px; padding: 8px 10px; border-left-width: ; border-left-style: ; border-left-color: rgb(30, 122, 52); background: rgb(243, 239, 233); color: rgb(58, 50, 46);">SYNCED from PFMEA-GENERATOR-DATA — 25 overrides, updated 2026-07-29 19:23</div>
+    <div id="mstSyncNote" class="mono" style="font-size: 11.5px; letter-spacing: 0.05em; margin: 0px 0px 12px; padding: 8px 10px; border-left-width: ; border-left-style: ; border-left-color: rgb(30, 122, 52); background: rgb(243, 239, 233); color: rgb(58, 50, 46);">SYNCED from PFMEA-GENERATOR-DATA — 25 overrides, updated 2026-08-03 23:58 by rea</div>
     <div id="mstTableWrap" style="overflow-x:auto;border:1px solid var(--rule-hard)"></div>
   </div>
 </section>
@@ -1797,6 +1797,62 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 189 · 2026-08-03
+     · HANDOFF CHECK CORRECTED IN THREE PLACES. (a) SW.JS falsely
+       failed: the site serves worker v3 (better than v2 - network-
+       first) but the check still demanded the literal v2 cache name;
+       it now accepts any pf-app version >= 2 and reports the version
+       found. (b) MASTER LIBRARY names the master(s) carrying stale
+       blank keys instead of leaving a scavenger hunt - open each on
+       the MASTER TABLE and press Save Master; the save self-cleans.
+       (c) The GITHUB TOKEN wording still told the operator to paste a
+       fresh token into the new chat - settled the other way long ago;
+       it now says the app holds the token and the chat never needs it.
+
+   Rev 188 · 2026-08-03
+     · NEW CHAT PROMPT BROUGHT CURRENT, per operator moving chats. The
+       generated handoff still described the pre-159 world: operator
+       pastes a GitHub token and Claude pushes directly (settled long
+       ago the other way - Claude never takes the token; the app
+       pushes), the manual drag loop, and three script blocks. It now
+       states the one-click card loop, the single three-file deployer
+       with patient retries, the 30-second self-update, the banned
+       document.write swap, the PFMEA DROP folder facts, and four
+       script blocks.
+
+   Rev 187 · 2026-08-03
+     · MENU IS THE MAIN PAGE, per operator. Rev 152 had token-holding
+       machines open on the GitHub screen to serve the deploy loop;
+       the loop is hands-off now, so every launch opens on the MENU -
+       New PFMEA, Prior PFMEAs, Open a file, Standard Sets.
+
+   Rev 186 · 2026-08-02
+     · MANIFEST ROSTER COLLAPSED, per operator: "the other rows were
+       edited in a prior edit" - correct, and previously PUBLISHED too.
+       The publish dialog now reads: CHANGED THIS SAVE · <the master>,
+       then CARRIED AS-IS · N previously published masters, unchanged.
+       The full roster is written to the action log on every publish,
+       so the complete release record survives for audit without a
+       wall of IDs implying a mass change.
+
+   Rev 185 · 2026-08-02
+     · MASTER-PUBLISH MANIFEST SAYS WHAT ACTUALLY CHANGES, per
+       operator: the OVERRIDES line listed every master in the library
+       file and read as though all of them were being updated. The
+       library is one file, so the whole list ships on every publish -
+       but only the edited master differs. The manifest now separates
+       CHANGED THIS SAVE from CARRIED AS-IS (ALREADY ON GITHUB,
+       UNCHANGED).
+
+   Rev 184 · 2026-08-02
+     · DOUBLE-ASK REMOVED, per operator. Choosing ROW + MASTER in the
+       scope question already answers whether the open-PFMEA row gets
+       the wording - the old "Also update matching row(s)?" popup was
+       the same question twice and no longer appears on that path.
+       Matching rows update automatically after ROW + MASTER. The
+       popup remains only for saves from the MASTER TABLE, where no
+       scope question was asked.
+
    Rev 183 · 2026-08-02
      · EDIT SCOPE CHOICE ON THE MASTER SCREEN, per operator: "1. edit
        just this row for this PFMEA or 2. edit both." When the screen
@@ -8913,7 +8969,9 @@ async function handoffRun(){
   try{
     const r = await fetch("sw.js", {cache:"no-store"});
     const t = r.ok ? await r.text() : "";
-    add(r.ok && t.indexOf("pf-app-v2") >= 0, "SW.JS FILE", r.ok ? "served at the site root (v2)" : "NOT reachable at the site root");
+    const vm = /pf-app-v(\d+)/.exec(t);
+    add(r.ok && vm && parseInt(vm[1],10) >= 2, "SW.JS FILE",
+      r.ok ? (vm ? "served at the site root (v" + vm[1] + ")" : "served but no pf-app cache name found") : "NOT reachable at the site root");
   }catch(e){ add("warn", "SW.JS FILE", "not reachable (file:// or offline?)"); }
   /* 4 · save folder + plan freshness */
   try{
@@ -8937,15 +8995,18 @@ async function handoffRun(){
   try{
     const ov = mstOverrides(), ks = Object.keys(ov);
     let blanks = 0, extras = 0;
+    const blankIds = [];
     ks.forEach(k => { const r = ov[k];
-      for(const f in r){ if(r[f] === "") blanks++; }
+      let had = false;
+      for(const f in r){ if(r[f] === ""){ blanks++; had = true; } }
+      if(had) blankIds.push(k);
       if(r.aiLog || r.fieldImgs) extras++; });
     add(blanks === 0, "MASTER LIBRARY", ks.length + " override(s)" + (extras ? " · " + extras + " with AI log / field images" : "") +
-      (blanks ? " · " + blanks + " stale blank key(s) — open + Save Master to clean" : " · healthy"));
+      (blanks ? " · " + blanks + " stale blank key(s) in " + blankIds.join(", ") + " — open each on the MASTER TABLE and press Save Master" : " · healthy"));
   }catch(e){ add("warn", "MASTER LIBRARY", String(e.message || e)); }
   /* 7 · GitHub token */
   try{
-    if(!settings.ghToken) add("warn", "GITHUB TOKEN", "none stored — remember: the NEW chat needs a FRESHLY REGENERATED token pasted into it");
+    if(!settings.ghToken) add("warn", "GITHUB TOKEN", "none stored on this machine — the app cannot push until it is entered on Admin. (The new CHAT never needs it: Claude does not take tokens; the app does every push.)");
     else{
       const r = await fetch("https://api.github.com/rate_limit", {headers:{Authorization:"Bearer " + settings.ghToken}});
       add(r.ok, "GITHUB TOKEN", (r.ok ? "stored token is VALID" : "stored token REJECTED (" + r.status + ")") +
@@ -9052,17 +9113,17 @@ async function chatPrompt(){
 "",
 "APP: single-file HTML, currently PF-Rev" + String(APP_REV).padStart(3,"0") + " · ruleset Rev 97 (CAMCO PFMEA Project Instructions — controlling document, in project knowledge).",
 "",
-"STEP ZERO FOR A NEW CHAT — GET THE CODE: the app is ~8.7MB and is NEVER pasted into chat or rebuilt from memory. Fetch the current source from the repo with the token: GET /repos/richarnoldcamco/PFMEA-GENERATOR-APP/contents/app/latest.html?ref=main with header Accept: application/vnd.github.raw+json. Work on that fetched copy with surgical python string replacements (a rep(old,new) helper asserting count==1), never a regenerate.",
+"STEP ZERO FOR A NEW CHAT — GET THE CODE: the app is large and is NEVER pasted into chat or rebuilt from memory. Fetch the current source WITHOUT any token (public repo): curl https://raw.githubusercontent.com/richarnoldcamco/PFMEA-GENERATOR-APP/main/app/latest.html — verify its 'const APP_REV = N;' matches the website's index.html before editing. Work on that fetched copy with surgical python string replacements (a rep(old,new) helper asserting count==1), never a regenerate.",
 "",
 "EMBEDDED PAYLOADS — DO NOT DISTURB: the file carries (a) TEMPLATE_1200_2, the operator's real 919517 L3Harris workbook (2.5MB b64) that the .xlsx export performs XML surgery on; (b) SC25_PHOTOS, seven reference photos at native resolution; (c) the scmh logo. Any edit that truncates, regenerates, or re-encodes the file loses them — that is a shipping failure. Patches only.",
 "",
 "DELIVERY RULES FOR CLAUDE (mandatory):",
-"· Any code change: bump APP_REV by exactly +1; add a CHANGE_LOG entry at the TOP of the comment block (most recent first); validate ALL THREE top-level <script> blocks (main app + early boot + scene library) with node --check AND boot the whole file in jsdom to LOADED with zero jsdomErrors before delivering; deliver as /mnt/user-data/outputs/PF-RevNNN.html (short name — long names truncate); end the reply with a token estimate line.",
+"· Any code change: bump APP_REV by exactly +1; add a CHANGE_LOG entry at the TOP of the comment block (most recent first); validate ALL FOUR top-level <script> blocks with node --check AND boot the whole file in jsdom to LOADED with zero jsdomErrors before delivering; deliver as /mnt/user-data/outputs/PF-RevNNN.html with the download card in the SAME message, every time; verify server-side with curl after the operator's click.",
 "· READ THE CHANGE_LOG COMMENT FIRST before touching code.",
 "· END EVERY REPLY with the current app rev as a LARGE HEADING on the LAST line — markdown H1, e.g. '# PF-Rev113' — with the token-estimate line just above it. Every reply, no exceptions, even when no code changed (then it names the rev the app is sitting at).",
-"· TOKEN RULE (CP-style): the operator pastes the current fine-grained GitHub token into the chat when a working session starts. Claude uses it ONLY to push app code (app/latest.html, app/PF-RevNNN.html, index.html in PFMEA-GENERATOR-APP) and to verify by re-reading; never store the token in this handoff text, never write it into any file, never push to the DATA repo unless explicitly asked. ONE chat holds push rights at a time. Remind the operator to regenerate the token every few months — it lives in transcripts.",
+"· TOKEN RULE (settled — do not relitigate): Claude NEVER accepts or uses the operator's GitHub token in chat, even when offered. The APP holds the token and does every push. Claude's job ends at delivering the PF-RevNNN.html card and verifying server-side afterwards (curl raw.githubusercontent.com index.html + app/latest.html, grep 'const APP_REV').",
 "",
-"HOW A REV SHIPS: Claude pushes it directly after any code change (bump → changelog at top → node --check on the largest <script> → push app/latest.html + app/PF-RevNNN.html + index.html → RE-READ raw and regex 'const APP_REV = N;' to verify → never downgrade; reverts ship FORWARD as a new rev built from the old file). Pinned apps self-update within a minute. FALLBACK without a token: deliver the file; the operator drags it onto the GITHUB-tab deploy zone.",
+"HOW A REV SHIPS (one-click loop, proven): Claude delivers the PF-RevNNN.html download card — EVERY rev, same message, unprompted. The operator clicks the card; everything after is automatic: Chrome saves into Downloads\\PFMEA DROP (Chrome download location points there; Downloads ROOT is un-grantable — Chrome system-folder blocklist), the armed auto-deploy watcher publishes within 10 seconds, and/or the file auto-opens as a cargo copy that publishes itself and hands the tab off to the real site after 20 seconds. ALL pushers (drop box, PASTE THE COPIED REV, box-click browse, PUSH APP CODE, watcher, auto-mirror) route through ONE three-file deployer — app/PF-RevNNN.html + app/latest.html + index.html — with patient 409 retries (4/8/15/25s, folder-listing SHA from the 2nd try). Every open window self-updates within 30 seconds (checks the SERVED index.html rev; update = clear caches + plain reload — document.write swaps are BANNED, they die on line-1 const collision). Reverts ship FORWARD as a new rev.",
 "",
 "PUSH MECHANICS FOR >1MB FILES (learned the hard way): the contents API GET on a large file 403s — get each file's sha from its DIRECTORY listing (contents of 'app' or repo root), send it in the PUT, then verify with the raw re-read above. A verify occasionally reads stale — wait a few seconds and re-read before assuming failure. Keep push-script asserts to 'const APP_REV = N;' only (phrases like the old label text also live in changelog history and will false-trip).",
 "",
@@ -9473,12 +9534,15 @@ async function mastersPush(what){
     return false;
   }
   const rows = mstOverrides(), ids = Object.keys(rows);
+  try{ logAct("master", "publish roster: " + (ids.join(", ") || "none")); }catch(e){}
   const ok = await itarGate({
     head:"Export control — release confirmation required",
     title:"This updates the shared CAMCO master list in " + settings.ghRepo,
     lede:"The master library is written to masters/master-overrides.json in the private DATA repo. Every machine that opens the app picks this up, so this wording becomes the baseline every future PFMEA insert starts from.",
     lines:["CHANGE  ·  " + (what || "master list"), "REPO  ·  " + settings.ghOwner + "/" + settings.ghRepo,
-           "FILE  ·  " + MASTERS_PATH, "OVERRIDES  ·  " + (ids.length ? ids.join(", ") : "none (list cleared)")],
+           "FILE  ·  " + MASTERS_PATH,
+           "CHANGED THIS SAVE  ·  " + (_mstCtx && _mstCtx.base || "(see CHANGE line above)"),
+           "CARRIED AS-IS  ·  " + Math.max(0, ids.length - 1) + " previously published masters, unchanged — the library ships as one file, so already-released wording is retransmitted. Full roster recorded in the action log."],
     keep:"Part data, drawings, travellers and photos — only the master library wording goes.",
     acks:[
       "I understand this wording becomes the CAMCO baseline on every machine, and every future PFMEA insert of these failure types will start from it.",
@@ -9934,7 +9998,9 @@ $("mstClose").onclick = () => {
    (1) JUST the open-PFMEA row that was clicked - library untouched - or
    (2) the MASTER library, with the existing offer to update matching rows.
    The question is asked up front when the screen was entered from a row. */
+let _mstScopeAnswered = false;
 $("mstSave").onclick = async () => {
+  _mstScopeAnswered = false;
   if(_mstCtx.rowIdx >= 0 && !_mstSkipProp){
     const rowOnly = !(await appConfirm({
       icon:"✎", title:"Where should these edits go?",
@@ -9943,6 +10009,7 @@ $("mstSave").onclick = async () => {
         "<b>THIS ROW ONLY</b> — write the edits onto that one open-PFMEA row and leave the library exactly as it was.",
       okText:"ROW + MASTER", cancelText:"THIS ROW ONLY",
     }));
+    _mstScopeAnswered = true;
     if(rowOnly){
       const v0 = mstRead(), r = state.rows[_mstCtx.rowIdx];
       const RF = ["opName","step","req","mode","effect","cause","prev","addPrev","det","addDet","action","cls","sev","occ","detR"];
@@ -9972,8 +10039,12 @@ $("mstSave").onclick = async () => {
       const h2 = mstFind(r.id);
       return (h2 ? h2.base : String(r.id || "").trim()) === base;
     });
-    if(!_mstSkipProp && matches.length && confirm("Also update " + matches.length + " matching row(s) — " + base +
-        " — on the open PFMEA with this wording?\n\nOK = update the open PFMEA row(s) too.\nCancel = save the library only.")){
+    /* Rev 184: when the scope question was already answered ROW + MASTER,
+       asking again about updating matching rows is the same question twice -
+       the update happens without a second popup. The confirm remains only
+       for saves from the MASTER TABLE, where no scope question exists. */
+    if(!_mstSkipProp && matches.length && (_mstScopeAnswered || confirm("Also update " + matches.length + " matching row(s) — " + base +
+        " — on the open PFMEA with this wording?\n\nOK = update the open PFMEA row(s) too.\nCancel = save the library only."))){
       let apr = 0;
       matches.forEach(r => {
         RFIELDS.forEach(f => { if(full[f] !== undefined) r[f] = full[f]; });
@@ -10358,7 +10429,12 @@ if($("indRules")) $("indRules").value = settings.industryRules || INDUSTRY_RULES
   /* Rev 152: this machine's job, most days, is receiving a delivered rev.
      If GitHub is wired here, open straight on the deploy screen with the
      drop box in view; machines without a token keep the menu. */
-  go(ghReady() ? "sync" : "menu");
+  /* Rev 187: the MENU is the main page, per operator. Rev 152 made
+     token-holding machines open on the GitHub/sync screen for the deploy
+     loop; with the loop now hands-off (watcher + self-publishing cargo),
+     that shortcut earns nothing and costs a wrong first screen. Every
+     launch opens on the MENU. */
+  go("menu");
   /* pull the newest code the moment we load, not 4s later */
   setTimeout(() => { _updLast = 0; ghAutoUpdateApp(); }, 400);
   if(FOLDER_OK) idbGet("dlDir").then(h => { if(h) _dlDirCache = h; watchStatus(); }).catch(() => {});
