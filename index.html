@@ -1098,14 +1098,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 193;
+const APP_REV = 197;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub" title="Load time: 0.3s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 193 · LOADED AUG 3, 10:15 PM · 0.3s · DATA: none loaded</span>
+      <span class="sub" id="navSub" title="Load time: 0.2s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 197 · LOADED AUG 4, 7:27 PM · 0.2s · DATA: none loaded</span>
     </span>
   </div>
   <script>
@@ -1190,7 +1190,7 @@ const APP_REV = 193;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 193 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 197 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1726,6 +1726,35 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
   .fview td.tgt .spin button{width:16px;height:13px;line-height:1;font-size:8px;padding:0;cursor:pointer;
     border:1px solid #8A8078;background:#fff;color:var(--stamp);font-weight:800}
   .fview td.tgt .spin button:hover{background:var(--stamp);color:#fff;border-color:var(--stamp)}
+  /* Rev 194 - full-screen AI wait. Sits above every dialog (mst 230,
+     aiq 250, cf 260) but below the toast rail so toasts still land. */
+  .pfwait{position:fixed;inset:0;z-index:600;background:rgba(14,9,9,.88);backdrop-filter:blur(3px);
+    display:flex;align-items:center;justify-content:center}
+  /* Rev 196: the PANEL is ~25% of the screen (50vw x 50vh), centred on a
+     dimmed full-screen backdrop. Everything inside scales off the panel
+     so it fills it on a shop monitor and still fits a laptop. */
+  .pfwait-in{width:50vw;height:50vh;min-width:400px;min-height:330px;max-width:96vw;max-height:92vh;
+    box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;color:#F3EFE9;padding:2.2vh 2vw;background:linear-gradient(180deg,#241717 0%,#170F0F 100%);
+    border:2px solid #7C1518;border-radius:10px;box-shadow:0 18px 60px rgba(0,0,0,.6)}
+  .pfwait-orb{position:relative;width:min(20vh,170px);height:min(20vh,170px);margin:0 auto 2vh;flex:0 0 auto}
+  .pfwait-orb span{position:absolute;inset:0;border-radius:50%;border:5px solid transparent}
+  .pfwait-orb .r1{border-top-color:#2E9E4A;border-right-color:#2E9E4A;animation:pfwspin 1.15s linear infinite}
+  .pfwait-orb .r2{inset:30px;border-bottom-color:#C0343A;border-left-color:#C0343A;animation:pfwspin 1.9s linear infinite reverse}
+  .pfwait-orb .r3{inset:60px;border:0;background:rgba(46,158,74,.28);animation:pfwpulse 1.7s ease-in-out infinite}
+  .pfwait-orb b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-weight:800;font-size:clamp(20px,4.5vh,36px);letter-spacing:.14em;color:#F3EFE9}
+  .pfwait-lab{font-family:var(--mono);font-weight:800;font-size:clamp(13px,2.3vh,22px);letter-spacing:.13em;
+    margin-bottom:.6vh;padding:0 8px;line-height:1.35}
+  .pfwait-clock{font-family:var(--mono);font-weight:800;font-size:clamp(44px,11vh,104px);line-height:1;
+    letter-spacing:.05em;color:#8FD6A2;text-shadow:0 0 22px rgba(143,214,162,.35)}
+  .pfwait-sub{font-size:clamp(11px,1.6vh,14px);color:#C9BFB6;margin:1.4vh auto 0;max-width:56ch;line-height:1.55;
+    padding:0 10px;overflow:hidden}
+  .pfwait-stop{margin-top:2vh;background:#7C1518;color:#fff;border:1px solid #4A0C0E;border-radius:4px;
+    padding:9px 28px;font-family:var(--mono);font-weight:800;font-size:clamp(11px,1.6vh,13px);
+    letter-spacing:.1em;cursor:pointer;flex:0 0 auto}
+  @keyframes pfwspin{to{transform:rotate(360deg)}}
+  @keyframes pfwpulse{0%,100%{transform:scale(.80);opacity:.30}50%{transform:scale(1.08);opacity:.78}}
   .cf-bg{position:fixed;inset:0;background:rgba(20,12,12,.55);backdrop-filter:blur(2px);z-index:260;
     display:none;align-items:center;justify-content:center;padding:20px}
   .cf-bg.on{display:flex}
@@ -1795,10 +1824,83 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
 
 /* =====================================================================
    CAMCO PFMEA BUILDER
-   APP_REV 193
+   APP_REV 197
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 197 · 2026-08-04
+     · "AI DRAFT FAILED - REPLY WAS NOT VALID JSON" KILLED AT THE ROOT.
+       Rev 195 taught the parser to cope with prose and nesting; this rev
+       stops the two shapes it still could not survive.
+       (a) PREFILLED ASSISTANT TURN. The request now sends a second
+       message, {role:"assistant", content:"{"}, so the model resumes
+       from an open brace and physically cannot lead with "Here is the
+       draft:". The leading "{" is not echoed back, so the reply is
+       re-prefixed before parsing.
+       (b) TRUNCATION SURVIVED. max_tokens raised 1800 -> 4000, since
+       nine PFMEA cells at 1-3 sentences each were clipping the ceiling
+       and producing JSON with no closing brace - which the brace-slice
+       fallback could not rescue either. mstDraftSalvage() now scans out
+       every COMPLETED "key":"value" pair, so a clipped reply still
+       delivers the columns that finished instead of throwing all nine
+       away. When stop_reason is max_tokens the panel says so: a PARTIAL
+       banner over the pairs, or a plain "ran out of room" message if
+       nothing survived.
+
+   Rev 196 · 2026-08-04
+     · WAIT PANEL SIZED TO A QUARTER OF THE SCREEN, per operator. Rev
+       194 made it full-bleed; the ask is a quarter. The panel is now a
+       centred card at 50vw x 50vh - 25% of the screen area - on the
+       same dimmed full-screen backdrop, floored at 400x330 so it stays
+       legible on a laptop. Everything inside scales off viewport height
+       via clamp(): the orb at min(20vh,170px), the clock at
+       clamp(44px,11vh,104px) with a soft glow, the label and sub-line
+       to match. Rings, counter-rings and the breathing core animate as
+       before; the MM:SS clock and STOP are unchanged.
+
+   Rev 195 · 2026-08-03
+     · THE DRAFT IS SOURCED FROM THE PFMEA LIBRARY, per operator: "it
+       needs to [draft] based on PFMEA sources." mstDraftExemplars()
+       picks up to three REAL rows out of SETS for the nearest operation
+       type - grind rows for a grinder, saw rows for a saw, SC-15 rows
+       for a raw receive - and puts their req / mode / effect / cause /
+       prev / det / action into the prompt as the voice to match. The
+       draft now comes back shaped like CAMCO's own approved rows rather
+       than generic AIAG prose, on top of the conventions and Section 3
+       facts that were already in there.
+     · WHY IT CAME BACK EMPTY - three failure paths, all closed:
+       (a) TOLERANT PARSE. mstDraftParse() recovers the object when the
+       model wraps JSON in prose or nests it under a key like
+       {"columns":{...}}, and normalises key aliases
+       ("recommendedAction" -> action, "potentialFailureMode" -> mode).
+       Previously any of those read as zero usable fields and looked
+       like the AI had done nothing.
+       (b) RAW REPLY IS NEVER SWALLOWED. If the reply still cannot be
+       read into columns, the panel prints it verbatim so the operator
+       can copy from it by hand, instead of a dead end.
+       (c) EMPTY BOX IS CALLED OUT. Pressing DRAFT THE COLUMNS with
+       nothing typed used to fire a toast that could be missed - the
+       grey example text reads like content. The textarea now turns red
+       with an inline note saying the placeholder is not content.
+
+   Rev 194 · 2026-08-03
+     · AI WAIT GOES FULL SCREEN, per operator: the old indicator was one
+       thin line at the bottom of the master popup - unreadable across
+       the shop and easy to mistake for a dead app. New pfWaitStart() /
+       pfWaitStop() paint a whole-screen overlay: three pulsing rings
+       around a PF core, the operation named in mono caps, and a running
+       MM:SS clock at 92px so the operator can see at a glance how long
+       Claude has been thinking. A STOP button aborts the in-flight
+       request through the shared _aiAbort, same as the Build screen's
+       stop. z-index 600 - above the master popup (230), ask window
+       (250) and confirm (260), below the toast rail so toasts still
+       land on top.
+     · Wired into both master-popup AI calls: AI · HELP CREATE THIS ROW
+       (drafting) and AI ⟳ propose ratings. Each carries a sub-line
+       restating the guarantee for that call - the draft never writes
+       ratings, the rating call proposes only - so the reassurance is on
+       screen during the wait instead of only after it.
+
    Rev 193 · 2026-08-03
      · NEW-FAILURE-TYPE DIALOG REPLACES prompt(), per operator: "needs a
        better pop-up; needs to make some suggestions on failure type
@@ -5032,6 +5134,54 @@ function imgLightbox(url){
   bg.innerHTML = `<img src="${url}" style="max-width:97vw;max-height:96vh;object-fit:contain;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.6)">`;
   bg.onclick = () => bg.remove();
   document.body.appendChild(bg);
+}
+/* ------------------------------------------------------------------
+   Rev 194 - pfWait: the AI wait indicator, full screen.
+   The old one was a one-line bar inside #mstAiOut, at the bottom of a
+   popup, easy to miss and impossible to read across the shop. This
+   takes the whole screen: pulsing rings, the operation, and a running
+   MM:SS clock so the operator can see how long Claude has been at it.
+   STOP aborts the in-flight request through the shared _aiAbort.
+   ------------------------------------------------------------------ */
+let _pfWaitT = null, _pfWaitEl = null;
+function pfWaitStop(){
+  if(_pfWaitT){ clearInterval(_pfWaitT); _pfWaitT = null; }
+  if(_pfWaitEl){ try{ _pfWaitEl.remove(); }catch(e){} _pfWaitEl = null; }
+}
+function pfWaitStart(label, sub){
+  pfWaitStop();
+  const el = document.createElement("div");
+  el.className = "pfwait";
+  el.innerHTML =
+      '<div class="pfwait-in">'
+    +   '<div class="pfwait-orb"><span class="r1"></span><span class="r2"></span><span class="r3"></span><b>PF</b></div>'
+    +   '<div class="pfwait-lab" data-pfwlab>' + esc(label || "WORKING") + '</div>'
+    +   '<div class="pfwait-clock" data-pfwc>0:00</div>'
+    +   (sub ? '<div class="pfwait-sub">' + esc(sub) + '</div>' : "")
+    +   '<div><button type="button" class="pfwait-stop" data-pfwstop>STOP</button></div>'
+    + '</div>';
+  document.body.appendChild(el);
+  _pfWaitEl = el;
+  const t0 = Date.now();
+  const c = el.querySelector("[data-pfwc]");
+  const tick = () => {
+    if(!c) return;
+    const s = Math.round((Date.now() - t0) / 1000);
+    c.textContent = Math.floor(s / 60) + ":" + ("0" + (s % 60)).slice(-2);
+  };
+  tick();
+  _pfWaitT = setInterval(tick, 250);
+  const st = el.querySelector("[data-pfwstop]");
+  if(st) st.onclick = () => {
+    try{ if(_aiAbort) _aiAbort.abort(); }catch(e){}
+    pfWaitStop();
+  };
+  return pfWaitStop;
+}
+function pfWaitLabel(t){
+  if(!_pfWaitEl) return;
+  const l = _pfWaitEl.querySelector("[data-pfwlab]");
+  if(l) l.textContent = t;
 }
 function appConfirm(o){
   return new Promise(res => {
@@ -9949,23 +10099,10 @@ async function mstAiRate(){
   _aiAbort = new AbortController();
   aiThinkStart();
   aiStage("CLAUDE IS RATING " + (_mstCtx ? _mstCtx.base : "THIS ROW") + " FROM ITS WORDING…");
-  /* .ai-think lives inside the Build screen, which the master popup covers —
-     so the popup needs its own progress line or the run looks dead. */
-  const wait = $("mstAiOut");
-  if(wait){
-    wait.style.display = "";
-    wait.innerHTML = '<div class="aithink"><div class="ring"></div><div>'
-      + esc("CLAUDE IS RATING " + (_mstCtx ? _mstCtx.base : "THIS ROW") + " FROM ITS WORDING")
-      + '<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>'
-      + '<span data-aisec style="color:var(--ink-3);margin-left:12px">0s</span></div></div>'
-      + '<div class="aibar"></div>';
-    const t0 = Date.now();
-    const tm = setInterval(() => {
-      const el = wait.querySelector("[data-aisec]");
-      if(!el){ clearInterval(tm); return; }
-      el.textContent = Math.round((Date.now() - t0) / 1000) + "s";
-    }, 500);
-  }
+  /* Rev 194: full-screen wait - .ai-think lives on the Build screen,
+     which the master popup covers, so an inline line looked dead. */
+  pfWaitStart("RATING " + (_mstCtx ? _mstCtx.base : "THIS ROW") + " FROM ITS WORDING",
+    "Claude is proposing SEV / OCC / DET against the CAMCO conventions. Proposals only — every rating is applied by you, or not at all.");
   try{
     const prompt = `You are rating one PFMEA failure-mode row for CAMCO Manufacturing (military hardware). Propose SEV, OCC and DET (1-10 integers) from the wording below, honoring these binding CAMCO conventions:
 - Severity reflects consequence only; it can NEVER be lowered by inspection or detection (Conv #2). Sev 9 = mission-critical military hardware effect.
@@ -10064,7 +10201,7 @@ Reply ONLY with JSON, no fences: {"sev":{"val":N,"why":"..."},"occ":{"val":N,"wh
       bad.innerHTML = '<div style="color:#C00000;font-weight:800;font-size:12.5px">'
         + esc("AI RATING FAILED — " + msg) + '</div>';
     }
-  }finally{ aiThinkStop(); _aiAbort = null; }
+  }finally{ pfWaitStop(); aiThinkStop(); _aiAbort = null; }
 }
 /* ------------------------------------------------------------------
    Rev 191 - AI - HELP CREATE THIS ROW.
@@ -10074,6 +10211,115 @@ Reply ONLY with JSON, no fences: {"sev":{"val":N,"why":"..."},"occ":{"val":N,"wh
    operator runs afterwards on the drafted text. Every column lands as a
    BEFORE / AFTER pair that applies only on a click.
    ------------------------------------------------------------------ */
+/* ------------------------------------------------------------------
+   Rev 195 - the draft is now SOURCED.
+   Three sources go into the prompt instead of rules alone:
+     (1) the CAMCO conventions and Section 3 current-state facts,
+     (2) REAL LIBRARY ROWS from SETS for the nearest operation type -
+         CAMCO's own approved wording, so the draft comes back in the
+         house voice instead of generic AIAG prose,
+     (3) the operator's description.
+   Plus a tolerant parser: models wrap JSON in prose or nest it under a
+   key, which previously read as "nothing proposed" and looked like the
+   AI had failed. It now recovers the object and normalises key aliases.
+   ------------------------------------------------------------------ */
+function mstDraftExemplars(name, step){
+  const hay = ((name || "") + " " + (step || "")).toLowerCase();
+  const RULES = [
+    [/grind/,                          "grind"],
+    [/\bsaws?\b|cut[\s-]*off/,         "saw"],
+    [/hardinge|quest|lathe|turn|twister|haas|umc|\bmill/, "cnc"],
+    [/ship\s*away/,                    "ship_away"],
+    [/material\s*validation|xrf/,      "material_validation"],
+    [/raw\s*material|bar\s*stock|steel\s*rack/, "receive_raw"],
+    [/receiv/,                         "vendor_return"],
+  ];
+  let want = "";
+  RULES.forEach(r => { if(!want && r[0].test(hay)) want = r[1]; });
+  const all = [];
+  try{ Object.keys(SETS).forEach(k => SETS[k].rows.forEach(r => all.push(r))); }catch(e){}
+  let pick = want ? all.filter(r => r.opType === want) : [];
+  if(!pick.length && hay.trim()){
+    pick = all.filter(r => String(r.opName || "").toLowerCase().split(/\s+/)
+      .some(w => w.length > 3 && hay.indexOf(w) >= 0));
+  }
+  /* Nothing matched (a deburr bench, a wash, an op with no set): show a
+     SPREAD of house wording rather than three near-identical receive
+     rows, so the voice sample covers a receive, a machining op and a
+     ship-away. */
+  if(!pick.length){
+    const want = ["receive_raw","grind","ship_away","cnc","saw"];
+    pick = [];
+    want.forEach(t => { const h = all.filter(r => r.opType === t)[0]; if(h) pick.push(h); });
+    if(!pick.length) pick = all;
+  }
+  return pick.slice(0, 3).map(r => ({
+    id:r.id, req:r.req, mode:r.mode, effect:r.effect, cause:r.cause,
+    prev:r.prev, det:r.det, action:r.action,
+  }));
+}
+const MST_DRAFT_ALIASES = {
+  requirements:"req", specificrequirement:"req", requirement:"req",
+  failuremode:"mode", potentialfailuremode:"mode",
+  effects:"effect", potentialeffect:"effect", potentialeffects:"effect", potentialeffectsoffailure:"effect",
+  causes:"cause", potentialcause:"cause", potentialcauses:"cause", potentialcausesoffailure:"cause",
+  prevention:"prev", currentprevention:"prev", currentpreventioncontrols:"prev",
+  additionalprevention:"addPrev", additionalpreventioncontrols:"addPrev", additionalpreventioncontrolevidence:"addPrev",
+  detection:"det", currentdetection:"det", currentdetectioncontrols:"det",
+  additionaldetection:"addDet", additionaldetectioncontrols:"addDet", additionaldetectioncontrolevidence:"addDet",
+  recommendedaction:"action", recommendedactions:"action", recommendedactionsplural:"action",
+};
+/* Rev 197: last-ditch salvage. A reply cut off by the token ceiling has
+   no closing brace, so JSON.parse and the brace-slice both fail and the
+   whole draft is thrown away even though eight of nine fields arrived
+   complete. This scans out every finished "key":"value" pair instead. */
+function mstDraftSalvage(text){
+  const t = String(text || "");
+  const out = {};
+  const re = /"([A-Za-z_][A-Za-z0-9_ ]*)"\s*:\s*"((?:[^"\\]|\\.)*)"/g;
+  let m;
+  while((m = re.exec(t))){
+    const raw = m[1];
+    const norm = raw.toLowerCase().replace(/[^a-z]/g, "");
+    const f = AI_FIELDS.indexOf(raw) >= 0 ? raw
+            : (raw === "notes" ? "notes" : (MST_DRAFT_ALIASES[norm] || ""));
+    if(!f) continue;
+    let v = m[2];
+    try{ v = JSON.parse('"' + v + '"'); }catch(e){ v = v.replace(/\\"/g, '"').replace(/\\n/g, "\n"); }
+    if(v && String(v).trim()) out[f] = v;
+  }
+  return Object.keys(out).length ? out : null;
+}
+function mstDraftParse(text){
+  let t = String(text || "").replace(/```json|```/g, "").trim();
+  let obj = null;
+  try{ obj = JSON.parse(t); }
+  catch(e){
+    const a = t.indexOf("{"), b = t.lastIndexOf("}");
+    if(a >= 0 && b > a){ try{ obj = JSON.parse(t.slice(a, b + 1)); }catch(e2){} }
+  }
+  if(!obj || typeof obj !== "object" || Array.isArray(obj)) return mstDraftSalvage(text);
+  /* Rev 197 fix: a nested wrapper whose inner keys are ALIASES
+     ({"columns":{"potentialFailureMode":...}}) was not recognised as
+     the payload, so the unwrap never fired. Aliases count as known. */
+  const known = k => AI_FIELDS.indexOf(k) >= 0 || k === "notes"
+    || !!MST_DRAFT_ALIASES[String(k).toLowerCase().replace(/[^a-z]/g, "")];
+  /* unwrap {"columns":{...}} / {"row":{...}} and friends */
+  if(!Object.keys(obj).some(known)){
+    for(const k of Object.keys(obj)){
+      const v = obj[k];
+      if(v && typeof v === "object" && !Array.isArray(v) && Object.keys(v).some(known)){ obj = v; break; }
+    }
+  }
+  const out = {};
+  Object.keys(obj).forEach(k => {
+    const norm = String(k).toLowerCase().replace(/[^a-z]/g, "");
+    const f = AI_FIELDS.indexOf(k) >= 0 ? k
+            : (k === "notes" ? "notes" : (MST_DRAFT_ALIASES[norm] || ""));
+    if(f && typeof obj[k] === "string") out[f] = obj[k];
+  });
+  return Object.keys(out).length ? out : mstDraftSalvage(text);
+}
 const MST_DRAFT_LABELS = {
   req:"Requirements", mode:"Potential Failure Mode", effect:"Potential Effect(s) of Failure",
   cause:"Potential Cause(s) of Failure", prev:"Current Prevention Controls",
@@ -10115,8 +10361,23 @@ function mstAiDraftOpen(){
   if(go) go.onclick = () => mstAiDraftRun((($("mstDraftIn")||{}).value || "").trim());
 }
 async function mstAiDraftRun(desc){
-  if(!settings.apiKey){ toast("No API key \u2014 add it on Admin first."); return; }
-  if(!desc){ toast("Type a description of the operation first."); return; }
+  if(!settings.apiKey){ toast("No API key — add it on Admin first."); return; }
+  if(!desc){
+    toast("Type a description of the operation first — the grey text is only an example.");
+    const ta = $("mstDraftIn");
+    if(ta){
+      ta.style.borderColor = "#C00000";
+      ta.focus();
+      if(!$("mstDraftWarn")){
+        const w = document.createElement("div");
+        w.id = "mstDraftWarn";
+        w.style.cssText = "color:#C00000;font-weight:800;font-size:12.5px;margin-top:6px";
+        w.textContent = "The box is empty — the grey sentence is a placeholder example, not content. Type your operation here first.";
+        ta.parentNode.insertBefore(w, ta.nextSibling);
+      }
+    }
+    return;
+  }
   const cells = mstReadCells();
   const base = _mstCtx ? _mstCtx.base : "";
   const ok = await itarGate({
@@ -10133,22 +10394,8 @@ async function mstAiDraftRun(desc){
   _aiAbort = new AbortController();
   aiThinkStart();
   aiStage("CLAUDE IS DRAFTING " + (base || "THIS ROW") + "\u2026");
-  const wait = $("mstAiOut");
-  let tm = null;
-  if(wait){
-    wait.style.display = "";
-    wait.innerHTML = '<div class="aithink"><div class="ring"></div><div>'
-      + esc("CLAUDE IS DRAFTING THE COLUMNS FOR " + (base || "THIS ROW"))
-      + '<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>'
-      + '<span data-aisec style="color:var(--ink-3);margin-left:12px">0s</span></div></div>'
-      + '<div class="aibar"></div>';
-    const t0 = Date.now();
-    tm = setInterval(() => {
-      const el = wait.querySelector("[data-aisec]");
-      if(!el){ clearInterval(tm); return; }
-      el.textContent = Math.round((Date.now() - t0) / 1000) + "s";
-    }, 500);
-  }
+  pfWaitStart("DRAFTING THE COLUMNS FOR " + (base || "THIS ROW"),
+    "Claude is writing Requirements, Failure Mode, Effect, Cause, Prevention, Detection and Recommended Action from your description. It never writes the ratings. Nothing lands in a cell until you press Apply.");
   try{
     const prompt = `You are drafting the text columns of ONE PFMEA failure-mode row for CAMCO Manufacturing, a machine shop building MILITARY hardware for L3Harris. Write in the shop's voice: specific, auditable, no marketing language.
 
@@ -10170,6 +10417,9 @@ CAMCO CURRENT-STATE FACTS you must honor if they touch the description:
 - CNC programs are NOT locked down at any controller; operators have full edit access.
 - Handheld XRF cannot measure carbon (Z=6). Certs are not compared against physical bar tags at receipt.
 
+CAMCO'S OWN APPROVED WORDING for the nearest operation type - these are real rows from the CAMCO library. MATCH THIS VOICE, this level of specificity and this sentence shape. Do not copy them; the part and feature are different:
+${JSON.stringify(mstDraftExemplars(cells.opName, cells.step), null, 1)}
+
 ROW CONTEXT (already captured - do not restate it, write around it): ${JSON.stringify({id: cells.id, opName: cells.opName, step: cells.step})}
 CURRENT CELL TEXT (may be blank - you are filling it in): ${JSON.stringify(cells)}
 
@@ -10185,14 +10435,35 @@ Omit any field you have nothing real to say for. "notes" is optional and is show
       method:"POST", signal:_aiAbort.signal,
       headers:{ "content-type":"application/json", "x-api-key":settings.apiKey,
         "anthropic-version":"2023-06-01", "anthropic-dangerous-direct-browser-access":"true" },
-      body: JSON.stringify({ model:settings.model, max_tokens:1800, messages:[{role:"user", content:prompt}] }),
+      /* Rev 197: prefill the assistant turn with "{" so the model cannot
+         open with prose - the single commonest cause of "not valid
+         JSON" - and give it room so nine long cells do not truncate. */
+      body: JSON.stringify({ model:settings.model, max_tokens:4000, messages:[
+        {role:"user", content:prompt},
+        {role:"assistant", content:"{"},
+      ]}),
     });
     if(!res.ok){ let d=""; try{ const j=await res.json(); d=(j.error&&j.error.message)||""; }catch(e){}
       throw new Error("API returned " + res.status + ". " + d); }
     const data = await res.json();
-    const text = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n")
-      .replace(/```json|```/g,"").trim();
-    let dr; try{ dr = JSON.parse(text); }catch(e){ throw new Error("Reply was not valid JSON \u2014 try again."); }
+    let text = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n").trim();
+    /* the "{" we prefilled is not echoed back - put it on the front */
+    if(text && text.charAt(0) !== "{") text = "{" + text;
+    const cut = data.stop_reason === "max_tokens";
+    const dr = mstDraftParse(text);
+    if(!dr){
+      const o2 = $("mstAiOut");
+      o2.style.display = "";
+      o2.innerHTML = '<div style="color:#C00000;font-weight:800;font-size:12.5px;margin-bottom:8px">'
+        + (cut ? 'CLAUDE RAN OUT OF ROOM MID-REPLY \u2014 NOTHING COMPLETE ENOUGH TO READ INTO COLUMNS.'
+               : 'CLAUDE REPLIED, BUT NOT IN A FORM THE APP COULD READ INTO COLUMNS.') + '</div>'
+        + '<div style="font-size:12.5px;margin-bottom:8px">The raw reply is below \u2014 you can copy any of it into the cells by hand, or press Describe it again with more detail.</div>'
+        + '<pre style="white-space:pre-wrap;font-size:12px;background:#fff;border:1px solid var(--rule-hard);padding:8px;max-height:320px;overflow:auto">'
+        + esc(text || "(empty reply)") + '</pre>'
+        + '<div style="margin-top:8px"><button class="btn" id="mstDraftAgain">Describe it again</button></div>';
+      const ag = $("mstDraftAgain"); if(ag) ag.onclick = () => mstAiDraftOpen();
+      return;
+    }
 
     const picked = [];
     AI_FIELDS.forEach(f => {
@@ -10201,7 +10472,11 @@ Omit any field you have nothing real to say for. "notes" is optional and is show
     });
     const out = $("mstAiOut");
     if(!picked.length){
-      out.innerHTML = '<div style="font-size:12.5px;color:#3A322E">Claude did not propose anything different from what is already in the row. Add more detail to the description and run it again.</div>';
+      out.innerHTML = '<div style="font-size:12.5px;color:#3A322E;margin-bottom:8px">Nothing came back that differs from what is already in the row. The raw reply is below so you can see what Claude said; add more detail — the machine, the feature and tolerance, how it is checked — and run it again.</div>'
+        + '<pre style="white-space:pre-wrap;font-size:12px;background:#fff;border:1px solid var(--rule-hard);padding:8px;max-height:280px;overflow:auto">'
+        + esc(text || "(empty reply)") + '</pre>'
+        + '<div style="margin-top:8px"><button class="btn" id="mstDraftAgain">Describe it again</button></div>';
+      const ag2 = $("mstDraftAgain"); if(ag2) ag2.onclick = () => mstAiDraftOpen();
       return;
     }
     const pair = (f, v) => {
@@ -10225,6 +10500,8 @@ Omit any field you have nothing real to say for. "notes" is optional and is show
     out.innerHTML =
       '<div style="font-family:var(--mono);font-size:11px;font-weight:800;letter-spacing:.1em;margin-bottom:8px">'
       + 'CLAUDE\'S DRAFT \u2014 APPLY EACH COLUMN OR SKIP IT</div>'
+      + (cut ? '<div style="font-size:12.5px;background:#FFF6E0;border:1px solid #C8A24A;padding:8px;margin-bottom:10px">'
+        + '<b>PARTIAL \u2014 </b>Claude hit the length ceiling, so the columns below are what arrived complete. Anything missing can be drafted again on its own, or typed.</div>' : "")
       + (typeof dr.notes === "string" && dr.notes.trim()
           ? '<div style="font-size:12.5px;background:#fff;border:1px solid var(--rule-hard);padding:8px;margin-bottom:10px"><b>NOTE \u2014 </b>' + esc(dr.notes.trim()) + '</div>' : "")
       + '<div style="margin-bottom:6px"><button class="btn" id="mstDraftAll" style="background:#1E7A34;border-color:#124A1F;color:#fff">Apply all ' + picked.length + '</button>'
@@ -10271,7 +10548,7 @@ Omit any field you have nothing real to say for. "notes" is optional and is show
         + '<div style="margin-top:8px"><button class="btn" id="mstDraftAgain">Try again</button></div>';
       const ag = $("mstDraftAgain"); if(ag) ag.onclick = () => mstAiDraftOpen();
     }
-  }finally{ if(tm) clearInterval(tm); aiThinkStop(); _aiAbort = null; }
+  }finally{ pfWaitStop(); aiThinkStop(); _aiAbort = null; }
 }
 function mstPaintFieldImgs(){
   const host = $("mstFieldImgs");
