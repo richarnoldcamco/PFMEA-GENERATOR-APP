@@ -1127,7 +1127,7 @@ const APP_REV = 199;
   }, true);
   </script>
   <div class="tabs">
-    <button class="tab" id="navBack" style="display:none" title="Back one screen">←</button>
+    <button class="tab" id="navBack" style="" title="Back one screen">←</button>
     <button class="tab on" data-go="menu">Menu</button>
     <button class="tab" data-go="build">Build</button>
     <button class="tab" data-go="trav">Traveller</button>
@@ -1331,8 +1331,10 @@ const APP_REV = 199;
       <button class="btn" id="fdStop" style="display:none">Stop autosaving</button>
       <span class="status bad" id="fdStatus">No folder chosen — nothing is being saved automatically.</span>
     </div>
-    <div id="fdWarn"></div>
-    <div id="fdList"></div>
+    <div id="fdWarn"><div class="banner"><b>Nothing is being saved automatically yet</b>
+        Press Choose save folder and point it at your Desktop, or a folder on it. After that every change
+        is written there on its own, and this list fills up.</div></div>
+    <div id="fdList"><p>No PFMEA files in that folder yet.</p></div>
   </div>
 </section>
 
@@ -1363,7 +1365,7 @@ const APP_REV = 199;
       <button class="btn" id="syAuto">Enable plan autosave</button>
       <span class="status" id="syStatus"></span>
     </div>
-    <div class="status" id="ghBudget" style="margin-bottom:8px"></div>
+    <div class="status" id="ghBudget" style="margin-bottom:8px">GitHub writes this hour: 10 / 500 · autosave backs off at 400.</div>
     <input type="file" id="syAppFile" accept=".html" hidden="">
     <input type="file" id="syRevFile" accept=".html,.htm" hidden="">
     <div id="syList2"></div>
