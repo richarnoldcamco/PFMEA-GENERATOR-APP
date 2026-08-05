@@ -1098,14 +1098,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 201;
+const APP_REV = 202;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub" title="Load time: 0.2s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 201 · LOADED AUG 4, 9:16 PM · 0.2s · DATA: none loaded</span>
+      <span class="sub" id="navSub" title="Load time: 0.4s total (0.1s network) — history kept in pfLoadTimes, last 100 launches">APP REV 202 · LOADED AUG 4, 9:23 PM · 0.4s · DATA: none loaded</span>
     </span>
   </div>
   <script>
@@ -1190,7 +1190,7 @@ const APP_REV = 201;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 201 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 202 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1619,7 +1619,7 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
   <button class="btn key" id="addRow">+ Row</button>
   <div class="menu" id="setMenu">
     <button class="btn" id="setBtn">Insert standard set ▾</button>
-    <div class="menu-pop" id="setPop"><button data-set="sc15"><b>SC-15 · Ship Receive, raw material</b><small>4 lines · Op 010 · traceability line is XRF-4 in the SC-21 set</small></button><button data-set="sc21"><b>SC-21 · Material Validation Op 015</b><small>exactly 4 lines · WC 09250</small></button><button data-set="sc20"><b>SC-20 · CNC Saw Op 020</b><small>exactly 3 lines · WC 52000</small></button><button data-set="sc24"><b>SC-24 · Mitsubishi grind</b><small>5 cause-based lines · WC 31943</small></button><button data-set="sc27"><b>SC-27 · Ship Away, outbound</b><small>exactly 3 lines · tailor mode 2 and 3</small></button><button data-set="sc16"><b>SC-16 · Ship Receive, vendor return</b><small>5 lines · pairs with SC-27</small></button><button data-set="prog"><b>CNC program-edit row</b><small>1 line · required on every CNC machining op</small></button></div>
+    <div class="menu-pop" id="setPop"><button data-set="sc15"><b>SC-15 · Ship Receive, raw material</b><small>4 lines · Op 010 · traceability line is XRF-4 in the SC-21 set</small></button><button data-set="sc21"><b>SC-21 · Material Validation Op 015</b><small>exactly 4 lines · WC 09250</small></button><button data-set="sc20"><b>SC-20 · CNC Saw Op 020</b><small>exactly 3 lines · WC 52000</small></button><button data-set="sgchev"><b>Surface grind · Chevalier</b><small>6 cause-based lines · magnetic chuck · no per-part dressing</small></button><button data-set="sc24"><b>SC-24 · Mitsubishi grind — cylindrical</b><small>5 cause-based lines · WC 31943 · per-part dressing</small></button><button data-set="sc27"><b>SC-27 · Ship Away, outbound</b><small>exactly 3 lines · tailor mode 2 and 3</small></button><button data-set="sc16"><b>SC-16 · Ship Receive, vendor return</b><small>5 lines · pairs with SC-27</small></button><button data-set="prog"><b>CNC program-edit row</b><small>1 line · required on every CNC machining op</small></button></div>
   </div>
   <button class="btn" id="travBtn">Traveller</button>
   <button class="btn" id="viewToggle" title="Switch between the FORM-1200-2 look and the compact list">Compact view</button>
@@ -1825,10 +1825,38 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
 
 /* =====================================================================
    CAMCO PFMEA BUILDER
-   APP_REV 201
+   APP_REV 202
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 202 · 2026-08-04
+     · SURFACE GRIND GETS ITS OWN SET, per operator: "the surface
+       grinder should have its own set of failure modes completely
+       independent from the other grinder." New "Surface grind ·
+       Chevalier" standard set (SG-1..SG-6, Op 050 / WC 25583) and a new
+       surface_grind op type. It is NOT a variant of SC-24 and shares no
+       rows with it: SC-24 is cylindrical - arbor or centers, grind an
+       OD, run-out on a roll checker - so its centering and arbor-fit
+       causes have no counterpart on a machine that holds on a magnetic
+       chuck and grinds a thickness.
+     · NO PER-PART DRESSING CREDIT ANYWHERE IN THE SET, operator-
+       confirmed: the Chevalier dresses on a schedule, not before every
+       part. The Section 3 Occ credit is Mitsubishi-specific, so no SG
+       row takes it and no SG row carries the dressing-formalization
+       action. SG-4 states the difference explicitly in its prevention
+       text so the absence is auditable rather than silent.
+     · TWO FAILURE MODES SC-24 HAS NO LINE FOR, both driven by the
+       magnetic chuck on a soft magnetic alloy: SG-5 grinding burn
+       (Sev 9, CC - heat alters permeability and coercivity, not just
+       appearance) and SG-6 residual magnetism at release (Sev 9, CC,
+       Det 10 - no current control measures residual field).
+     · TWO OPEN CONFIRMATIONS HELD AT THE NO-CREDIT VALUE rather than
+       assumed, per the Section 3 rule against crediting controls that
+       are not established: inspection basis at Op 050 (Det held at the
+       sampled cap of 5; drops to 4 only when 100% is confirmed) and
+       demagnetisation (SG-6 written as no-current-detection until a
+       demag-and-verify step is confirmed released and operating).
+
    Rev 201 · 2026-08-04
      · TRAVELLER MISMATCH GUARD, found by the operator on 1000237620:
        the SC-24 grind rows sat at Op 070 / WC 31943 - the Mitsubishi,
@@ -4605,7 +4633,8 @@ const OP_TYPES = [
   ["receive_raw",        "Ship Receive — raw material (SC-15)"],
   ["material_validation","Material Validation Op 015 (SC-21)"],
   ["saw",                "CNC Saw Op 020 (SC-18/19/20)"],
-  ["grind",              "Mitsubishi grind (SC-24)"],
+  ["grind",              "Mitsubishi grind \u2014 cylindrical (SC-24)"],
+  ["surface_grind",      "Surface grind \u2014 Chevalier (SG set)"],
   ["ship_away",          "Ship Away — outbound (SC-27)"],
   ["vendor_return",      "Ship Receive — vendor return (SC-16)"],
   ["cnc",                "CNC machining (program-edit row required)"],
@@ -4800,8 +4829,86 @@ const SETS = {
        detBasis:"100_attribute",detR:5,occ:4,cls:"TR",
        action:"Required: implement a logged blade-change interval — operator records each blade change and the band speed verified with the Traverse-Master on the run log, and the supervisor reviews and signs the log weekly."},
     ]},
+  /* -----------------------------------------------------------------
+     SURFACE GRIND - CHEVALIER. Its own set, deliberately NOT a variant
+     of SC-24. The Mitsubishi set is cylindrical: it holds on an arbor
+     or centers, grinds an OD, and checks run-out on a roll checker.
+     A surface grinder holds on a MAGNETIC CHUCK and grinds a flat or a
+     thickness, so the arbor and centering causes do not exist here and
+     two causes appear that SC-24 has no line for - residual magnetism
+     from the chuck, and grinding burn.
+     RATINGS BASIS (operator-confirmed 2026-08-04): the Chevalier does
+     NOT dress before every part, so the Section 3 per-part-dressing Occ
+     credit does NOT apply to this machine - no row here takes it, and
+     no row carries the dressing-formalization action. Op 050 is rough
+     AND finish on the same machine.
+     TWO OPEN CONFIRMATIONS are held at the no-credit value on purpose,
+     per the Section 3 rule against crediting controls that are not
+     established: (a) inspection basis at Op 050 - Det is held at the
+     sampled cap of 5, and drops to 4 only once 100% inspection is
+     confirmed; (b) demagnetisation after Op 050 - SG-6 is written as a
+     no-current-control row at Det 10 until a demag step and its
+     verification are confirmed.
+     ----------------------------------------------------------------- */
+  sgchev:{
+    name:"Surface grind \u00b7 Chevalier", note:"6 cause-based lines \u00b7 magnetic chuck \u00b7 no per-part dressing",
+    rows:[
+      {id:"SG-1",op:"050",wc:"25583",opName:"Chevalier Surface Grinder",opType:"surface_grind",machine:"chevalier",
+       step:"Grind thickness / flat to size",req:"Thickness and flatness per drawing",
+       mode:"Thickness out of tolerance from thermal drift",
+       effect:"Thickness outside print limits; stack-up and fit not achieved on "+MIL,
+       sev:8,cause:"Part / machine thermal growth over the run, coolant-temperature drift, ambient variation; grinding-heat input rises as the wheel dulls between scheduled dresses",
+       det:"Thickness checked with calibrated micrometer",
+       detBasis:"sample_variable",detR:5,occ:3,cls:"SC",
+       action:"Required: Manufacturing Engineering to define and document a machine warm-up and thermal-stabilisation routine for the Chevalier \u2014 warm-up duration before the first part, coolant temperature check, and a re-zero point within the run \u2014 on the setup sheet, with the operator recording completion on the run log and QE verifying weekly. Required: QE to establish and record the inspection basis for Op 050 \u2014 how many parts are checked, at what frequency, with which calibrated gauge, and where the readings are recorded \u2014 on the setup sheet, signed off before the next run. Det is held at the sampled cap of 5 until 100% inspection is confirmed; confirming it drops Det to 4 and this row below the trigger. Target: 2026-Q4"},
+      {id:"SG-2",op:"050",wc:"25583",opName:"Chevalier Surface Grinder",opType:"surface_grind",machine:"chevalier",
+       step:"Seat part on magnetic chuck",req:"Part seated flat and clean on the chuck",
+       mode:"Part not seated flat \u2014 grinding a taper or a bow into the part",
+       effect:"Thickness varies across the face and flatness is not achieved; feature outside print limits on "+MIL,
+       sev:8,cause:"Grit, burr, coolant film or a raised edge under the part; chuck face itself worn or not ground true; thin part deflected by chuck pull and springing back after release",
+       prev:"Chuck face and part wiped before seating; chuck face reground when checked out of flat",
+       det:"Flatness / parallelism verified after grind with calibrated indicator on a surface plate",
+       detBasis:"sample_variable",detR:5,occ:3,cls:"SC",
+       action:"Required: Manufacturing Engineering to add a chuck-condition step to the setup sheet \u2014 chuck face and part wiped and inspected before seating, chuck face flatness checked with a calibrated indicator on a stated interval and reground when out of limit, result recorded and signed off by QE. Required: QE to establish and record the inspection basis for Op 050 \u2014 how many parts are checked, at what frequency, with which calibrated gauge, and where the readings are recorded \u2014 on the setup sheet, signed off before the next run. Det is held at the sampled cap of 5 until 100% inspection is confirmed; confirming it drops Det to 4 and this row below the trigger. Target: 2026-Q4"},
+      {id:"SG-3",op:"050",wc:"25583",opName:"Chevalier Surface Grinder",opType:"surface_grind",machine:"chevalier",
+       step:"Set downfeed to size",req:"Finish size per drawing",
+       mode:"Downfeed set wrong \u2014 part ground undersize",
+       effect:"Undersize thickness is not recoverable; part scrapped, and an undetected one carries a thin section into "+MIL,
+       sev:8,cause:"Downfeed dialled or entered wrong at setup; zero taken off a dirty or unindicated reference; spark-out omitted so the wheel is still cutting at the last pass",
+       prev:"Setup sheet states the finish size and the reference the zero is taken from; first piece verified before the run",
+       det:"Thickness checked with calibrated micrometer against the setup sheet",
+       detBasis:"sample_variable",detR:5,occ:3,cls:"SC",
+       action:"Required: setup sheet to state the finish size, the reference the zero is taken from, and a mandatory spark-out; operator records the first-piece thickness reading on the run log before releasing the run, and QE verifies the first-piece record against the setup sheet. Required: QE to establish and record the inspection basis for Op 050 \u2014 how many parts are checked, at what frequency, with which calibrated gauge, and where the readings are recorded \u2014 on the setup sheet, signed off before the next run. Det is held at the sampled cap of 5 until 100% inspection is confirmed; confirming it drops Det to 4 and this row below the trigger. Target: 2026-Q4"},
+      {id:"SG-4",op:"050",wc:"25583",opName:"Chevalier Surface Grinder",opType:"surface_grind",machine:"chevalier",
+       step:"Grind thickness / flat to size",req:"Thickness and surface finish per drawing",
+       mode:"Part-to-part size and finish drift from wheel wear, loading and dress-schedule discipline",
+       effect:"Thickness and surface finish drift outside print limits across the lot on "+MIL,
+       sev:8,cause:"Wheel wears and loads between dresses; the Chevalier is dressed on a schedule, NOT before every part, so wear accumulates within the interval; a missed or late dress widens the drift",
+       prev:"Wheel dressed on the scheduled interval. NOTE: this machine does NOT dress before every part \u2014 the Section 3 per-part-dressing Occurrence credit does not apply here, and no such credit is taken on this row",
+       det:"Thickness checked with calibrated micrometer; surface finish verified per setup sheet",
+       detBasis:"sample_variable",detR:5,occ:4,cls:"SC",
+       action:"Required: Manufacturing Engineering to set the dress interval for this machine in parts, not shifts, with the basis recorded; operator logs each dress against part count on the run log and QE reviews the log weekly. Establishing a controlled dress interval is what supports any future Occurrence reduction on this machine \u2014 the Section 3 per-part-dressing credit is Mitsubishi-specific and is NOT taken here. Required: QE to establish and record the inspection basis for Op 050 \u2014 how many parts are checked, at what frequency, with which calibrated gauge, and where the readings are recorded \u2014 on the setup sheet, signed off before the next run. Det is held at the sampled cap of 5 until 100% inspection is confirmed; confirming it drops Det to 4 and this row below the trigger. Target: 2026-Q4"},
+      {id:"SG-5",op:"050",wc:"25583",opName:"Chevalier Surface Grinder",opType:"surface_grind",machine:"chevalier",
+       step:"Grind thickness / flat to size",req:"Ground surface free of grinding burn and metallurgical damage",
+       mode:"Grinding burn \u2014 localised overheating of the ground surface",
+       effect:"Heat-affected surface layer on a soft magnetic alloy: degraded magnetic permeability and coercivity, plus residual tensile stress and possible micro-cracking, so the coil does not perform to design in "+MIL,
+       sev:9,cause:"Dull or loaded wheel between scheduled dresses; downfeed too heavy for the pass; coolant not reaching the grind zone; wheel grade or speed wrong for the alloy",
+       prev:"Coolant directed at the grind zone and maintained; downfeed per setup sheet; wheel dressed on the scheduled interval",
+       det:"100% visual inspection of the ground surface for burn discolouration",
+       detBasis:"100_attribute",detR:5,occ:3,cls:"CC",
+       action:"Required: burn is a metallurgical change that visual inspection detects only when it discolours. Manufacturing Engineering to establish a burn check for this alloy \u2014 nital etch on a set frequency, or a magnetic-property check on a sample \u2014 with the method, frequency and acceptance recorded on the setup sheet and results signed off by QE. Target: 2026-Q4"},
+      {id:"SG-6",op:"050",wc:"25583",opName:"Chevalier Surface Grinder",opType:"surface_grind",machine:"chevalier",
+       step:"Release part from magnetic chuck",req:"Part free of residual magnetism at release",
+       mode:"Residual magnetism retained in the part after chucking",
+       effect:"A magnetised soft magnetic core biases the coil's magnetic circuit and attracts fine debris that is carried into assembly; the coil does not perform to design in "+MIL, 
+       sev:9,cause:"Magnetic chuck magnetises the part; the alloy retains a remanent field; chuck demagnetise cycle not run, or run but not verified; no downstream check for residual field",
+       prev:"Chuck demagnetise cycle at release. NOT CONFIRMED as a released, operating step on this operation \u2014 no credit is taken for it until it is",
+       det:"No current detection control \u2014 residual field is not measured at this operation or downstream",
+       detBasis:"none",detR:10,occ:4,cls:"CC",
+       action:"Required: QE to establish a demagnetise-and-verify step at Op 050 \u2014 demagnetiser run at release, residual field then measured with a gaussmeter against a stated acceptance limit, reading recorded on the run log and signed off. Until it is released and operating, this row keeps the no-current-detection rating. Target: 2026-Q4"},
+    ]},
   sc24:{
-    name:"SC-24 · Mitsubishi grind", note:"5 cause-based lines · WC 31943",
+    name:"SC-24 · Mitsubishi grind — cylindrical", note:"5 cause-based lines · WC 31943 · per-part dressing",
     rows:[
       {id:"GRD-1",op:"070",wc:"31943",opName:"Mitsubishi Grind",opType:"grind",machine:"mitsubishi",
        step:"Grind OD to size",req:"OD per drawing",
@@ -9856,11 +9963,11 @@ function mstDriftFields(id, ov){
    the next free slot so nothing collides with the library.
    ------------------------------------------------------------------ */
 const FT_TYPE_PREFIX = {
-  saw:["SAW"], grind:["GRD","SG"], cnc:["TRN","MILL"], receive_raw:["RCV"],
+  saw:["SAW"], grind:["GRD"], surface_grind:["SG"], cnc:["TRN","MILL"], receive_raw:["RCV"],
   vendor_return:["RCV-V","RCV"], material_validation:["XRF"], ship_away:["SHP-OUT"],
 };
 const FT_NAME_RULES = [
-  [/surface\s*grind/i,        ["SG","GRD"]],
+  [/surface\s*grind|chevalier|chevlier/i, ["SG"]],
   [/grind/i,                  ["GRD","SG"]],
   [/\bsaw\b|cut[\s-]*off/i,   ["SAW"]],
   [/hardinge|quest/i,         ["TRN"]],
@@ -10480,6 +10587,7 @@ Reply ONLY with JSON, no fences: {"sev":{"val":N,"why":"..."},"occ":{"val":N,"wh
 function mstDraftExemplars(name, step){
   const hay = ((name || "") + " " + (step || "")).toLowerCase();
   const RULES = [
+    [/surface\s*grind|chevalier|chevlier/, "surface_grind"],
     [/grind/,                          "grind"],
     [/\bsaws?\b|cut[\s-]*off/,         "saw"],
     [/hardinge|quest|lathe|turn|twister|haas|umc|\bmill/, "cnc"],
