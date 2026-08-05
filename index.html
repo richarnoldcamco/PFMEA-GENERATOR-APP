@@ -1098,14 +1098,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 203;
+const APP_REV = 204;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub" title="Load time: 0.4s total (0.1s network) — history kept in pfLoadTimes, last 100 launches">APP REV 203 · LOADED AUG 5, 6:54 PM · 0.4s · DATA: none loaded</span>
+      <span class="sub" id="navSub" title="Load time: 0.3s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 204 · LOADED AUG 5, 6:58 PM · 0.3s · DATA: none loaded</span>
     </span>
   </div>
   <script>
@@ -1190,7 +1190,7 @@ const APP_REV = 203;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 203 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 204 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1825,10 +1825,27 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
 
 /* =====================================================================
    CAMCO PFMEA BUILDER
-   APP_REV 203
+   APP_REV 204
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 204 · 2026-08-05
+     · SPLIT-DEPLOY NAG WAS THE "BLINKING SCREEN", reported on the menu.
+       The repo had app/latest.html at Rev 203 and index.html still at
+       202 - a deploy that half-landed. Every 30s ghAutoUpdateApp read
+       the app folder, saw the newer rev, called applyRemoteApp, which
+       re-checked the website, found it behind, printed the "finish the
+       deploy" notice and returned. That notice appearing and clearing
+       on the timer is what flashed.
+     · It could never heal itself: ghAutoPublishPages only pushes when
+       APP_REV is AHEAD of the published rev, and the window doing the
+       checking runs the OLD rev, so the gap stayed open indefinitely.
+     · applyRemoteApp now FINISHES the deploy when it can - staged html
+       in hand and a token present, it writes index.html itself and then
+       reloads onto the new rev. If that fails, or there is no token, it
+       says so ONCE per session rather than on every tick. _splitFixing
+       guards against overlapping timers stacking pushes.
+
    Rev 203 · 2026-08-05
      · MISMATCH BANNER GROUPS BY OPERATION, per operator: "I would
        think that I would just change the op once and all the rows
@@ -9216,6 +9233,7 @@ function appMidTask(){
    and try again forever - so in that one case the app does not reload; it
    says what is staged and waits for the deploy to be finished. Saved work
    is untouched either way - it lives in browser storage, not the page. */
+let _splitSaid = false, _splitFixing = false;
 async function applyRemoteApp(html, rev){
   let siteRev = null;
   try{
@@ -9224,8 +9242,38 @@ async function applyRemoteApp(html, rev){
     if(sr.ok){ const sm = /const APP_REV = (\d+);/.exec(await sr.text()); if(sm) siteRev = parseInt(sm[1],10); }
   }catch(e){}
   if(siteRev !== null && siteRev < revNum(rev) && /^https:/.test(location.protocol)){
-    tnSay("Rev " + revNum(rev) + " is staged in the app folder, but the website still serves Rev " + siteRev +
-      " — finish the deploy (drop the file on the box, or PUSH APP CODE) and the app will reload itself.");
+    /* Rev 204: SPLIT DEPLOY. app/latest.html is ahead of index.html, so
+       the app folder holds a rev the website does not serve. The old
+       code said so and returned - every 30s, forever, because nothing
+       else closes the gap: the auto-mirror only pushes when APP_REV is
+       ahead of the published rev, and the window doing the checking is
+       running the OLD rev. That notice flashing on the timer is what
+       read as the screen blinking. Finish the deploy instead of
+       narrating it, and say it once per session either way. */
+    if(html && ghReady() && !_splitFixing){
+      _splitFixing = true;
+      tnSay("Rev " + revNum(rev) + " is in the app folder but the website serves Rev " + siteRev +
+        " — finishing the deploy now…");
+      try{
+        await ghPut(GH_PAGES_FILE, html, "Website Rev " + revNum(rev) + " — completing a split deploy");
+        tnSay("Website is on Rev " + revNum(rev) + " now — reloading.");
+        setTimeout(() => { _splitFixing = false; applyRemoteApp(html, rev); }, 1500);
+        return;
+      }catch(e){
+        _splitFixing = false;
+        if(!_splitSaid){
+          _splitSaid = true;
+          tnSay("Rev " + revNum(rev) + " is staged in the app folder but the website serves Rev " + siteRev +
+            ", and finishing it automatically failed (" + (e.message || e) + ") — use PUSH APP CODE.");
+        }
+        return;
+      }
+    }
+    if(!_splitSaid){
+      _splitSaid = true;
+      tnSay("Rev " + revNum(rev) + " is staged in the app folder, but the website still serves Rev " + siteRev +
+        " — finish the deploy (drop the file on the box, or PUSH APP CODE) and the app will reload itself.");
+    }
     return;
   }
   const done = () => { try{ location.replace(location.pathname + "?v=" + Date.now()); }
