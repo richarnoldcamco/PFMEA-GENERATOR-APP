@@ -1098,14 +1098,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 202;
+const APP_REV = 203;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub" title="Load time: 0.4s total (0.1s network) — history kept in pfLoadTimes, last 100 launches">APP REV 202 · LOADED AUG 4, 9:23 PM · 0.4s · DATA: none loaded</span>
+      <span class="sub" id="navSub" title="Load time: 0.4s total (0.1s network) — history kept in pfLoadTimes, last 100 launches">APP REV 203 · LOADED AUG 5, 6:54 PM · 0.4s · DATA: none loaded</span>
     </span>
   </div>
   <script>
@@ -1190,7 +1190,7 @@ const APP_REV = 202;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 202 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 203 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1825,10 +1825,21 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
 
 /* =====================================================================
    CAMCO PFMEA BUILDER
-   APP_REV 202
+   APP_REV 203
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 203 · 2026-08-05
+     · MISMATCH BANNER GROUPS BY OPERATION, per operator: "I would
+       think that I would just change the op once and all the rows
+       change to the new op." Rev 201 listed a dropdown per ROW - on
+       1000237620 that was 26 dropdowns for what is really 5 decisions,
+       since every row off a standard set shares that set's op+wc pair.
+       The banner now groups on op+wc: one block per wrong operation,
+       showing the pair, a count badge, the reason, the failure-type IDs
+       it covers, and ONE "Re-point all N to\u2026" dropdown that moves
+       every row in the group together.
+
    Rev 202 · 2026-08-04
      · SURFACE GRIND GETS ITS OWN SET, per operator: "the surface
        grinder should have its own set of failure modes completely
@@ -5462,36 +5473,57 @@ function travBannerPaint(){
   const ops = (state.ops || []).filter(o => String(o.op || "").trim() || String(o.wc || "").trim());
   const optHtml = ops.map(o => '<option value="' + esc(String(o.op || "") + "|" + String(o.wc || "")) + '">'
     + esc("Op " + (o.op || "\u2014") + "  \u00b7  WC " + (o.wc || "\u2014") + "  \u00b7  " + (o.name || "")) + '</option>').join("");
+  /* Rev 203: one decision per WRONG OPERATION, not per row. Twenty-six
+     rows off the standard sets are really a handful of operations, and
+     every row sharing an op+wc pair is re-pointed by the same choice. */
+  const groups = [];
+  const seen = {};
+  bad.forEach(b => {
+    const k = b.op + "|" + b.wc;
+    if(!seen[k]){ seen[k] = {key:k, op:b.op, wc:b.wc, why:b.why, rows:[]}; groups.push(seen[k]); }
+    seen[k].rows.push(b);
+  });
   host.style.display = "";
   host.innerHTML =
       '<div style="font-weight:800;font-size:13px;margin-bottom:4px">'
-    + bad.length + ' ROW' + (bad.length === 1 ? "" : "S") + ' POINT AT AN OPERATION THAT IS NOT ON THIS PART\u2019S TRAVELLER</div>'
+    + bad.length + ' ROW' + (bad.length === 1 ? "" : "S") + ' ACROSS ' + groups.length + ' OPERATION'
+    + (groups.length === 1 ? "" : "S") + ' POINT SOMEWHERE THAT IS NOT ON THIS PART\u2019S TRAVELLER</div>'
     + '<div style="font-size:12.5px;margin-bottom:8px">These carry the op and workcenter from the standard set they came out of, not from the traveller captured for this part. '
     + 'The workcenter decides which machine facts apply \u2014 probing, dressing, program lockdown \u2014 so the ratings on these rows rest on it. '
-    + 'Re-point each row, or correct the traveller if the operation is genuinely missing from it.</div>'
-    + bad.map(b =>
-        '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:5px 0;border-top:1px solid rgba(0,0,0,.12)">'
-      +   '<span style="font-family:var(--mono);font-weight:800;font-size:12px;min-width:74px">' + esc(b.id) + '</span>'
-      +   '<span style="font-family:var(--mono);font-size:11.5px;min-width:130px">OP ' + esc(b.op || "\u2014") + ' \u00b7 WC ' + esc(b.wc || "\u2014") + '</span>'
-      +   '<span style="font-size:12px;flex:1;min-width:220px">' + esc(b.why) + '</span>'
-      +   '<select data-travfix="' + b.i + '" style="border:1px solid var(--rule-hard);padding:4px 6px;font-size:12px">'
-      +     '<option value="">Re-point to\u2026</option>' + optHtml + '</select>'
+    + 'Re-point a whole operation at once, or correct the traveller if the operation is genuinely missing from it.</div>'
+    + groups.map(g =>
+        '<div style="padding:8px 0;border-top:1px solid rgba(0,0,0,.14)">'
+      +   '<div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap">'
+      +     '<span style="font-family:var(--mono);font-weight:800;font-size:13px">OP ' + esc(g.op || "\u2014") + ' \u00b7 WC ' + esc(g.wc || "\u2014") + '</span>'
+      +     '<span style="font-family:var(--mono);font-weight:800;font-size:11px;background:#C8A24A;color:#fff;padding:1px 7px;border-radius:9px">'
+      +       g.rows.length + ' ROW' + (g.rows.length === 1 ? "" : "S") + '</span>'
+      +     '<span style="font-size:12px;flex:1;min-width:200px">' + esc(g.why) + '</span>'
+      +   '</div>'
+      +   '<div style="font-family:var(--mono);font-size:11px;color:var(--ink-2);margin:3px 0 6px">'
+      +     esc(g.rows.map(r => r.id).join("  \u00b7  ")) + '</div>'
+      +   '<select data-travgrp="' + esc(g.key) + '" style="width:100%;max-width:520px;border:1px solid var(--rule-hard);padding:5px 7px;font-size:12.5px">'
+      +     '<option value="">Re-point all ' + g.rows.length + ' to\u2026</option>' + optHtml + '</select>'
       + '</div>').join("");
-  host.querySelectorAll("[data-travfix]").forEach(sel => sel.onchange = () => {
+  host.querySelectorAll("[data-travgrp]").forEach(sel => sel.onchange = () => {
     const v = String(sel.value || "");
     if(!v) return;
-    const i = parseInt(sel.dataset.travfix, 10);
+    const g = seen[sel.dataset.travgrp];
     const parts = v.split("|");
     const hit = (state.ops || []).find(o => String(o.op || "") === parts[0] && String(o.wc || "") === parts[1]);
-    const r = state.rows[i];
-    if(!r || !hit) return;
-    r.op = hit.op || ""; r.wc = hit.wc || "";
-    if(hit.name){ r.opName = hit.name; }
+    if(!g || !hit) return;
+    g.rows.forEach(b => {
+      const r = state.rows[b.i];
+      if(!r) return;
+      r.op = hit.op || ""; r.wc = hit.wc || "";
+      if(hit.name) r.opName = hit.name;
+    });
     try{ renderGridForm(); }catch(e){}
     travBannerPaint();
-    toast((r.id || "Row") + " re-pointed to Op " + r.op + " \u00b7 WC " + r.wc + " \u2014 check the wording still matches that machine.");
+    toast(g.rows.length + " row" + (g.rows.length === 1 ? "" : "s") + " moved to Op " + (hit.op || "\u2014")
+      + " \u00b7 WC " + (hit.wc || "\u2014") + " \u2014 check the wording still matches that machine.");
   });
 }
+
 function renderGridForm(){
   let h = "";
   const pendN = Object.keys(aiPending).length;
