@@ -1098,14 +1098,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 198;
+const APP_REV = 199;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub" title="Load time: 0.2s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 198 · LOADED AUG 4, 7:42 PM · 0.2s · DATA: none loaded</span>
+      <span class="sub" id="navSub" title="Load time: 0.2s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 199 · LOADED AUG 4, 8:07 PM · 0.2s · DATA: none loaded</span>
     </span>
   </div>
   <script>
@@ -1190,7 +1190,7 @@ const APP_REV = 198;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 198 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 199 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1824,10 +1824,29 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
 
 /* =====================================================================
    CAMCO PFMEA BUILDER
-   APP_REV 198
+   APP_REV 199
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 199 · 2026-08-04
+     · EDIT BADGE ON THE FAILURE TYPE ID CELL, per operator. The Rev 198
+       switcher lived only on a header button and painted its list into
+       the panel BELOW the row, which reads as part of the row rather
+       than a decision. Now a purple EDIT badge sits in the Failure Type
+       ID cell itself - the cell the operator points at - and opens a
+       REAL POPUP over the master row: change to a different failure
+       type, or create a new one, both in one place.
+     · FAILURE TYPES ARE TIED TO A WORKCENTER, per operator. Op # and
+       WC # are now columns on the master row, so a type carries the
+       machine it happens on. The create dialog asks for WC # and will
+       not proceed without one. Save master challenges a type with an
+       empty WC before letting it into the library. The chooser shows
+       every type's WC as a chip - green when it matches the row's own
+       workcenter, grey otherwise, red NONE when a type has none - and
+       OPENS FILTERED TO THE ROW'S WORKCENTER, so the types for the
+       machine in front of the operator come first. "Show every
+       workcenter" clears it. The filter also matches on WC #.
+
    Rev 198 · 2026-08-04
      · SWITCH FAILURE TYPE, per operator: "if I edit this failure type
        then I should be able to choose a different failure type or have
@@ -9737,9 +9756,14 @@ async function ftNewType(ctx){
       : '<div style="margin-bottom:12px">'
         + '<div style="font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-2);margin-bottom:5px">OPERATION \u2014 OPTIONAL, SEEDS THE ROW AND THE SUGGESTIONS</div>'
         + '<div style="display:flex;gap:8px">'
-        + '<input id="ftOpNum" placeholder="050" style="flex:0 0 74px;border:1px solid var(--rule-hard);padding:7px 8px;font-size:13px;font-family:var(--mono)">'
+        + '<input id="ftOpNum" placeholder="050" style="flex:0 0 66px;border:1px solid var(--rule-hard);padding:7px 8px;font-size:13px;font-family:var(--mono)">'
         + '<input id="ftOpName" placeholder="Chevlier Surface Grinder" style="flex:1;border:1px solid var(--rule-hard);padding:7px 8px;font-size:13px">'
         + '</div></div>')
+    /* Rev 199: every failure type is tied to a workcenter - required. */
+    + '<div style="font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-2);margin-bottom:5px">WORKCENTER # \u2014 REQUIRED</div>'
+    + '<input id="ftWc" value="' + esc(ctx.wc || "") + '" placeholder="31943" spellcheck="false" '
+    +   'style="width:170px;border:1px solid var(--rule-hard);padding:7px 9px;font-size:14px;font-family:var(--mono);font-weight:800;letter-spacing:.05em">'
+    + '<div style="font-size:12px;color:#8A7F78;margin:5px 0 12px">A failure type belongs to the machine it happens on \u2014 the WC # is what ties it there.</div>'
     + '<div style="font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-2);margin-bottom:5px">SUGGESTED IDS \u2014 CLICK ONE</div>'
     + '<div id="ftSug" style="margin-bottom:10px">' + chips(sug) + '</div>'
     + '<div style="font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-2);margin-bottom:5px">FAILURE TYPE ID</div>'
@@ -9777,6 +9801,11 @@ async function ftNewType(ctx){
   if(!ok) return;
   const id = (($("ftIdIn")||{}).value || "").trim().toUpperCase().replace(/\s+/g,"-");
   if(!id){ toast("No ID entered \u2014 nothing created."); return; }
+  const wcv = (($("ftWc")||{}).value || "").trim();
+  if(!wcv){
+    toast("Workcenter # is required \u2014 every failure type is tied to the machine it happens on.");
+    return ftNewType(Object.assign({}, ctx, {name:ctx.name || ((($("ftOpName")||{}).value)||""), op:ctx.op || ((($("ftOpNum")||{}).value)||"")}));
+  }
   const opNum  = hasOp ? (ctx.op || "")   : ((($("ftOpNum")||{}).value  || "").trim());
   const opName = hasOp ? (ctx.name || "") : ((($("ftOpName")||{}).value || "").trim());
   const exists = !!(mstFind(id) || mstOverrides()[id]);
@@ -9786,11 +9815,13 @@ async function ftNewType(ctx){
     const td = $("mstFields").querySelector('[data-mf="' + f + '"]');
     if(td && v && !td.textContent.trim()) td.textContent = v;
   };
+  seed("wc", wcv);
+  if(opNum) seed("op", opNum);
   if(opName || opNum){
     seed("opName", opName);
     seed("step", (opNum ? "Op " + opNum + " " : "") + opName);
-    mstDirtySet();
   }
+  mstDirtySet();
   if(!exists) toast("New failure type " + id + " \u2014 fill the cells, or press AI \u00b7 HELP CREATE THIS ROW to draft them. SAVE MASTER adds it to the library.");
 }
 async function mstAdoptAll(){
@@ -10057,7 +10088,8 @@ function mstFill(src, hit){
                                : "NOT IN THE LIBRARY — SAVE MASTER ADDS IT";
   /* one horizontal row, spreadsheet-style, same columns as the sheet */
   const MCOLS = [
-    ["id","Failure Type ID",70,"mid"],["opName","Op Name",90,"mid"],["step","Process Step",120],
+    ["id","Failure Type ID",70,"mid"],["op","Op #",42,"mid"],["wc","WC #",52,"mid"],
+    ["opName","Op Name",90,"mid"],["step","Process Step",120],
     ["req","Requirements",170],["mode","Potential Failure Mode",200],["effect","Potential Effect(s) of Failure",220],
     ["sev","SEV",40,"rate"],["cause","Potential Cause(s) of Failure",220],["prev","Current Prevention Controls",220],
     ["addPrev","Additional Prevention Control Evidence",140],["occ","OCC",40,"rate"],
@@ -10073,6 +10105,24 @@ function mstFill(src, hit){
       const v = src[c[0]] == null ? "" : String(src[c[0]]);
       return `<td class="${c[3]||""}" style="${rateStyle(c[0], v)}" contenteditable="true" spellcheck="false" data-mf="${c[0]}">${esc(v)}</td>`;
     }).join("")}</tr></tbody></table>`;
+  /* Rev 199: EDIT badge in the Failure Type ID cell - the operator's
+     entry point for swapping the type or building a new one. */
+  const idTd = $("mstFields").querySelector('td[data-mf="id"]');
+  if(idTd){
+    idTd.style.position = "relative";
+    idTd.style.paddingBottom = "18px";
+    const b = document.createElement("span");
+    b.className = "qmark";
+    b.setAttribute("contenteditable", "false");
+    b.id = "mstIdEdit";
+    b.title = "Change this row to a different failure type, or create a new one";
+    b.textContent = "EDIT";
+    b.style.cssText = "position:absolute;bottom:2px;left:50%;transform:translateX(-50%);cursor:pointer;"
+      + "background:#4A3B8C;color:#fff;border-radius:7px;padding:0 7px;height:14px;line-height:14px;"
+      + "font-family:var(--mono);font-weight:800;font-size:9px;letter-spacing:.06em";
+    b.onclick = e => { e.stopPropagation(); mstSwitchOpen(); };
+    idTd.appendChild(b);
+  }
   $("mstFields").querySelectorAll("td[data-mf]").forEach(td => {
     td.addEventListener("blur", () => {
       const f = td.dataset.mf;
@@ -10397,27 +10447,50 @@ function mstSwitchRows(){
   const out = [];
   try{
     Object.keys(SETS).forEach(k => SETS[k].rows.forEach(r =>
-      out.push({id:r.id, set:SETS[k].name, op:r.op || "", opName:r.opName || "", mode:r.mode || ""})));
+      out.push({id:r.id, set:SETS[k].name, op:r.op || "", wc:r.wc || "", opName:r.opName || "", mode:r.mode || ""})));
   }catch(e){}
   try{
     const ov = mstOverrides();
     Object.keys(ov).forEach(k => {
       if(out.some(r => String(r.id).toUpperCase() === String(k).toUpperCase())) return;
-      out.push({id:k, set:"Your own rows", op:(ov[k]||{}).op || "", opName:(ov[k]||{}).opName || "", mode:(ov[k]||{}).mode || ""});
+      out.push({id:k, set:"Your own rows", op:(ov[k]||{}).op || "", wc:(ov[k]||{}).wc || "", opName:(ov[k]||{}).opName || "", mode:(ov[k]||{}).mode || ""});
     });
   }catch(e){}
   return out;
 }
+function mstSwitchClose(){
+  const el = $("mstSwitchBg");
+  if(el) el.remove();
+}
 function mstSwitchOpen(){
-  if(!_mstCtx || _mstCtx.rowIdx < 0){ toast("Open a row's failure type first."); return; }
-  const out = $("mstAiOut");
+  if(!_mstCtx){ toast("Open a failure type first."); return; }
+  const canSwitch = _mstCtx.rowIdx >= 0;
+  mstSwitchClose();
+  /* Rev 199: a real popup over the master row, not a panel below it. */
+  const bg = document.createElement("div");
+  bg.id = "mstSwitchBg";
+  bg.style.cssText = "position:fixed;inset:0;z-index:620;background:rgba(20,12,12,.72);"
+    + "display:flex;align-items:center;justify-content:center;padding:24px";
+  bg.innerHTML = '<div style="background:var(--paper,#F3EFE9);border:2px solid var(--stamp,#7C1518);border-radius:8px;'
+    + 'width:min(860px,94vw);max-height:88vh;display:flex;flex-direction:column;box-shadow:0 18px 60px rgba(0,0,0,.5)">'
+    + '<div style="background:var(--stamp,#7C1518);color:#fff;padding:9px 14px;display:flex;justify-content:space-between;align-items:center">'
+    +   '<span style="font-family:var(--mono);font-weight:800;font-size:12px;letter-spacing:.1em">CHANGE FAILURE TYPE</span>'
+    +   '<button type="button" id="mstSwitchX" style="background:#fff;color:var(--stamp,#7C1518);border:0;border-radius:4px;'
+    +     'padding:5px 14px;font-family:var(--mono);font-weight:800;font-size:11px;letter-spacing:.08em;cursor:pointer">CLOSE</button>'
+    + '</div>'
+    + '<div id="mstSwitchBody" style="padding:14px;overflow:auto"></div></div>';
+  document.body.appendChild(bg);
+  bg.addEventListener("mousedown", e => { if(e.target === bg) mstSwitchClose(); });
+  const x = $("mstSwitchX"); if(x) x.onclick = mstSwitchClose;
+  const out = $("mstSwitchBody");
   if(!out) return;
   const cur = String(_mstCtx.base || "").toUpperCase();
   const rows = mstSwitchRows();
+  const myWc = canSwitch ? String((state.rows[_mstCtx.rowIdx] || {}).wc || "").trim() : "";
   const paint = (q) => {
     const f = String(q || "").trim().toLowerCase();
     const hit = !f ? rows : rows.filter(r =>
-      (r.id + " " + r.opName + " " + r.mode + " " + r.set + " " + r.op).toLowerCase().indexOf(f) >= 0);
+      (r.id + " " + r.opName + " " + r.mode + " " + r.set + " " + r.op + " " + r.wc).toLowerCase().indexOf(f) >= 0);
     const host = $("mstSwitchList");
     if(!host) return;
     if(!hit.length){
@@ -10436,34 +10509,48 @@ function mstSwitchOpen(){
            +  ' style="display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--rule-soft);'
            +  'background:' + (isCur ? "#E6F2E9" : "#fff") + ';padding:7px 9px;cursor:' + (isCur ? "default" : "pointer") + '">'
            +  '<span style="font-family:var(--mono);font-weight:800;font-size:12px;letter-spacing:.05em">' + esc(r.id) + '</span>'
+           +  '<span style="font-family:var(--mono);font-size:10.5px;font-weight:800;margin-left:8px;padding:0 6px;border-radius:3px;'
+           +    (r.wc ? (String(r.wc) === myWc ? 'background:#1E7A34;color:#fff' : 'background:#E2DCD3;color:#3A322E')
+                      : 'background:#C00000;color:#fff') + '">WC ' + esc(r.wc || "— NONE") + '</span>'
            +  (r.op ? '<span style="font-family:var(--mono);font-size:10.5px;color:var(--ink-2);margin-left:8px">OP ' + esc(r.op) + '</span>' : "")
            +  (isCur ? '<span style="font-family:var(--mono);font-size:10px;font-weight:800;color:#1E7A34;margin-left:8px">CURRENT</span>' : "")
            +  '<div style="font-size:12px;color:#3A322E;margin-top:2px">' + esc((r.mode || r.opName || "").slice(0,150)) + '</div>'
            +  '</button>';
     });
     host.innerHTML = html;
-    host.querySelectorAll("[data-mstpick]").forEach(b => b.onclick = () => mstSwitchTo(b.dataset.mstpick));
+    host.querySelectorAll("[data-mstpick]").forEach(b => b.onclick = () => { mstSwitchClose(); mstSwitchTo(b.dataset.mstpick); });
   };
-  out.style.display = "";
   out.innerHTML =
-      '<div style="font-family:var(--mono);font-size:11px;font-weight:800;letter-spacing:.1em;margin-bottom:8px">'
-    + 'SWITCH THIS ROW TO A DIFFERENT FAILURE TYPE</div>'
-    + '<div style="font-size:12.5px;color:#3A322E;margin-bottom:10px">This row is <b>' + esc(_mstCtx.base || "")
-    + '</b>. Pick another failure type below to re-point the row at it, or create one that does not exist yet. '
-    + 'Picking only changes which type the row IS \u2014 the wording is copied in when you press '
-    + '<b>Compare &amp; apply to this row</b>, so you still see it before it lands.</div>'
-    + '<div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">'
-    +   '<button class="btn" id="mstSwitchNew" style="background:#1E7A34;border-color:#124A1F;color:#fff">+ Create a new failure type</button>'
-    +   '<input id="mstSwitchQ" placeholder="Filter \u2014 id, op name, failure mode\u2026" '
-    +     'style="flex:1;min-width:220px;border:1px solid var(--rule-hard);padding:7px 9px;font-size:13px">'
+      '<div style="font-size:12.5px;color:#3A322E;margin-bottom:10px">'
+    + (canSwitch
+        ? 'This row is <b>' + esc(_mstCtx.base || "") + '</b>'
+          + (myWc ? ' on <b>WC ' + esc(myWc) + '</b>' : "")
+          + '. Pick another failure type to re-point the row at it, or create one that does not exist yet. '
+          + 'Picking only changes which type the row IS \u2014 the wording is copied in when you press '
+          + '<b>Compare &amp; apply to this row</b>, so you still see it before it lands.'
+        : 'You opened <b>' + esc(_mstCtx.base || "") + '</b> from the Master Table, so there is no PFMEA row to re-point. '
+          + 'You can still create a new failure type here.')
     + '</div>'
-    + '<div id="mstSwitchList" style="max-height:340px;overflow:auto;border:1px solid var(--rule-hard);background:#fff"></div>';
-  paint("");
-  const q = $("mstSwitchQ");
-  if(q){ q.addEventListener("input", () => paint(q.value)); q.focus(); }
+    + '<div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center">'
+    +   '<button class="btn" id="mstSwitchNew" style="background:#1E7A34;border-color:#124A1F;color:#fff">+ Create a new failure type</button>'
+    +   (canSwitch ? '<input id="mstSwitchQ" placeholder="Filter \u2014 WC #, id, op name, failure mode\u2026" '
+    +     'style="flex:1;min-width:220px;border:1px solid var(--rule-hard);padding:7px 9px;font-size:13px">'
+    +     (myWc ? '<button class="btn" id="mstSwitchAll">Show every workcenter</button>' : "") : "")
+    + '</div>'
+    + (canSwitch ? '<div id="mstSwitchList" style="max-height:340px;overflow:auto;border:1px solid var(--rule-hard);background:#fff"></div>' : "");
+  if(canSwitch){
+    /* default view is THIS workcenter - a failure type belongs to a WC,
+       so the types for the machine in front of the operator come first. */
+    paint(myWc || "");
+    const q = $("mstSwitchQ");
+    if(q){ q.value = myWc || ""; q.addEventListener("input", () => paint(q.value)); q.focus(); }
+    const all = $("mstSwitchAll");
+    if(all) all.onclick = () => { const e2 = $("mstSwitchQ"); if(e2) e2.value = ""; paint(""); };
+  }
   const nb = $("mstSwitchNew");
   if(nb) nb.onclick = () => {
-    const o = (state.rows[_mstCtx.rowIdx] || {});
+    const o = canSwitch ? (state.rows[_mstCtx.rowIdx] || {}) : {};
+    mstSwitchClose();
     ftNewType({op:o.op, wc:o.wc, name:o.opName || o.step, type:o.opType});
   };
 }
@@ -10808,6 +10895,17 @@ $("mstClose").onclick = () => {
    The question is asked up front when the screen was entered from a row. */
 let _mstScopeAnswered = false;
 $("mstSave").onclick = async () => {
+  /* Rev 199: a failure type with no workcenter is not tied to a machine. */
+  const wcCell = $("mstFields") && $("mstFields").querySelector('td[data-mf="wc"]');
+  if(wcCell && !String(wcCell.textContent || "").trim()){
+    const go = await appConfirm({
+      icon:"⚠", title:"No workcenter on this failure type",
+      html:"Every failure type is tied to the workcenter it happens on, and <b>" + esc(_mstCtx.base || "this row")
+        + "</b> has an empty <b>WC #</b>.<br><br>Fill it in so the type can be found by machine, or save it anyway and add the workcenter later.",
+      okText:"Save anyway", cancelText:"Go back and fill it in",
+    });
+    if(!go) return;
+  }
   _mstScopeAnswered = false;
   if(_mstCtx.rowIdx >= 0 && !_mstSkipProp){
     const rowOnly = !(await appConfirm({
