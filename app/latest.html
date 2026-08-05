@@ -1098,14 +1098,14 @@ td.txt .eff{color:var(--ink-3);font-size:11px;display:block;margin-top:2px}
 /* APP_REV lives here, ahead of the 8.5MB main script, so the header can
    show the running rev the instant the nav paints instead of sitting on
    static fallback text for the second or two the big script takes to parse. */
-const APP_REV = 199;
+const APP_REV = 201;
 </script>
 <nav>
   <div class="brand">
     <span class="badge">PF</span>
     <span>
       <span class="nm">CAMCO PFMEA Builder</span><br>
-      <span class="sub" id="navSub" title="Load time: 0.2s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 199 · LOADED AUG 4, 8:07 PM · 0.2s · DATA: none loaded</span>
+      <span class="sub" id="navSub" title="Load time: 0.2s total (0.0s network) — history kept in pfLoadTimes, last 100 launches">APP REV 201 · LOADED AUG 4, 9:16 PM · 0.2s · DATA: none loaded</span>
     </span>
   </div>
   <script>
@@ -1190,7 +1190,7 @@ const APP_REV = 199;
       <span class="td">Conventions, action triggers, detection caps, and the current-state process facts</span>
     </button>
 
-    <div class="foot" id="menuFoot">App Rev 199 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
+    <div class="foot" id="menuFoot">App Rev 201 · Ruleset Rev 97 · runs offline; AI traveller reading is gated</div>
   </div>
 </section>
 
@@ -1634,6 +1634,7 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
 </div>
 
 <main>
+  <div id="travWarn" style="display:none;background:#FFF6E0;border:1px solid #C8A24A;border-left:5px solid #C8A24A;padding:9px 12px;margin:0 0 10px"></div>
   <div class="grid-wrap"><div id="grid"><div class="empty"><b>NO ROWS</b>
       Add a row, or drop in a mandated failure-mode set.<br>
       Standard sets arrive pre-rated and pre-worded against Rev 97.</div></div></div>
@@ -1824,10 +1825,52 @@ at row 6. Both export paths work; pick one in the part strip on the Build screen
 
 /* =====================================================================
    CAMCO PFMEA BUILDER
-   APP_REV 199
+   APP_REV 201
    =====================================================================
    CHANGE_LOG — most recent first. READ THIS BEFORE READING CODE.
    ---------------------------------------------------------------------
+   Rev 201 · 2026-08-04
+     · TRAVELLER MISMATCH GUARD, found by the operator on 1000237620:
+       the SC-24 grind rows sat at Op 070 / WC 31943 - the Mitsubishi,
+       which is what those library rows were written against - while
+       this part's traveller grinds at Op 050 / WC 25583 on the
+       Chevlier. Nothing compared a row's op and workcenter against the
+       traveller captured for the part, so an entire operation could
+       live in a PFMEA for a machine the part never visits. That is not
+       cosmetic: the workcenter selects which Section 3 machine facts
+       apply - probing, per-part dressing, program lockdown - so every
+       Occ and Det on the row rests on it.
+     · travMismatches() compares each row's op+wc pair against
+       state.ops and reports what is actually wrong: workcenter not on
+       the traveller at all, op present but on a different workcenter,
+       or op missing entirely. A banner above the grid lists each
+       offending row with a "Re-point to\u2026" dropdown of the real
+       traveller operations; picking one rewrites the row's op, wc and
+       op name and re-checks. The check stays silent when no traveller
+       has been captured, and ignores rows with no op or wc stamped.
+
+   Rev 200 · 2026-08-04
+     · DEPLOY TAKES ONE UPLOAD, NOT THREE, per operator: "it's taking
+       several minutes to upload the data." Root cause, not a tweak: the
+       deployer pushed the SAME ~850KB file three times through the
+       Contents API (app/PF-RevNNN.html, app/latest.html, index.html),
+       each a separate commit on the same branch. Base64 inflates each to
+       ~1.15MB, so ~3.5MB went up per deploy - and because GitHub's view
+       of a file lags a few seconds behind a write, pushes two and three
+       routinely answered 409 and dropped into the 4s/8s/15s/25s wait
+       ladder. Two collisions and a deploy ran into minutes.
+     · ghCommitFiles() now does it as ONE Git Data transaction: upload
+       the blob ONCE, build a tree where all three paths point at that
+       same blob sha, create one commit, move the branch ref. One upload
+       instead of three, one commit instead of three, and no per-file sha
+       that can go stale - so the 409 ladder cannot trigger at all. If
+       another window pushes mid-flight the ref update is rejected
+       cleanly and it rebases and retries, up to three times.
+     · The old file-by-file path is kept as a fallback and runs only if
+       the Git Data API errors, so a token or repo that cannot use it
+       still deploys. The deploy now reports its elapsed time, so the
+       operator can see what it actually cost.
+
    Rev 199 · 2026-08-04
      · EDIT BADGE ON THE FAILURE TYPE ID CELL, per operator. The Rev 198
        switcher lived only on a header button and painted its list into
@@ -5266,6 +5309,82 @@ function stepQuarter(txt, delta){
   return y + "-Q" + q;
 }
 
+/* ------------------------------------------------------------------
+   Rev 201 - TRAVELLER MISMATCH GUARD.
+   Found by the operator on 1000237620: the SC-24 grind rows landed at
+   Op 070 / WC 31943 (the Mitsubishi, from the library baseline) when
+   this part's traveller grinds at Op 050 / WC 25583 on the Chevlier.
+   Standard-set rows carry the op and workcenter they were WRITTEN with,
+   and nothing checked them against the traveller actually captured for
+   the part - so a whole operation could sit in a PFMEA for a machine
+   the part never visits. Wrong workcenter is not cosmetic: it drives
+   the machine facts (Section 3), the Occurrence credits and the
+   detection chain, so every rating on the row rests on it.
+   ------------------------------------------------------------------ */
+function travMismatches(){
+  const ops = (state.ops || []).filter(o => String(o.op || "").trim() || String(o.wc || "").trim());
+  if(!ops.length) return [];          /* no traveller captured - nothing to check against */
+  const key = o => String(o.op || "").trim() + "|" + String(o.wc || "").trim();
+  const opSet = {}, wcSet = {}, byOp = {};
+  ops.forEach(o => {
+    opSet[key(o)] = 1;
+    if(String(o.wc || "").trim()) wcSet[String(o.wc).trim()] = 1;
+    if(String(o.op || "").trim()) byOp[String(o.op).trim()] = o;
+  });
+  const out = [];
+  (state.rows || []).forEach((r, i) => {
+    const rop = String(r.op || "").trim(), rwc = String(r.wc || "").trim();
+    if(!rop && !rwc) return;           /* unstamped row - not this check's business */
+    if(opSet[rop + "|" + rwc]) return; /* exact op+wc pair is on the traveller */
+    out.push({
+      i, id: r.id || "", op: rop, wc: rwc,
+      why: !wcSet[rwc] && rwc
+        ? "WC " + rwc + " is not on this part's traveller at all"
+        : (byOp[rop]
+            ? "Op " + rop + " on the traveller is WC " + (byOp[rop].wc || "\u2014") + ", not " + (rwc || "\u2014")
+            : "Op " + (rop || "\u2014") + " is not on this part's traveller"),
+    });
+  });
+  return out;
+}
+function travBannerPaint(){
+  const host = $("travWarn");
+  if(!host) return;
+  const bad = travMismatches();
+  if(!bad.length){ host.style.display = "none"; host.innerHTML = ""; return; }
+  const ops = (state.ops || []).filter(o => String(o.op || "").trim() || String(o.wc || "").trim());
+  const optHtml = ops.map(o => '<option value="' + esc(String(o.op || "") + "|" + String(o.wc || "")) + '">'
+    + esc("Op " + (o.op || "\u2014") + "  \u00b7  WC " + (o.wc || "\u2014") + "  \u00b7  " + (o.name || "")) + '</option>').join("");
+  host.style.display = "";
+  host.innerHTML =
+      '<div style="font-weight:800;font-size:13px;margin-bottom:4px">'
+    + bad.length + ' ROW' + (bad.length === 1 ? "" : "S") + ' POINT AT AN OPERATION THAT IS NOT ON THIS PART\u2019S TRAVELLER</div>'
+    + '<div style="font-size:12.5px;margin-bottom:8px">These carry the op and workcenter from the standard set they came out of, not from the traveller captured for this part. '
+    + 'The workcenter decides which machine facts apply \u2014 probing, dressing, program lockdown \u2014 so the ratings on these rows rest on it. '
+    + 'Re-point each row, or correct the traveller if the operation is genuinely missing from it.</div>'
+    + bad.map(b =>
+        '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:5px 0;border-top:1px solid rgba(0,0,0,.12)">'
+      +   '<span style="font-family:var(--mono);font-weight:800;font-size:12px;min-width:74px">' + esc(b.id) + '</span>'
+      +   '<span style="font-family:var(--mono);font-size:11.5px;min-width:130px">OP ' + esc(b.op || "\u2014") + ' \u00b7 WC ' + esc(b.wc || "\u2014") + '</span>'
+      +   '<span style="font-size:12px;flex:1;min-width:220px">' + esc(b.why) + '</span>'
+      +   '<select data-travfix="' + b.i + '" style="border:1px solid var(--rule-hard);padding:4px 6px;font-size:12px">'
+      +     '<option value="">Re-point to\u2026</option>' + optHtml + '</select>'
+      + '</div>').join("");
+  host.querySelectorAll("[data-travfix]").forEach(sel => sel.onchange = () => {
+    const v = String(sel.value || "");
+    if(!v) return;
+    const i = parseInt(sel.dataset.travfix, 10);
+    const parts = v.split("|");
+    const hit = (state.ops || []).find(o => String(o.op || "") === parts[0] && String(o.wc || "") === parts[1]);
+    const r = state.rows[i];
+    if(!r || !hit) return;
+    r.op = hit.op || ""; r.wc = hit.wc || "";
+    if(hit.name){ r.opName = hit.name; }
+    try{ renderGridForm(); }catch(e){}
+    travBannerPaint();
+    toast((r.id || "Row") + " re-pointed to Op " + r.op + " \u00b7 WC " + r.wc + " \u2014 check the wording still matches that machine.");
+  });
+}
 function renderGridForm(){
   let h = "";
   const pendN = Object.keys(aiPending).length;
@@ -5358,6 +5477,7 @@ function renderGridForm(){
     pend[td.dataset.aif] =
       (clone.innerText !== undefined && clone.innerText !== "" ? clone.innerText : clone.textContent).replace(/\u00A0/g," ").trim();
   }));
+  try{ travBannerPaint(); }catch(e){}
   const rerender = () => { const sl = g.scrollLeft, st2 = g.scrollTop; renderGridForm(); renderRail(); g.scrollLeft = sl; g.scrollTop = st2; };
   g.querySelectorAll("[data-cok]").forEach(b => { b.addEventListener("mousedown", e => e.preventDefault());
     b.onclick = e => { e.stopPropagation();
@@ -8625,14 +8745,73 @@ async function deployRevFile(file, auto){
       }
     }
   };
+  const t0 = Date.now();
+  const secs = () => ((Date.now() - t0) / 1000).toFixed(1) + "s";
   try{
     say("Deploying Rev " + rev + "…");
-    await putR(GH_APP_FILE_APPDIR(rev), "App Rev " + rev + " via deploy drop");
-    await putR("app/latest.html", "App latest -> Rev " + rev);
-    await putR(GH_PAGES_FILE, "Website Rev " + rev + " via deploy drop");
-    say("Deployed Rev " + rev + " — pinned copies update within a minute.");
-    toast("Rev " + rev + " is live. This window will pick it up on its next check.");
+    const three = [GH_APP_FILE_APPDIR(rev), "app/latest.html", GH_PAGES_FILE];
+    try{
+      /* Rev 200: one blob, one commit, all three paths. */
+      await ghCommitFiles(three, text, "App Rev " + rev + " — app dir, latest and website in one commit", say);
+      ghWriteNote();
+    }catch(fast){
+      /* any repo/token that cannot use the Git Data API still deploys */
+      say("One-commit deploy unavailable (" + (fast.message || fast) + ") — falling back to the file-by-file path…");
+      await putR(three[0], "App Rev " + rev + " via deploy drop");
+      await putR(three[1], "App latest -> Rev " + rev);
+      await putR(three[2], "Website Rev " + rev + " via deploy drop");
+    }
+    say("Deployed Rev " + rev + " in " + secs() + " — pinned copies update within a minute.");
+    toast("Rev " + rev + " is live (" + secs() + "). This window will pick it up on its next check.");
   }catch(e){ say(String(e.message || e), true); }
+}
+/* ------------------------------------------------------------------
+   Rev 200 - ONE COMMIT INSTEAD OF THREE UPLOADS.
+   The old deploy pushed the same ~850KB file three times through the
+   Contents API - app/PF-RevNNN.html, app/latest.html, index.html - each
+   its own commit on the same branch. Base64 makes each upload ~1.15MB,
+   so that was ~3.5MB on the wire; worse, GitHub's view of a file lags a
+   few seconds after a write, so writes two and three routinely answered
+   409 and fell into the 4s/8s/15s/25s wait ladder. Two collisions and
+   the deploy took minutes.
+   The Git Data API does the whole thing as ONE transaction:
+     blob (uploaded ONCE, all three paths point at the same sha)
+     -> tree (on top of the current tree) -> commit -> ref update.
+   One upload, one commit, no per-file sha to go stale, no 409 ladder.
+   Falls back to the old three-PUT path if anything here fails, so a
+   repo or token that cannot use Git Data still deploys.
+   ------------------------------------------------------------------ */
+async function ghCommitFiles(paths, text, message, say){
+  const repo = codeRepo();
+  const branch = settings.ghBranch || "main";
+  const j = (x) => { if(x && x.missing) throw new Error("Not found: " + JSON.stringify(x)); return x; };
+  for(let attempt = 0; attempt < 3; attempt++){
+    /* the ref moves if another window pushes mid-flight: re-read and redo */
+    const ref = j(await ghFetch("/git/ref/heads/" + encodeURIComponent(branch), null, repo));
+    const headSha = ref.object && ref.object.sha;
+    if(!headSha) throw new Error("No branch head for " + branch);
+    const head = j(await ghFetch("/git/commits/" + headSha, null, repo));
+    const baseTree = head.tree && head.tree.sha;
+    if(say && attempt === 0) say("Uploading once for all " + paths.length + " paths\u2026");
+    const blob = j(await ghFetch("/git/blobs", {method:"POST", body: JSON.stringify(
+      {content: b64enc(text), encoding: "base64"})}, repo));
+    if(!blob.sha) throw new Error("Blob upload failed");
+    if(say) say("Building the commit\u2026");
+    const tree = j(await ghFetch("/git/trees", {method:"POST", body: JSON.stringify({
+      base_tree: baseTree,
+      tree: paths.map(pth => ({path: pth, mode:"100644", type:"blob", sha: blob.sha})),
+    })}, repo));
+    if(!tree.sha) throw new Error("Tree build failed");
+    const commit = j(await ghFetch("/git/commits", {method:"POST", body: JSON.stringify({
+      message: message, tree: tree.sha, parents: [headSha],
+    })}, repo));
+    if(!commit.sha) throw new Error("Commit failed");
+    const upd = await ghFetch("/git/refs/heads/" + encodeURIComponent(branch),
+      {method:"PATCH", body: JSON.stringify({sha: commit.sha, force: false})}, repo);
+    if(upd && upd.object && upd.object.sha) return commit.sha;
+    if(attempt === 2) throw new Error("Branch moved while deploying \u2014 try once more.");
+    if(say) say("Another push landed first \u2014 rebasing and retrying\u2026");
+  }
 }
 function GH_APP_FILE_APPDIR(rev){ return "app/PF-Rev" + String(rev).padStart(3,"0") + ".html"; }
 
